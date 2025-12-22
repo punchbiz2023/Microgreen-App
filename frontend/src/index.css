@@ -1,0 +1,117 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+@layer utilities {
+  .animate-seed-phase {
+    animation: seed 3s infinite;
+  }
+
+  .animate-sprout-phase {
+    animation: sprout 3s infinite;
+  }
+
+  .animate-plant-phase {
+    animation: plant 3s infinite;
+  }
+}
+
+@keyframes seed {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  10% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  30% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  35% {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes sprout {
+
+  0%,
+  30% {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+
+  40% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+
+  60% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  65% {
+    opacity: 0;
+    transform: scale(1.2);
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes plant {
+
+  0%,
+  60% {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  70% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* Pop */
+  80% {
+    transform: scale(1.1) rotate(5deg);
+  }
+
+  90% {
+    transform: scale(1) rotate(-5deg);
+  }
+
+  95% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
