@@ -4,13 +4,52 @@ Initialize seed catalog from CSV dataset
 
 import csv
 import os
+import json
 from sqlalchemy.orm import Session
-from app.models import Seed, User
+from sqlalchemy import text
+from app.models import Seed, User, Crop, DailyLog, Harvest, TrainingData
 from app.database import SessionLocal, init_db
 
 # Path to the CSV file - adjust relative path as needed
 # Assuming script is run from backend/ directory or root
-CSV_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'mpseeds_dataset_complete.csv')
+CSV_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), '33_microgreens_full-1.csv')
+
+def parse_range_avg(value_str):
+    """Parse '3-4' to 3.5, or '10' to 10.0"""
+    if not value_str or str(value_str).strip() == '': return 0.0
+    try:
+        import re
+        nums = [float(x) for x in re.findall(r"[\d\.]+", str(value_str))]
+        if not nums: return 0.0
+        return sum(nums) / len(nums)
+    except:
+        return 0.0
+
+def clean_slug(text):
+    if not text: return "unknown"
+    return text.lower().strip().replace(' ', '-').replace('/', '-').replace(',', '').replace('"', '').replace('(', '').replace(')', '')
+
+def wipe_database(db: Session):
+    """Hard reset of all data except admin user"""
+    print("WARNING: Wiping all data...")
+    
+    # Delete children first
+    db.query(TrainingData).delete()
+    db.query(Harvest).delete()
+    db.query(DailyLog).delete()
+    
+    # Delete crops
+    db.query(Crop).delete()
+    
+    # Delete all seeds
+    db.query(Seed).delete()
+    
+    # Delete non-admin users
+    # We will keep ANY admin user, delete others.
+    db.query(User).filter(User.role != 'admin').delete()
+    
+    db.commit()
+    print("Database wiped (Admins preserved).")
 
 def init_seeds(db: Session):
     """Initialize seed catalog from CSV"""
@@ -20,92 +59,105 @@ def init_seeds(db: Session):
         print(f"Error: CSV file not found at {CSV_PATH}")
         return
 
-    # Clear existing seeds (optional, but good for idempotent runs with fresh data)
-    # db.query(Seed).delete()
-    # db.commit()
+    # Wipe Data
+    wipe_database(db)
     
     added_count = 0
-    updated_count = 0
     
-    with open(CSV_PATH, 'r', encoding='utf-8') as f:
+    # Try reading with appropriate encoding
+    encoding = 'utf-8'
+    try:
+        with open(CSV_PATH, 'r', encoding=encoding) as f:
+            f.read(100)
+    except:
+        encoding = 'latin1'
+        
+    print(f"Reading CSV with encoding: {encoding}")
+
+    with open(CSV_PATH, 'r', encoding=encoding) as f:
         reader = csv.DictReader(f)
         
         for row in reader:
-            variety_name = row.get('variety', '').strip()
-            if not variety_name:
+            # Check for required fields to avoid empty rows
+            crop_name = row.get('Crop', '').strip()
+            if not crop_name:
                 continue
                 
-            seed_type_slug = variety_name.lower().replace(' ', '-').replace(',', '').replace('"', '')
+            seed_type_slug = clean_slug(crop_name)
             
-            # Check if exists
-            existing = db.query(Seed).filter(Seed.seed_type == seed_type_slug).first()
+            # Map Fields
             
-            def parse_range_avg(value_str):
-                """Parse '3-4' to 3.5, or '10' to 10.0"""
-                if not value_str: return None
-                try:
-                    import re
-                    nums = [float(x) for x in re.findall(r"[\d\.]+", str(value_str))]
-                    if not nums: return None
-                    return sum(nums) / len(nums)
-                except:
-                    return None
-
-            # Parse numeric fields
-            blackout_days_val = parse_range_avg(row.get('blackout_time_days'))
-            germination_days_val = parse_range_avg(row.get('germination_days'))
-            harvest_days_val = parse_range_avg(row.get('growth_period_days'))
+            # Times
+            soak_time_raw = row.get('Soaking Time', '')
+            sprout_time_raw = row.get('Sprout Time', '')
+            growth_time_raw = row.get('Growth Time (Days)', '')
             
-            # Parse soaking (e.g., "Yes, 8-12 hours" -> 10.0)
-            soaking_str = row.get('soaking', '')
-            soaking_hours_val = parse_range_avg(soaking_str) if 'hour' in str(soaking_str).lower() else None
+            soak_hours = parse_range_avg(soak_time_raw) if 'hour' in str(soak_time_raw).lower() else 0.0
+            
+            germination_days = parse_range_avg(sprout_time_raw)
+            harvest_days = parse_range_avg(growth_time_raw)
+            blackout_days = max(0, germination_days - 1) # Estimation if not provided
+            
+            # Weights
+            seed_weight_raw = row.get('Seed Weight (gm)', '0')
+            harvest_weight_raw = row.get('Harvest Weight (gm)', '0')
+            
+            seed_weight_g = parse_range_avg(seed_weight_raw)
+            harvest_weight_g = parse_range_avg(harvest_weight_raw)
+            
+            # Rich Data
+            links = []
+            if row.get('Link 1'): links.append({"url": row.get('Link 1'), "desc": row.get('Link 1 Description', 'Link 1')})
+            if row.get('Link 2'): links.append({"url": row.get('Link 2'), "desc": row.get('Link 2 Description', 'Link 2')})
+            if row.get('Link 3'): links.append({"url": row.get('Link 3'), "desc": row.get('Link 3 Description', 'Link 3')})
             
             seed_data = {
                 'seed_type': seed_type_slug,
-                'name': variety_name,
-                'latin_name': row.get('latin_name', ''),
-                'difficulty': row.get('difficulty_level', 'Medium'),
+                'name': crop_name,
+                'latin_name': '', # Not in new CSV
+                'difficulty': 'Medium', # Default
                 
-                # New Numeric Fields
-                'seed_count_per_gram': row.get('seed_count_per_gram'),
-                'sow_density': row.get('sow_density_10x20_tray_g'),
-                'soaking_duration_hours': soaking_hours_val,
-                'blackout_time_days': blackout_days_val,
-                'germination_days': germination_days_val,
-                'harvest_days': harvest_days_val,
+                # New Fields
+                'suggested_seed_weight': seed_weight_g,
+                'avg_yield_grams': int(harvest_weight_g) if harvest_weight_g else 500,
                 
-                # Textual kept for display
-                'soaking_req': row.get('soaking'),
-                'watering_req': row.get('watering'),
+                'soaking_duration_hours': soak_hours,
+                'germination_days': germination_days,
+                'harvest_days': harvest_days,
+                'blackout_time_days': blackout_days,
+                
+                # Textual
+                'soaking_req': soak_time_raw,
+                'watering_req': 'Regular', # Default
                 
                 # Metadata
-                'taste': row.get('taste'),
-                'nutrition': row.get('nutrition_benefits'),
-                'source_url': row.get('source_url'),
-                'description': f"A {row.get('difficulty_level', 'standard')} microgreen. {row.get('taste', '')}.",
-                'care_instructions': f"Blackout: {row.get('blackout_time_days')} days. Harvest: {row.get('growth_period_days')} days. Soak: {row.get('soaking')}.",
+                'nutrition': row.get('Nutritional Benefits', ''),
+                'pros': row.get('Suitable For (Pros)', ''),
+                'cons': row.get('Not Suitable For (Cons)', ''),
+                'external_links': links, # Store as JSON list
                 
-                # Defaults for numeric fields
-                'avg_yield_grams': 500, # Default estimate
+                'description': f"A variety of {crop_name}. Known for: {row.get('Nutritional Benefits', '')[:100]}...",
+                'care_instructions': f"Suggested soaking: {soak_time_raw}. Sprout time: {sprout_time_raw}. Growth time: {growth_time_raw}.",
+                
+                # Defaults
                 'ideal_temp': 22.0,
                 'ideal_humidity': 50.0,
                 'temp_tolerance': 3.0,
                 'humidity_tolerance': 10.0,
             }
             
-            if existing:
-                # Update existing
-                for key, value in seed_data.items():
-                    setattr(existing, key, value)
-                updated_count += 1
-            else:
-                # Create new
+            try:
                 seed = Seed(**seed_data)
                 db.add(seed)
+                db.flush() # Try flushing to catch error immediately
                 added_count += 1
+            except Exception as e:
+                print(f"FAILED to add row {row.get('S.No')}: {crop_name}")
+                print(f"Error: {e}")
+                db.rollback() # Skip this bad row
                 
     db.commit()
-    print(f"Seed Import Complete: {added_count} added, {updated_count} updated.")
+    print(f"Seed Import Complete: {added_count} seeds added.")
 
 
 def create_default_user(db: Session):
@@ -120,13 +172,18 @@ def create_default_user(db: Session):
 
     existing_user = db.query(User).filter(User.username == 'default').first()
     if existing_user:
-        # Ensure it has a password hash and role if missing (migration-like)
         if not existing_user.hashed_password:
              existing_user.hashed_password = get_password_hash("secret")
-             existing_user.role = "admin" # Default user is admin
+             existing_user.role = "admin" 
              db.commit()
         return existing_user
     
+    # Try finding ANY admin
+    any_admin = db.query(User).filter(User.role == 'admin').first()
+    if any_admin:
+        print(f"Admin user found: {any_admin.username}")
+        return any_admin
+
     user = User(
         username='default',
         email='user@microgreens.app',
@@ -142,7 +199,7 @@ def create_default_user(db: Session):
 if __name__ == '__main__':
     # Initialize database tables
     try:
-        init_db()  # This might fail if alembic is used, but for now we rely on simple create_all
+        init_db()  
     except Exception as e:
         print(f"Warning during init_db: {e}")
     
@@ -150,7 +207,7 @@ if __name__ == '__main__':
     db = SessionLocal()
     
     try:
-        # Initialize seeds
+        # Initialize seeds (wipes data)
         init_seeds(db)
         
         # Create default user

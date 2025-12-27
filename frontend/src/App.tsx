@@ -12,6 +12,8 @@ import Header from './components/Header';
 import { AuthProvider } from './contexts/AuthContext';
 import Login from './pages/Login';
 import Register from './pages/Register'; // We'll create this next
+import AdminDashboard from './pages/AdminDashboard';
+import AdminLogin from './pages/AdminLogin';
 
 function App() {
   return (
@@ -29,6 +31,8 @@ function App() {
             <Route path="/dashboard/:cropId" element={<Dashboard />} />
             <Route path="/log/:cropId/:day" element={<DailyLog />} />
             <Route path="/harvest/:cropId" element={<Harvest />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
           </Routes>
         </div>
       </Router>

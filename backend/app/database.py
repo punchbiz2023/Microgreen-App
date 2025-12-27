@@ -13,7 +13,7 @@ load_dotenv()
 # Database URL from environment or default to SQLite for development
 DATABASE_URL = os.getenv(
     'DATABASE_URL',
-    'sqlite:///./microgreens.db'  # For development/testing
+    'sqlite:///./microgreens_v2.db'  # For development/testing -> v2 for schema update
 )
 
 # For PostgreSQL in production:

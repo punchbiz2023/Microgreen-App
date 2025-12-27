@@ -259,11 +259,14 @@ export default function DailyLog() {
 
               {photoPreview ? (
                 <div className="relative">
-                  <img
+                  {/* <img
                     src={photoPreview}
                     alt="Preview"
                     className="w-full rounded-lg shadow-md"
-                  />
+                  /> */}
+                  <div className="w-full h-48 bg-gray-100 flex items-center justify-center rounded-lg text-gray-500">
+                    Image Selected (Hidden)
+                  </div>
                   <button
                     type="button"
                     onClick={() => {

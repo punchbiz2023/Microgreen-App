@@ -29,7 +29,7 @@ export default function HistoryPopup({ log, phase, onClose }: HistoryPopupProps)
             <X className="w-6 h-6" />
           </button>
         </div>
-        
+
         <div className="p-6 space-y-6">
           {/* Time Logged */}
           <div className="bg-gray-50 rounded-lg p-4">
@@ -40,7 +40,7 @@ export default function HistoryPopup({ log, phase, onClose }: HistoryPopupProps)
               {format(new Date(log.logged_at), 'MMM dd, yyyy hh:mm a')}
             </div>
           </div>
-          
+
           {/* Environmental Data */}
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-orange-50 rounded-lg p-4 border-2 border-orange-200">
@@ -52,7 +52,7 @@ export default function HistoryPopup({ log, phase, onClose }: HistoryPopupProps)
                 {log.temperature}°C
               </div>
             </div>
-            
+
             <div className="bg-blue-50 rounded-lg p-4 border-2 border-blue-200">
               <div className="flex items-center mb-2">
                 <CloudRain className="w-5 h-5 text-blue-600 mr-2" />
@@ -63,13 +63,12 @@ export default function HistoryPopup({ log, phase, onClose }: HistoryPopupProps)
               </div>
             </div>
           </div>
-          
+
           {/* Watering Status */}
-          <div className={`rounded-lg p-4 border-2 ${
-            log.watered 
-              ? 'bg-green-50 border-green-200' 
+          <div className={`rounded-lg p-4 border-2 ${log.watered
+              ? 'bg-green-50 border-green-200'
               : 'bg-red-50 border-red-200'
-          }`}>
+            }`}>
             <div className="flex items-center">
               {log.watered ? (
                 <CheckCircle className="w-6 h-6 text-green-600 mr-3" />
@@ -80,29 +79,32 @@ export default function HistoryPopup({ log, phase, onClose }: HistoryPopupProps)
                 <div className="font-semibold text-gray-900">
                   {log.watered ? 'Plant Watered' : 'Watering Missed'}
                 </div>
-                <div className={`text-sm ${
-                  log.watered ? 'text-green-700' : 'text-red-700'
-                }`}>
+                <div className={`text-sm ${log.watered ? 'text-green-700' : 'text-red-700'
+                  }`}>
                   {log.watered ? 'Good job!' : 'This may affect yield'}
                 </div>
               </div>
             </div>
           </div>
-          
+
           {/* Photo */}
           {log.photo_path && (
             <div>
               <div className="text-sm font-medium text-gray-700 mb-2">
                 Photo
               </div>
-              <img
+              {/* Image hidden requested by user */}
+              {/* <img
                 src={`http://localhost:8000${log.photo_path}`}
                 alt={`Day ${log.day_number}`}
                 className="w-full rounded-lg shadow-md"
-              />
+              /> */}
+              <div className="p-4 bg-gray-100 rounded text-center text-gray-500">
+                Image Hidden
+              </div>
             </div>
           )}
-          
+
           {/* Notes */}
           {log.notes && (
             <div>
@@ -114,7 +116,7 @@ export default function HistoryPopup({ log, phase, onClose }: HistoryPopupProps)
               </div>
             </div>
           )}
-          
+
           {/* Predicted Yield */}
           {log.predicted_yield && (
             <div className="bg-purple-50 rounded-lg p-4 border-2 border-purple-200">
@@ -126,7 +128,7 @@ export default function HistoryPopup({ log, phase, onClose }: HistoryPopupProps)
               </div>
             </div>
           )}
-          
+
           {/* AI Assessment */}
           <div className="bg-blue-50 rounded-lg p-4 border-2 border-blue-200">
             <div className="font-semibold text-blue-900 mb-2">
@@ -137,7 +139,7 @@ export default function HistoryPopup({ log, phase, onClose }: HistoryPopupProps)
             </div>
           </div>
         </div>
-        
+
         {/* Close Button */}
         <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4">
           <button
@@ -154,26 +156,26 @@ export default function HistoryPopup({ log, phase, onClose }: HistoryPopupProps)
 
 function getAssessment(log: DailyLog): string {
   const issues = [];
-  
+
   // Check temperature (assuming ideal around 22°C, tolerance ±3°C)
   if (log.temperature > 25) {
     issues.push('Temperature was high');
   } else if (log.temperature < 19) {
     issues.push('Temperature was low');
   }
-  
+
   // Check humidity (assuming ideal around 50%, tolerance ±10%)
   if (log.humidity < 40) {
     issues.push('Humidity was low');
   } else if (log.humidity > 70) {
     issues.push('Humidity was high');
   }
-  
+
   // Check watering
   if (!log.watered) {
     issues.push('Watering was missed');
   }
-  
+
   if (issues.length === 0) {
     return 'Conditions were optimal on this day. Great job!';
   } else {

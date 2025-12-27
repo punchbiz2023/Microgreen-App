@@ -244,8 +244,7 @@ docker build -t microgreens-backend .
 
 ## Contributing
 
-Contributions welcome! Please open an issue or submit a PR.
-
+Contributions welcome! 
 ## License
 
 MIT License - See LICENSE file for details

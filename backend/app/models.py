@@ -52,7 +52,8 @@ class Seed(Base):
     watering_req = Column(String(50), nullable=True)
     
     # Environmental Defaults
-    avg_yield_grams = Column(Integer, nullable=True)
+    avg_yield_grams = Column(Integer, nullable=True) # Mapped from Harvest Weight
+    suggested_seed_weight = Column(Float, nullable=True) # Mapped from Seed Weight
     ideal_temp = Column(Float, nullable=True)
     ideal_humidity = Column(Float, nullable=True)
     temp_tolerance = Column(Float, nullable=False, default=2.5)
@@ -60,10 +61,13 @@ class Seed(Base):
     
     # Rich Info
     description = Column(Text, nullable=True)
+    pros = Column(Text, nullable=True) # New: Suitable For
+    cons = Column(Text, nullable=True) # New: Not Suitable For
     taste = Column(Text, nullable=True)
     nutrition = Column(Text, nullable=True)
-    care_instructions = Column(Text, nullable=True) # New
-    source_url = Column(String(255), nullable=True)
+    care_instructions = Column(Text, nullable=True) 
+    source_url = Column(String(255), nullable=True) # Keep for compatibility or main link
+    external_links = Column(JSON, nullable=True) # New: Link 1, 2, 3 with descriptions
     
     # Relationships
     crops = relationship('Crop', back_populates='seed')
@@ -89,6 +93,7 @@ class Crop(Base):
     
     # Settings & State
     tray_size = Column(String(50), nullable=True)
+    number_of_trays = Column(Integer, nullable=False, default=1) # Batches
     status = Column(String(20), nullable=False, default='active')  # 'active', 'harvested', 'failed'
     
     # Custom Configurations (JSON)

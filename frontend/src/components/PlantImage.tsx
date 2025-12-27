@@ -32,7 +32,8 @@ const PlantImage: React.FC<PlantImageProps> = ({ seedName, className = '', alt }
 
     const imageUrl = findImage(seedName);
 
-    if (error || !imageUrl) {
+    // Force fallback to remove pictures of plants for now
+    if (true || error || !imageUrl) {
         return (
             <div className={`bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center ${className}`}>
                 <Sprout className="text-green-600 w-1/3 h-1/3 opacity-50" />
