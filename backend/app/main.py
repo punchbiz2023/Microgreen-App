@@ -105,6 +105,10 @@ class SeedResponse(BaseModel):
     description: Optional[str] = None
     taste: Optional[str] = None
     nutrition: Optional[str] = None
+    pros: Optional[str] = None
+    cons: Optional[str] = None
+    suggested_seed_weight: Optional[float] = None
+    external_links: Optional[List[Dict[str, str]]] = None    
     care_instructions: Optional[str] = None
     source_url: Optional[str] = None
     
@@ -129,21 +133,13 @@ class DailyLogResponse(BaseModel):
     class Config:
         from_attributes = True
 
-class CropCreate(BaseModel):
-    seed_id: int
-    start_datetime: datetime
-    tray_size: Optional[str] = "10x20 inch"
-    
-    # Custom Settings (Overrides)
-    custom_settings: Dict[str, Any] = {}
-    # Notification Settings
-    notification_settings: Dict[str, Any] = {}
 
 class CropResponse(BaseModel):
     id: int
     seed_id: int
     start_datetime: datetime
     tray_size: Optional[str]
+    number_of_trays: int = 1
     status: str
     created_at: datetime
     seed: SeedResponse
@@ -168,6 +164,80 @@ class DailyLogCreate(BaseModel):
     humidity: Optional[float] = None
     notes: Optional[str] = None
     actions_recorded: List[str] = []
+
+class SeedCreate(BaseModel):
+    seed_type: str
+    name: str
+    latin_name: Optional[str] = None
+    difficulty: str
+    seed_count_per_gram: Optional[str] = None
+    sow_density: Optional[str] = None
+    soaking_duration_hours: Optional[float] = None
+    blackout_time_days: Optional[float] = None
+    germination_days: Optional[float] = None
+    harvest_days: Optional[float] = None
+    soaking_req: Optional[str] = None
+    watering_req: Optional[str] = None
+    avg_yield_grams: Optional[int] = None
+    ideal_temp: Optional[float] = None
+    ideal_humidity: Optional[float] = None
+    description: Optional[str] = None
+    taste: Optional[str] = None
+    nutrition: Optional[str] = None
+    care_instructions: Optional[str] = None
+    source_url: Optional[str] = None
+
+class SeedUpdate(BaseModel):
+    name: Optional[str] = None
+    difficulty: Optional[str] = None
+    avg_yield_grams: Optional[int] = None
+    ideal_temp: Optional[float] = None
+    ideal_humidity: Optional[float] = None
+    description: Optional[str] = None
+
+class SeedCreate(BaseModel):
+    seed_type: str
+    name: str
+    latin_name: Optional[str] = None
+    difficulty: str
+    seed_count_per_gram: Optional[str] = None
+    sow_density: Optional[str] = None
+    soaking_duration_hours: Optional[float] = None
+    blackout_time_days: Optional[float] = None
+    germination_days: Optional[float] = None
+    harvest_days: Optional[float] = None
+    soaking_req: Optional[str] = None
+    watering_req: Optional[str] = None
+    avg_yield_grams: Optional[int] = None
+    ideal_temp: Optional[float] = None
+    ideal_humidity: Optional[float] = None
+    description: Optional[str] = None
+    taste: Optional[str] = None
+    nutrition: Optional[str] = None
+    care_instructions: Optional[str] = None
+    source_url: Optional[str] = None
+
+class SeedUpdate(BaseModel):
+    name: Optional[str] = None
+    difficulty: Optional[str] = None
+    avg_yield_grams: Optional[int] = None
+    ideal_temp: Optional[float] = None
+    ideal_humidity: Optional[float] = None
+    description: Optional[str] = None
+
+class CropCreate(BaseModel):
+    seed_id: int
+    start_datetime: datetime
+    tray_size: Optional[str] = "10x20 inch"
+    number_of_trays: int = 1
+    
+    # Custom Settings (Overrides)
+    custom_settings: Dict[str, Any] = {}
+    # Notification Settings
+    notification_settings: Dict[str, Any] = {}
+    
+    # Optional Initial Log (Dream Workflow)
+    initial_log: Optional[DailyLogCreate] = None
 
 class HarvestCreate(BaseModel):
     actual_weight: float
@@ -267,29 +337,7 @@ async def get_seed(seed_id: int, db: Session = Depends(get_db)):
     return seed
 
 
-@app.post("/api/crops", response_model=CropResponse)
-async def create_crop(
-    crop_data: CropCreate, 
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
-):
-    seed = db.query(Seed).filter(Seed.id == crop_data.seed_id).first()
-    if not seed: raise HTTPException(status_code=404, detail="Seed not found")
-    
-    crop = Crop(
-        user_id=current_user.id,
-        seed_id=crop_data.seed_id,
-        start_datetime=crop_data.start_datetime,
-        tray_size=crop_data.tray_size,
-        custom_settings=crop_data.custom_settings,
-        notification_settings=crop_data.notification_settings,
-        status='active'
-    )
-    
-    db.add(crop)
-    db.commit()
-    db.refresh(crop)
-    return crop
+
 
 
 @app.get("/api/crops", response_model=List[CropResponse])
@@ -317,7 +365,84 @@ async def delete_crop(crop_id: int, db: Session = Depends(get_db), current_user:
     
     db.delete(crop)
     db.commit()
+    db.delete(crop)
+    db.commit()
     return {"status": "success", "message": "Crop deleted"}
+
+
+@app.post("/api/crops", response_model=CropResponse)
+async def create_crop(
+    crop_data: CropCreate, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    seed = db.query(Seed).filter(Seed.id == crop_data.seed_id).first()
+    if not seed: raise HTTPException(status_code=404, detail="Seed not found")
+    
+    crop = Crop(
+        user_id=current_user.id,
+        seed_id=crop_data.seed_id,
+        start_datetime=crop_data.start_datetime,
+        tray_size=crop_data.tray_size,
+        number_of_trays=crop_data.number_of_trays,
+        custom_settings=crop_data.custom_settings,
+        notification_settings=crop_data.notification_settings,
+        status='active'
+    )
+    
+    db.add(crop)
+    db.commit()
+    db.refresh(crop)
+    
+    # Handle Optional Initial Log (Step 3 Wizard)
+    if crop_data.initial_log:
+        try:
+            log_data = crop_data.initial_log
+            daily_log = DailyLog(
+                crop_id=crop.id,
+                day_number=log_data.day_number,
+                watered=log_data.watered,
+                temperature=log_data.temperature,
+                humidity=log_data.humidity,
+                notes=log_data.notes,
+                actions_recorded=log_data.actions_recorded
+            )
+            
+            # Predict
+            seed_config = {
+                'seed_type': seed.seed_type,
+                'name': seed.name,
+                'difficulty': seed.difficulty,
+                'base_yield': seed.avg_yield_grams,
+                'growth_days': seed.growth_days,
+                'ideal_temp': seed.ideal_temp,
+                'ideal_humidity': seed.ideal_humidity
+            }
+            
+            # Prediction Context (Just this log)
+            daily_logs_data = [{
+                'day': daily_log.day_number,
+                'temperature': daily_log.temperature or seed.ideal_temp,
+                'humidity': daily_log.humidity or seed.ideal_humidity,
+                'watered': daily_log.watered
+            }]
+            
+            prediction = ml_service.predict_yield(seed_config, daily_logs_data)
+            
+            # SCALE BY TRAYS
+            if crop.number_of_trays > 1:
+                 prediction['predicted_yield'] *= crop.number_of_trays
+                 
+            daily_log.predicted_yield = prediction['predicted_yield']
+            
+            db.add(daily_log)
+            db.commit()
+            db.refresh(crop) # Refresh crop to include new log in response
+        except Exception as e:
+            print(f"Failed to create initial log: {e}")
+            # Do not fail crop creation
+            
+    return crop
 
 
 # --- ACTION & LOGS ROUTES ---
@@ -374,7 +499,55 @@ async def log_action(
             log.humidity = action.humidity
             
     db.commit()
-    return {"status": "success", "day": day_number, "action": action.action_type}
+    db.refresh(log) # Refresh to ensure we have value
+    
+    # Calculate Prediction
+    prediction_result = None
+    try:
+        # Prepare data for ML
+        seed = crop.seed
+        seed_config = {
+            'seed_type': seed.seed_type,
+            'name': seed.name,
+            'difficulty': seed.difficulty,
+            'base_yield': seed.avg_yield_grams,
+            'growth_days': seed.growth_days,
+            'ideal_temp': seed.ideal_temp,
+            'ideal_humidity': seed.ideal_humidity
+        }
+        
+        # Get all logs for prediction context
+        all_logs = db.query(DailyLog).filter(DailyLog.crop_id == crop_id).order_by(DailyLog.day_number).all()
+        daily_logs_data = []
+        for l in all_logs:
+            daily_logs_data.append({
+                'day': l.day_number,
+                'temperature': l.temperature if l.temperature is not None else seed.ideal_temp,
+                'humidity': l.humidity if l.humidity is not None else seed.ideal_humidity,
+                'watered': l.watered
+            })
+            
+        prediction_result = ml_service.predict_yield(seed_config, daily_logs_data)
+        
+        if crop.number_of_trays > 1:
+            prediction_result['predicted_yield'] *= crop.number_of_trays
+            if 'base_yield' in prediction_result:
+                prediction_result['base_yield'] *= crop.number_of_trays
+        
+        # Update log with prediction
+        log.predicted_yield = prediction_result['predicted_yield']
+        db.commit()
+        
+    except Exception as e:
+        print(f"Prediction failed in log_action: {e}")
+        prediction_result = {"error": str(e)} # DEBUG: Expose error to frontend/API response
+    
+    return {
+        "status": "success", 
+        "day": day_number,
+        "action": action.action_type,
+        "prediction": prediction_result
+    }
 
 
 @app.post("/api/crops/{crop_id}/logs", response_model=DailyLogResponse)
@@ -408,13 +581,40 @@ async def create_daily_log(
     seed = crop.seed
     seed_config = {
         'seed_type': seed.seed_type,
+        'name': seed.name,
+        'difficulty': seed.difficulty,
         'base_yield': seed.avg_yield_grams,
-        'growth_days': seed.growth_days
+        'growth_days': seed.growth_days,
+        'ideal_temp': seed.ideal_temp,
+        'ideal_humidity': seed.ideal_humidity
     }
     
-    # logs_for_prediction... (omitted for brevity, can re-add if needed for ML)
-    # prediction = ml_service.predict_yield(...)
-    # daily_log.predicted_yield = prediction['predicted_yield']
+    # Prepare logs for prediction (convert ORM objects to dicts + current log)
+    logs_data = []
+    # Get existing logs
+    existing_logs = db.query(DailyLog).filter(DailyLog.crop_id == crop_id).order_by(DailyLog.day_number).all()
+    for log in existing_logs:
+        logs_data.append({
+            'day': log.day_number,
+            'temperature': log.temperature if log.temperature else seed.ideal_temp, # Fallback
+            'humidity': log.humidity if log.humidity else seed.ideal_humidity,
+            'watered': log.watered
+        })
+    
+    # Add current log
+    logs_data.append({
+        'day': daily_log.day_number,
+        'temperature': daily_log.temperature if daily_log.temperature else seed.ideal_temp,
+        'humidity': daily_log.humidity if daily_log.humidity else seed.ideal_humidity,
+        'watered': daily_log.watered
+    })
+    
+    try:
+        prediction = ml_service.predict_yield(seed_config, logs_data)
+        daily_log.predicted_yield = prediction['predicted_yield']
+    except Exception as e:
+        print(f"Prediction failed: {e}")
+        # Don't fail the log creation if prediction fails
     
     db.add(daily_log)
     db.commit()
@@ -425,6 +625,55 @@ async def create_daily_log(
 @app.get("/api/crops/{crop_id}/logs", response_model=List[DailyLogResponse])
 async def get_daily_logs(crop_id: int, db: Session = Depends(get_db)):
     return db.query(DailyLog).filter(DailyLog.crop_id == crop_id).order_by(DailyLog.day_number).all()
+
+
+@app.get("/api/predictions/{crop_id}", response_model=PredictionResponse)
+async def get_prediction(crop_id: int, db: Session = Depends(get_db)):
+    """Get real-time prediction based on all logs so far"""
+    crop = db.query(Crop).filter(Crop.id == crop_id).first()
+    if not crop: raise HTTPException(status_code=404, detail="Crop not found")
+    
+    # Get all logs
+    logs = db.query(DailyLog).filter(DailyLog.crop_id == crop_id).order_by(DailyLog.day_number).all()
+    
+    if not logs:
+        # Default/Initial prediction if no logs
+        base = crop.seed.avg_yield_grams * crop.number_of_trays
+        return {
+            'predicted_yield': base,
+            'base_yield': base,
+            'yield_efficiency': 1.0,
+            'potential_loss': 0,
+            'suggestions': [],
+            'status': 'good'
+        }
+        
+    # Prepare data for ML
+    seed_config = {
+        'seed_type': crop.seed.seed_type,
+        'name': crop.seed.name,
+        'difficulty': crop.seed.difficulty,
+        'base_yield': crop.seed.avg_yield_grams,
+        'growth_days': crop.seed.growth_days,
+        'ideal_temp': crop.seed.ideal_temp,
+        'ideal_humidity': crop.seed.ideal_humidity
+    }
+    
+    daily_logs = []
+    for log in logs:
+        daily_logs.append({
+            'day': log.day_number,
+            'temperature': log.temperature if log.temperature is not None else crop.seed.ideal_temp,
+            'humidity': log.humidity if log.humidity is not None else crop.seed.ideal_humidity,
+            'watered': log.watered
+        })
+        
+    prediction = ml_service.predict_yield(seed_config, daily_logs)
+    if crop.number_of_trays > 1:
+        prediction['predicted_yield'] *= crop.number_of_trays
+        if 'base_yield' in prediction:
+            prediction['base_yield'] *= crop.number_of_trays
+    return prediction
 
 
 @app.post("/api/crops/{crop_id}/logs/{day}/photo")
@@ -484,11 +733,84 @@ async def get_harvest(crop_id: int, db: Session = Depends(get_db)):
 
 @app.get("/api/stats")
 async def get_stats(db: Session = Depends(get_db)):
-    # Simple stats
-    total = db.query(Crop).count()
-    return {"total_crops": total}
+    total_crops = db.query(Crop).count()
+    active_crops = db.query(Crop).filter(Crop.status == 'active').count()
+    harvested_crops = db.query(Crop).filter(Crop.status == 'harvested').count()
+    
+    # Calculate avg accuracy
+    avg_accuracy = db.query(func.avg(Harvest.accuracy_percent)).scalar() or 0.0
+    
+    total_yield = db.query(func.sum(Harvest.actual_weight)).scalar() or 0.0
+    
+    return {
+        "scope": "global",
+        "total_crops": total_crops,
+        "active_crops": active_crops,
+        "harvested_crops": harvested_crops,
+        "avg_prediction_accuracy": round(avg_accuracy, 1),
+        "total_yield_grams": round(total_yield, 1)
+    }
+
+# --- ADMIN ROUTES ---
+
+@app.get("/api/admin/users", response_model=List[UserResponse])
+async def get_all_users(
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin_user)
+):
+    return db.query(User).all()
+
+@app.post("/api/seeds", response_model=SeedResponse)
+async def create_seed(
+    seed_data: SeedCreate,
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin_user)
+):
+    seed = Seed(**seed_data.dict())
+    db.add(seed)
+    db.commit()
+    db.refresh(seed)
+    return seed
+
+@app.put("/api/seeds/{seed_id}", response_model=SeedResponse)
+async def update_seed(
+    seed_id: int,
+    seed_data: SeedUpdate,
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin_user)
+):
+    seed = db.query(Seed).filter(Seed.id == seed_id).first()
+    if not seed: raise HTTPException(status_code=404, detail="Seed not found")
+    
+    for key, value in seed_data.dict(exclude_unset=True).items():
+        setattr(seed, key, value)
+        
+    db.commit()
+    db.refresh(seed)
+    return seed
+
+@app.delete("/api/seeds/{seed_id}")
+async def delete_seed(
+    seed_id: int,
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin_user)
+):
+    seed = db.query(Seed).filter(Seed.id == seed_id).first()
+    if not seed: raise HTTPException(status_code=404, detail="Seed not found")
+    
+    db.delete(seed)
+    db.commit()
+    return {"status": "success", "message": "Seed deleted"}
 
 if __name__ == '__main__':
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 

@@ -320,6 +320,11 @@ if __name__ == '__main__':
     print("Loading synthetic data...")
     data_path = os.path.join(os.path.dirname(__file__), '../data/synthetic_crops.csv')
     df = pd.read_csv(data_path)
+    
+    # Sanitize seed_type to match backend slugs (remove commas)
+    if 'seed_type' in df.columns:
+        df['seed_type'] = df['seed_type'].astype(str).str.replace(',', '', regex=False)
+        
     print(f"Loaded {len(df)} samples\n")
     
     # Initialize predictor

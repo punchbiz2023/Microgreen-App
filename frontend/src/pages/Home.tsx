@@ -9,12 +9,10 @@ import GrowingLoader from '../components/GrowingLoader';
 export default function Home() {
     const [activeCrops, setActiveCrops] = useState<Crop[]>([]);
     const [loading, setLoading] = useState(true);
-    const [selectedAction, setSelectedAction] = useState<any | null>(null); // For logging modal
+    const [predictionResult, setPredictionResult] = useState<any | null>(null);
+    const [selectedAction, setSelectedAction] = useState<any | null>(null);
     const navigate = useNavigate();
     const { user } = useAuth();
-
-    // Expanded state for action cards
-    const [expandedAction, setExpandedAction] = useState<string | null>(null);
 
     // Modal State
     const [temp, setTemp] = useState(22);
@@ -47,7 +45,7 @@ export default function Home() {
     const handleLogAction = async () => {
         if (!selectedAction) return;
         try {
-            await cropsApi.logAction(selectedAction.crop.id, {
+            const response = await cropsApi.logAction(selectedAction.crop.id, {
                 action_type: selectedAction.type,
                 notes: notes || `Logged via Home at ${new Date().toISOString()}`,
                 temperature: temp,
@@ -55,11 +53,22 @@ export default function Home() {
             });
 
             setSelectedAction(null);
-            loadData(); // Reload to fetch updated logs
+
+            // Show Feedback if prediction exists
+            if (response.data.prediction) {
+                setPredictionResult(response.data.prediction);
+            } else {
+                loadData(); // Reload if no prediction
+            }
         } catch (error) {
             console.error('Failed to log action', error);
             alert('Failed to save log. Please try again.');
         }
+    };
+
+    const closePredictionModal = () => {
+        setPredictionResult(null);
+        loadData();
     };
 
     // Helper: Calculate progress
@@ -87,35 +96,34 @@ export default function Home() {
             // Helper to check if logged
             const isLogged = (type: string) => {
                 if (!crop.daily_logs) return false;
-                // Check if any log contains this action type
-                // Note: In a real app we might check if it was done *today* for recurring tasks.
-                // For soak/sow (one-off), existence is enough.
-                // For 'water', we check if done today.
-
                 if (type === 'water') {
                     const { currentDay } = getCropStatus(crop);
                     const todayLog = crop.daily_logs.find(log => log.day_number === currentDay);
                     return todayLog?.actions_recorded?.includes(type) || false;
                 }
-
                 return crop.daily_logs.some(log => log.actions_recorded?.includes(type));
             };
 
             // --- DAY 1: SOAKING LOGIC ---
-            if (hoursSinceStart < 48) { // Extend window to see past soak tasks
+            // Switch to daily mode if 48h passed OR 'sow' action is already logged
+            if (hoursSinceStart < 48 && !isLogged('sow')) {
                 const soakDuration = crop.seed.soaking_duration_hours || 10;
-                const soakEndTime = addHours(start, soakDuration);
+
+                // FIX: Day 1 tasks should map to Start Time, not "Start of Today"
+                // If it's the very first action, show it at start time
 
                 // 1. Put seeds in water (Start Soak)
                 actions.push({
                     id: `${crop.id}-start-soak`,
                     crop,
                     title: "Put seeds into water",
-                    time: start,
+                    time: start, // EXACT start time
                     type: 'start_soak',
                     completed: isLogged('start_soak'),
                     instructions: `Soak time: ${soakDuration}h. Keep in bowl.`,
                 });
+
+                const soakEndTime = addHours(start, soakDuration);
 
                 // 2. Finish soaking (Sow)
                 actions.push({
@@ -141,8 +149,8 @@ export default function Home() {
                     crop,
                     title: "Water your plant and keep it in dark",
                     time: morningTime,
-                    type: 'water',
-                    completed: isLogged('water'), // Simplified: assumes 1 water log = done for period
+                    type: 'water_morning', // Distinct type
+                    completed: crop.daily_logs.some(l => l.actions_recorded?.includes('water_morning') && l.day_number === getCropStatus(crop).currentDay),
                     instructions: "Spray evenly. Check humidity."
                 });
 
@@ -152,16 +160,17 @@ export default function Home() {
                     crop,
                     title: "Water your plant and keep in dark",
                     time: eveningTime,
-                    type: 'water',
-                    completed: false, // In this simplified version, we track water once per day
+                    type: 'water_evening', // Distinct type
+                    completed: crop.daily_logs.some(l => l.actions_recorded?.includes('water_evening') && l.day_number === getCropStatus(crop).currentDay),
                     instructions: "Light misting before night."
                 });
             }
         }
 
-        // Filter & Sort
-        // Logic: Show ALL actions.
-        return actions.sort((a, b) => a.time.getTime() - b.time.getTime());
+        // Filter completed & Sort
+        return actions
+            .filter(a => !a.completed) // ONLY show pending tasks
+            .sort((a, b) => a.time.getTime() - b.time.getTime());
     };
 
     const timelineActions = getTimelineActions();
@@ -354,6 +363,44 @@ export default function Home() {
                     </div>
                 )
             }
+
+            {/* PREDICTION FEEDBACK MODAL */}
+            {predictionResult && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+                    <div className="bg-white rounded-[2.5rem] max-w-sm w-full p-8 shadow-2xl animate-in fade-in zoom-in-95 duration-300 relative overflow-hidden">
+                        {/* Background Decor */}
+                        <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-br from-green-50 to-emerald-50 z-0"></div>
+
+                        <div className="relative z-10 text-center">
+                            <div className="w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-green-200 border-4 border-white">
+                                <span className="text-3xl">🌱</span>
+                            </div>
+
+                            <h2 className="text-2xl font-black text-gray-900 mb-2">Great Job!</h2>
+                            <p className="text-gray-500 mb-8">We've updated your prediction.</p>
+
+                            <div className="bg-white/80 backdrop-blur border border-green-100 rounded-2xl p-6 mb-8 shadow-sm">
+                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Projected Yield</p>
+                                <div className="text-4xl font-black text-gray-900 mb-2">
+                                    {predictionResult.predicted_yield}<span className="text-lg text-gray-400 font-bold ml-1">g</span>
+                                </div>
+                                <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${predictionResult.status === 'excellent' ? 'bg-green-100 text-green-700' :
+                                    predictionResult.status === 'good' ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'
+                                    }`}>
+                                    {predictionResult.status} Status
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={closePredictionModal}
+                                className="w-full py-4 rounded-2xl font-bold text-white bg-gray-900 hover:bg-black transition-all transform hover:scale-[1.02] active:scale-95 shadow-xl"
+                            >
+                                Continue Growing
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div >
     );
 }
@@ -361,3 +408,4 @@ export default function Home() {
 
 // Sub-components: None needed
 
+ 

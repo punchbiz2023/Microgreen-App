@@ -154,6 +154,53 @@ export default function SeedDetail() {
                         </p>
                     </div>
 
+                    {/* Pros & Cons */}
+                    {(seed.pros || seed.cons) && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+                            {seed.pros && (
+                                <div>
+                                    <h3 className="text-lg font-bold text-gray-900 mb-2 flex items-center">
+                                        <span className="bg-green-100 text-green-600 p-1 rounded-lg mr-2">👍</span> Suitable For
+                                    </h3>
+                                    <p className="text-gray-600 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                        {seed.pros}
+                                    </p>
+                                </div>
+                            )}
+                            {seed.cons && (
+                                <div>
+                                    <h3 className="text-lg font-bold text-gray-900 mb-2 flex items-center">
+                                        <span className="bg-red-100 text-red-600 p-1 rounded-lg mr-2">⚠️</span> Cons
+                                    </h3>
+                                    <p className="text-gray-600 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                        {seed.cons}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* External Links */}
+                    {seed.external_links && seed.external_links.length > 0 && (
+                        <div className="mb-8">
+                            <h3 className="text-lg font-bold text-gray-900 mb-4">Resources</h3>
+                            <div className="space-y-2">
+                                {seed.external_links.map((link, i) => (
+                                    <a
+                                        key={i}
+                                        href={link.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="block bg-gray-50 hover:bg-gray-100 p-4 rounded-xl border border-gray-100 transition-colors flex items-center justify-between"
+                                    >
+                                        <span className="font-semibold text-gray-900">{link.desc || link.url}</span>
+                                        <span className="text-gray-400">↗</span>
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
                     <div className="h-4"></div>
                 </div>
             </div>

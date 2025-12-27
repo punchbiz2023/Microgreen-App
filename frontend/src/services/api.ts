@@ -89,6 +89,10 @@ export interface Seed {
   description?: string;
   taste?: string;
   nutrition?: string;
+  pros?: string;
+  cons?: string;
+  suggested_seed_weight?: number;
+  external_links?: Array<{ url: string; desc: string }>;
   care_instructions?: string;
   source_url?: string;
 
@@ -100,6 +104,7 @@ export interface Crop {
   seed_id: number;
   start_datetime: string; // ISO String
   tray_size?: string;
+  number_of_trays: number;
   status: string;
   created_at: string;
   seed: Seed;
@@ -161,8 +166,17 @@ export const cropsApi = {
     seed_id: number;
     start_datetime: string;
     tray_size?: string;
+    number_of_trays?: number;
     custom_settings?: Record<string, any>;
     notification_settings?: Record<string, any>;
+    initial_log?: {
+      day_number: number;
+      watered: boolean;
+      temperature: number;
+      humidity: number;
+      notes: string;
+      actions_recorded: string[];
+    };
   }) => api.post<Crop>('/api/crops', data),
 
   getAll: (status?: string) =>
@@ -227,5 +241,13 @@ export const statsApi = {
   }>('/api/stats'),
 };
 
+export const adminApi = {
+  getAllUsers: () => api.get<User[]>('/api/admin/users'),
+  createSeed: (data: Partial<Seed>) => api.post<Seed>('/api/seeds', data),
+  updateSeed: (id: number, data: Partial<Seed>) => api.put<Seed>(`/api/seeds/${id}`, data),
+  deleteSeed: (id: number) => api.delete(`/api/seeds/${id}`),
+};
+
 export default api;
+
 

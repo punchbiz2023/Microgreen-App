@@ -22,8 +22,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             // @ts-ignore
             import('axios').then(axios => {
                 axios.default.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+                // Fetch User Details
+                axios.default.get('http://localhost:8000/api/users/me')
+                    .then(res => {
+                        setUser(res.data);
+                    })
+                    .catch(err => {
+                        console.error("Failed to fetch user", err);
+                        // If 401, maybe logout?
+                        if (err.response && err.response.status === 401) {
+                            setToken(null);
+                        }
+                    });
             });
-            // Ideally fetch user details here /api/users/me
         } else {
             localStorage.removeItem('token');
             setUser(null);
@@ -37,7 +48,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const login = (newToken: string, username: string) => {
         setToken(newToken);
-        setUser({ username }); // Simple user object for now
+        // User will be fetched by useEffect, but we can set temp user
+        // setUser({ username }); 
     };
 
     const logout = () => {
