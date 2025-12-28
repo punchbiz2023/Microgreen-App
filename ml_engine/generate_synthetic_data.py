@@ -16,33 +16,47 @@ import os
 # Helper to load seeds from CSV
 def load_seeds_from_csv(csv_path):
     seeds = {}
+    print(f"DEBUG: Resolving CSV path: {os.path.abspath(csv_path)}")
     if not os.path.exists(csv_path):
         print(f"Warning: CSV not found at {csv_path}, using hardcoded defaults.")
-        return SEED_TYPES  # Return default hardcoded if no CSV
+        return None  # Return None so main logic can use fallback
     
-    with open(csv_path, 'r', encoding='utf-8') as f:
+    with open(csv_path, 'r', encoding='latin-1') as f:
         reader = csv.DictReader(f)
+        # Strip whitespace from headers
+        reader.fieldnames = [name.strip() for name in reader.fieldnames]
+        
+        # DEBUG: Print headers
+        print(f"DEBUG: CSV Headers: {reader.fieldnames}")
+        
         for row in reader:
-            name = row.get('variety', 'Unknown')
+             # Robust lookup
+            name = row.get('Crop', 'Unknown')
             # Create slug
-            slug = name.lower().replace(' ', '-').replace('(', '').replace(')', '')
+            slug = name.lower().replace(' ', '-').replace('(', '').replace(')', '').replace('"', '')
             
             # Parse days
             try:
-                growth_text = row.get('growth_period_days', '10')
+                growth_text = row.get('Growth Time (Days)', '10')
                 growth_days = int(re.search(r'\d+', growth_text).group()) if re.search(r'\d+', growth_text) else 10
             except:
                 growth_days = 10
                 
             try:
-                blackout_text = row.get('blackout_time_days', '0')
-                blackout_days = int(re.search(r'\d+', blackout_text).group()) if re.search(r'\d+', blackout_text) else 0
+                # Estimate blackout from Sprout Time if possible, else default
+                sprout_text = row.get('Sprout Time', '3')
+                blackout_days = int(re.search(r'\d+', sprout_text).group()) if re.search(r'\d+', sprout_text) else 3
             except:
-                blackout_days = 0
+                blackout_days = 3
 
-            # Estimate base yield based on difficulty (placeholder logic)
-            difficulty = row.get('difficulty_level', 'Easy')
-            base_yield = 600 if difficulty == 'Easy' else (500 if difficulty == 'Medium' else 400)
+            # Base yield
+            try:
+                yield_text = row.get('Harvest Weight (gm)', '500')
+                base_yield = float(re.search(r'\d+', yield_text).group()) if re.search(r'\d+', yield_text) else 500
+            except:
+                base_yield = 500
+                
+            difficulty = 'Medium' # Default as not in CSV explicitly
             
             seeds[slug] = {
                 'name': name,
@@ -59,7 +73,7 @@ def load_seeds_from_csv(csv_path):
     return seeds
 
 # Load seeds
-csv_path = os.path.join(os.path.dirname(__file__), '../mpseeds_dataset_complete.csv')
+csv_path = os.path.join(os.path.dirname(__file__), '../33_microgreens_full-1.csv')
 SEED_TYPES = load_seeds_from_csv(csv_path)
 
 # Fallback if CSV empty or failed
@@ -309,11 +323,11 @@ def generate_dataset(num_samples=1000):
     
     # Distribution of quality levels (realistic user behavior)
     quality_profiles = {
-        'excellent_grower': ['perfect'] * 14,  # 10% of users
-        'good_grower': ['good'] * 14,  # 30% of users
-        'average_grower': ['good'] * 10 + ['acceptable'] * 4,  # 35% of users
-        'struggling_grower': ['acceptable'] * 8 + ['poor'] * 6,  # 15% of users
-        'bad_grower': ['poor'] * 7 + ['bad'] * 7,  # 10% of users
+        'excellent_grower': ['perfect'] * 60,
+        'good_grower': ['good'] * 60,
+        'average_grower': ['good'] * 40 + ['acceptable'] * 20,
+        'struggling_grower': ['acceptable'] * 30 + ['poor'] * 30,
+        'bad_grower': ['poor'] * 30 + ['bad'] * 30,
     }
     
     profile_weights = [0.10, 0.30, 0.35, 0.15, 0.10]
