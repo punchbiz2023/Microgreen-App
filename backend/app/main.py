@@ -3,7 +3,8 @@ FastAPI main application
 Microgreens Cultivation Tracking API
 """
 
-from datetime import timedelta, date, datetime
+from datetime import timedelta, date, datetime, timezone
+
 from typing import List, Optional, Dict, Any
 import os
 import shutil
@@ -405,7 +406,8 @@ async def create_crop(
                 temperature=log_data.temperature,
                 humidity=log_data.humidity,
                 notes=log_data.notes,
-                actions_recorded=log_data.actions_recorded
+                actions_recorded=log_data.actions_recorded,
+                logged_at=datetime.now(timezone.utc)
             )
             
             # Predict
@@ -459,9 +461,15 @@ async def log_action(
     if not crop: raise HTTPException(status_code=404, detail="Crop not found")
     
     # Calculate Day Number based on start_datetime
-    now = datetime.now()
+    now_utc = datetime.now(timezone.utc)
+    if crop.start_datetime.tzinfo is None:
+        # Handle legacy naive datetimes (assume UTC if not specified)
+        start_utc = crop.start_datetime.replace(tzinfo=timezone.utc)
+    else:
+        start_utc = crop.start_datetime.astimezone(timezone.utc)
+        
     # Simple day diff
-    delta = now - crop.start_datetime.replace(tzinfo=None) + timedelta(days=1) # Day 1 starts immediately
+    delta = now_utc - start_utc + timedelta(days=1)
     day_number = max(1, delta.days)
     
     # Find or Create DailyLog for today
@@ -475,7 +483,8 @@ async def log_action(
             watered=(action.action_type in ['water_morning', 'water_evening']),
             notes=action.notes,
             temperature=action.temperature,
-            humidity=action.humidity
+            humidity=action.humidity,
+            logged_at=datetime.now(timezone.utc)
         )
         db.add(log)
     else:
@@ -574,7 +583,8 @@ async def create_daily_log(
         temperature=log_data.temperature,
         humidity=log_data.humidity,
         notes=log_data.notes,
-        actions_recorded=log_data.actions_recorded
+        actions_recorded=log_data.actions_recorded,
+        logged_at=datetime.now(timezone.utc)
     )
     
     # Prediction logic (simplified for now)
@@ -653,7 +663,7 @@ async def get_prediction(crop_id: int, db: Session = Depends(get_db)):
         'seed_type': crop.seed.seed_type,
         'name': crop.seed.name,
         'difficulty': crop.seed.difficulty,
-        'base_yield': crop.seed.avg_yield_grams,
+        'base_yield': crop.seed.avg_yield_grams if crop.seed.avg_yield_grams else 500, # Fallback if missing
         'growth_days': crop.seed.growth_days,
         'ideal_temp': crop.seed.ideal_temp,
         'ideal_humidity': crop.seed.ideal_humidity
