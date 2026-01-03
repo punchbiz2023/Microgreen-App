@@ -59,9 +59,17 @@ def init_seeds(db: Session):
         print(f"Error: CSV file not found at {CSV_PATH}")
         return
 
-    # Wipe Data
-    wipe_database(db)
+    # Wipe Data - DISABLED for persistence
+    # wipe_database(db) 
     
+    # Check if seeds already exist to avoid re-importing blindly (or implement update logic)
+    existing_count = db.query(Seed).count()
+    if existing_count > 0:
+        print(f"Seeds already exist ({existing_count}). Skipping full import to preserve IDs.")
+        # Optional: You could implement an 'update' logic here instead of skipping
+        return
+
+    print("Initializing Seed Database...")
     added_count = 0
     
     # Try reading with appropriate encoding
