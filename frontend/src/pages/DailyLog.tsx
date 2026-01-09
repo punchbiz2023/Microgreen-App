@@ -28,8 +28,8 @@ export default function DailyLog() {
       setCrop(response.data);
 
       // Set default values based on ideal conditions
-      setTemperature(response.data.seed.ideal_temp);
-      setHumidity(response.data.seed.ideal_humidity);
+      setTemperature(response.data.seed.ideal_temp ?? 22);
+      setHumidity(response.data.seed.ideal_humidity ?? 50);
     } catch (error) {
       console.error('Failed to load crop:', error);
     }
@@ -84,23 +84,23 @@ export default function DailyLog() {
   if (!crop) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600"></div>
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-500"></div>
       </div>
     );
   }
 
-  const blackoutDays = typeof crop.seed.blackout_days === 'string' ? parseInt(crop.seed.blackout_days || '0') : (crop.seed.blackout_days || 0);
+  const blackoutDays = typeof crop.seed.blackout_time_days === 'string' ? parseInt(crop.seed.blackout_time_days || '0') : (crop.seed.blackout_time_days || 0);
 
   const getTempColor = () => {
-    const diff = Math.abs(temperature - crop.seed.ideal_temp);
-    if (diff <= 1) return 'text-green-600';
+    const diff = Math.abs(temperature - (crop.seed.ideal_temp ?? 22));
+    if (diff <= 1) return 'text-green-500';
     if (diff <= 3) return 'text-yellow-600';
     return 'text-red-600';
   };
 
   const getHumidityColor = () => {
-    const diff = Math.abs(humidity - crop.seed.ideal_humidity);
-    if (diff <= 5) return 'text-green-600';
+    const diff = Math.abs(humidity - (crop.seed.ideal_humidity ?? 50));
+    if (diff <= 5) return 'text-green-500';
     if (diff <= 10) return 'text-yellow-600';
     return 'text-red-600';
   };
@@ -139,8 +139,8 @@ export default function DailyLog() {
                   type="button"
                   onClick={() => setWatered(true)}
                   className={`flex-1 p-4 rounded-lg border-2 font-semibold transition-all ${watered
-                    ? 'border-green-600 bg-green-50 text-green-900'
-                    : 'border-gray-300 text-gray-700 hover:border-green-400'
+                    ? 'border-green-500 bg-green-50 text-green-900 shadow-sm'
+                    : 'border-gray-300 text-gray-700 hover:border-green-300'
                     }`}
                 >
                   ✓ Yes, I watered
@@ -196,12 +196,12 @@ export default function DailyLog() {
                 <div className="flex justify-between text-xs text-gray-600 mt-2">
                   <span>15°C</span>
                   <span className="font-medium">
-                    Ideal: {crop.seed.ideal_temp}°C
+                    Ideal: {crop.seed.ideal_temp ?? '--'}°C
                   </span>
                   <span>35°C</span>
                 </div>
 
-                {Math.abs(temperature - crop.seed.ideal_temp) > 3 && (
+                {crop.seed.ideal_temp && Math.abs(temperature - crop.seed.ideal_temp) > 3 && (
                   <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                     <p className="text-sm text-yellow-800">
                       ⚠️ Temperature is outside the ideal range. This may affect yield.
@@ -236,12 +236,12 @@ export default function DailyLog() {
               <div className="flex justify-between text-xs text-gray-600 mt-2">
                 <span>25%</span>
                 <span className="font-medium">
-                  Ideal: {crop.seed.ideal_humidity}%
+                  Ideal: {crop.seed.ideal_humidity ?? '--'}%
                 </span>
                 <span>85%</span>
               </div>
 
-              {Math.abs(humidity - crop.seed.ideal_humidity) > 15 && (
+              {crop.seed.ideal_humidity && Math.abs(humidity - crop.seed.ideal_humidity) > 15 && (
                 <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                   <p className="text-sm text-yellow-800">
                     ⚠️ Humidity is outside the ideal range. Adjust ventilation or misting.
@@ -309,7 +309,7 @@ export default function DailyLog() {
                 onChange={(e) => setNotes(e.target.value)}
                 rows={3}
                 placeholder="Any observations? (e.g., 'Leaves looking vibrant', 'Noticed some yellowing')"
-                className="w-full p-4 border-2 border-gray-300 rounded-lg focus:border-green-600 focus:outline-none resize-none"
+                className="w-full p-4 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none resize-none"
               />
             </div>
 
@@ -319,7 +319,7 @@ export default function DailyLog() {
               disabled={submitting}
               className={`w-full flex items-center justify-center space-x-3 px-8 py-4 font-bold text-lg rounded-xl shadow-lg transition-all ${submitting
                 ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-green-600 hover:bg-green-700 text-white hover:shadow-xl transform hover:scale-105'
+                : 'bg-green-500 hover:bg-green-600 text-white hover:shadow-xl transform hover:scale-105 shadow-green-100'
                 }`}
             >
               <Save className="w-6 h-6" />

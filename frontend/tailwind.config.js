@@ -20,6 +20,10 @@ export default {
           900: '#14532d',
         }
       },
+      fontFamily: {
+        sans: ['Poppins', 'sans-serif'],
+        display: ['Poppins', 'sans-serif'],
+      },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       }

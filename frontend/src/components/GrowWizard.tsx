@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Seed, cropsApi } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import TimelinePreview from './TimelinePreview';
+import GrowthSchedule from './GrowthSchedule';
 
 interface GrowWizardProps {
     seed: Seed;
@@ -85,9 +86,9 @@ const GrowWizard: React.FC<GrowWizardProps> = ({ seed, onClose }) => {
 
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-[2rem] w-full max-w-lg overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <div className="bg-white rounded-[2rem] w-full max-w-lg overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
                 {/* Header */}
-                <div className="bg-gradient-to-r from-green-600 to-emerald-700 p-8 text-white flex justify-between items-center relative overflow-hidden">
+                <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-8 text-white flex justify-between items-center relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
                     <div className="relative z-10">
                         <h2 className="text-2xl font-bold tracking-tight">Grow {seed.name}</h2>
@@ -97,16 +98,19 @@ const GrowWizard: React.FC<GrowWizardProps> = ({ seed, onClose }) => {
                 </div>
 
                 {/* Body */}
-                <div className="p-8">
+                <div className="p-8 overflow-y-auto flex-1 scrollbar-hide">
 
                     {step === 1 && (
                         <div className="space-y-6">
                             <h3 className="font-bold text-xl text-gray-800">When to start?</h3>
 
                             <div className="space-y-3">
-                                <label className={`flex items-center p-5 border-2 rounded-2xl cursor-pointer transition-all ${startNow ? 'border-green-500 bg-green-50 shadow-green-100 shadow-lg' : 'border-gray-100 hover:border-green-200'}`}>
+                                <label
+                                    onClick={() => setStartNow(true)}
+                                    className={`flex items-center p-5 border-2 rounded-2xl cursor-pointer transition-all ${startNow ? 'border-green-500 bg-green-50 shadow-green-100 shadow-lg' : 'border-gray-100 hover:border-green-200'}`}
+                                >
                                     <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${startNow ? 'border-green-600' : 'border-gray-300'}`}>
-                                        {startNow && <div className="w-3 h-3 bg-green-600 rounded-full" />}
+                                        {startNow && <div className="w-3 h-3 bg-green-500 rounded-full" />}
                                     </div>
                                     <div className="ml-4">
                                         <span className="font-bold text-gray-900 block">Start Now</span>
@@ -114,10 +118,13 @@ const GrowWizard: React.FC<GrowWizardProps> = ({ seed, onClose }) => {
                                     </div>
                                 </label>
 
-                                <label className={`flex flex-col p-5 border-2 rounded-2xl cursor-pointer transition-all ${!startNow ? 'border-green-500 bg-green-50 shadow-green-100 shadow-lg' : 'border-gray-100 hover:border-green-200'}`}>
+                                <label
+                                    onClick={() => setStartNow(false)}
+                                    className={`flex flex-col p-5 border-2 rounded-2xl cursor-pointer transition-all ${!startNow ? 'border-green-400 bg-green-50 shadow-green-100 shadow-lg' : 'border-gray-100 hover:border-green-200'}`}
+                                >
                                     <div className="flex items-center">
-                                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${!startNow ? 'border-green-600' : 'border-gray-300'}`}>
-                                            {!startNow && <div className="w-3 h-3 bg-green-600 rounded-full" />}
+                                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${!startNow ? 'border-green-500' : 'border-gray-300'}`}>
+                                            {!startNow && <div className="w-3 h-3 bg-green-500 rounded-full" />}
                                         </div>
                                         <div className="ml-4">
                                             <span className="font-bold text-gray-900 block">Schedule</span>
@@ -222,11 +229,17 @@ const GrowWizard: React.FC<GrowWizardProps> = ({ seed, onClose }) => {
                         <div className="space-y-8">
                             <div>
                                 <h3 className="font-bold text-xl text-gray-800 mb-4">Review Plan</h3>
-                                <TimelinePreview
+                                <GrowthSchedule
                                     seed={seed}
-                                    blackoutDays={useRecommended ? (seed.blackout_time_days || 3) : blackoutDays}
-                                    harvestDays={seed.harvest_days || 10}
+                                    blackoutDaysOverride={useRecommended ? (seed.blackout_time_days || 3) : blackoutDays}
                                 />
+                                <div className="mt-6">
+                                    <TimelinePreview
+                                        seed={seed}
+                                        blackoutDays={useRecommended ? (seed.blackout_time_days || 3) : blackoutDays}
+                                        harvestDays={seed.harvest_days || 10}
+                                    />
+                                </div>
                             </div>
 
                             <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100">
@@ -304,7 +317,7 @@ const GrowWizard: React.FC<GrowWizardProps> = ({ seed, onClose }) => {
                         <button
                             onClick={handleStart}
                             disabled={loading}
-                            className="px-10 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold rounded-xl hover:shadow-green-200 hover:shadow-xl transition-all shadow-lg transform hover:-translate-y-0.5"
+                            className="px-10 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold rounded-xl hover:shadow-green-100 hover:shadow-xl transition-all shadow-lg transform hover:-translate-y-0.5"
                         >
                             {loading ? 'Starting...' : 'Start Growing 🚀'}
                         </button>

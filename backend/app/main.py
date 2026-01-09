@@ -469,8 +469,11 @@ async def log_action(
         start_utc = crop.start_datetime.astimezone(timezone.utc)
         
     # Simple day diff
-    delta = now_utc - start_utc + timedelta(days=1)
-    day_number = max(1, delta.days)
+    if now_utc < start_utc:
+        day_number = 0 # Not started yet
+    else:
+        delta = now_utc - start_utc
+        day_number = delta.days + 1
     
     # Find or Create DailyLog for today
     log = db.query(DailyLog).filter(DailyLog.crop_id == crop_id, DailyLog.day_number == day_number).first()
@@ -527,14 +530,28 @@ async def log_action(
         
         # Get all logs for prediction context
         all_logs = db.query(DailyLog).filter(DailyLog.crop_id == crop_id).order_by(DailyLog.day_number).all()
+        
+        # Determine the full range of days from 1 to today (day_number)
+        logs_by_day = {l.day_number: l for l in all_logs}
         daily_logs_data = []
-        for l in all_logs:
-            daily_logs_data.append({
-                'day': l.day_number,
-                'temperature': l.temperature if l.temperature is not None else seed.ideal_temp,
-                'humidity': l.humidity if l.humidity is not None else seed.ideal_humidity,
-                'watered': l.watered
-            })
+        
+        for d in range(1, day_number + 1):
+            if d in logs_by_day:
+                l = logs_by_day[d]
+                daily_logs_data.append({
+                    'day': d,
+                    'temperature': l.temperature if l.temperature is not None else seed.ideal_temp,
+                    'humidity': l.humidity if l.humidity is not None else seed.ideal_humidity,
+                    'watered': l.watered
+                })
+            else:
+                # MISSED DAY: Fill with default temp/hum but watered=False
+                daily_logs_data.append({
+                    'day': d,
+                    'temperature': seed.ideal_temp,
+                    'humidity': seed.ideal_humidity,
+                    'watered': False
+                })
             
         prediction_result = ml_service.predict_yield(seed_config, daily_logs_data)
         
@@ -599,25 +616,30 @@ async def create_daily_log(
         'ideal_humidity': seed.ideal_humidity
     }
     
-    # Prepare logs for prediction (convert ORM objects to dicts + current log)
-    logs_data = []
-    # Get existing logs
+    # Prepare logs for prediction
     existing_logs = db.query(DailyLog).filter(DailyLog.crop_id == crop_id).order_by(DailyLog.day_number).all()
-    for log in existing_logs:
-        logs_data.append({
-            'day': log.day_number,
-            'temperature': log.temperature if log.temperature else seed.ideal_temp, # Fallback
-            'humidity': log.humidity if log.humidity else seed.ideal_humidity,
-            'watered': log.watered
-        })
+    logs_by_day = {log.day_number: log for log in existing_logs}
+    # Add current log to the temp map
+    logs_by_day[daily_log.day_number] = daily_log
     
-    # Add current log
-    logs_data.append({
-        'day': daily_log.day_number,
-        'temperature': daily_log.temperature if daily_log.temperature else seed.ideal_temp,
-        'humidity': daily_log.humidity if daily_log.humidity else seed.ideal_humidity,
-        'watered': daily_log.watered
-    })
+    logs_data = []
+    # Fill gaps up to the current day being logged
+    for d in range(1, daily_log.day_number + 1):
+        if d in logs_by_day:
+            l = logs_by_day[d]
+            logs_data.append({
+                'day': d,
+                'temperature': l.temperature if l.temperature else seed.ideal_temp,
+                'humidity': l.humidity if l.humidity else seed.ideal_humidity,
+                'watered': l.watered
+            })
+        else:
+            logs_data.append({
+                'day': d,
+                'temperature': seed.ideal_temp,
+                'humidity': seed.ideal_humidity,
+                'watered': False
+            })
     
     try:
         prediction = ml_service.predict_yield(seed_config, logs_data)
@@ -669,14 +691,35 @@ async def get_prediction(crop_id: int, db: Session = Depends(get_db)):
         'ideal_humidity': crop.seed.ideal_humidity
     }
     
+    # Calculate current day since start
+    now_utc = datetime.now(timezone.utc)
+    if crop.start_datetime.tzinfo is None:
+        start_utc = crop.start_datetime.replace(tzinfo=timezone.utc)
+    else:
+        start_utc = crop.start_datetime.astimezone(timezone.utc)
+    
+    delta = now_utc - start_utc
+    current_day = max(1, delta.days + 1)
+    
+    logs_by_day = {log.day_number: log for log in logs}
     daily_logs = []
-    for log in logs:
-        daily_logs.append({
-            'day': log.day_number,
-            'temperature': log.temperature if log.temperature is not None else crop.seed.ideal_temp,
-            'humidity': log.humidity if log.humidity is not None else crop.seed.ideal_humidity,
-            'watered': log.watered
-        })
+    
+    for d in range(1, current_day + 1):
+        if d in logs_by_day:
+            l = logs_by_day[d]
+            daily_logs.append({
+                'day': d,
+                'temperature': l.temperature if l.temperature is not None else crop.seed.ideal_temp,
+                'humidity': l.humidity if l.humidity is not None else crop.seed.ideal_humidity,
+                'watered': l.watered
+            })
+        else:
+            daily_logs.append({
+                'day': d,
+                'temperature': crop.seed.ideal_temp,
+                'humidity': crop.seed.ideal_humidity,
+                'watered': False
+            })
         
     prediction = ml_service.predict_yield(seed_config, daily_logs)
     if crop.number_of_trays > 1:
@@ -824,3 +867,27 @@ if __name__ == '__main__':
  
  
  
+# --- AI CHAT SCHEMAS ---
+class ChatMessage(BaseModel):
+    role: str
+    parts: List[str]
+
+class ChatRequest(BaseModel):
+    messages: List[ChatMessage]
+
+@app.post("/api/ai/chat")
+async def ai_chat(request: ChatRequest, current_user: User = Depends(get_current_active_user)):
+    """
+    General AI Chatbot for microgreens advice.
+    """
+    from app.services.gemini_service import get_chat_response
+    
+    # Convert Pydantic objects to dicts for the service
+    messages_data = [m.model_dump() for m in request.messages]
+    
+    result = get_chat_response(messages_data)
+    if result["status"] == "error":
+        raise HTTPException(status_code=500, detail=result["response"])
+    
+    return result
+

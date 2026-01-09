@@ -29,6 +29,21 @@ class YieldPredictionService:
         Returns:
             dict: Prediction result with yield and suggestions
         """
+        if not daily_logs:
+            return {
+                'predicted_yield': seed_config['base_yield'],
+                'base_yield': seed_config['base_yield'],
+                'yield_efficiency': 1.0,
+                'potential_loss': 0,
+                'suggestions': [{
+                    'type': 'success',
+                    'issue': 'Ready to Start!',
+                    'message': 'Everything looks good. Prediction will update once cultivation begins.',
+                    'potential_loss': None
+                }],
+                'status': 'excellent'
+            }
+            
         # Calculate aggregate features
         num_days = len(daily_logs)
         

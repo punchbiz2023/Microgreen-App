@@ -28,16 +28,23 @@ export default function MyPlants() {
 
     const getCropStatus = (crop: Crop) => {
         const start = new Date(crop.start_datetime);
-        const daysSinceStart = differenceInDays(new Date(), start) + 1;
-        const currentDay = Math.min(daysSinceStart, crop.seed.growth_days);
-        const progress = Math.round((currentDay / crop.seed.growth_days) * 100);
+        const now = new Date();
+
+        let currentDay = 0;
+        if (now >= start) {
+            currentDay = differenceInDays(now, start) + 1;
+        }
+
+        const growthDays = crop.seed.growth_days || 10;
+        currentDay = Math.min(currentDay, growthDays);
+        const progress = Math.round((Math.max(0, currentDay) / growthDays) * 100);
         return { currentDay, progress };
     };
 
     if (loading) {
         return (
             <div className="flex justify-center items-center h-64">
-                <Loader2 className="w-8 h-8 animate-spin text-green-600" />
+                <Loader2 className="w-8 h-8 animate-spin text-green-500" />
             </div>
         );
     }
@@ -71,7 +78,7 @@ export default function MyPlants() {
 
                                 <div className="p-5">
                                     <div className="flex justify-between items-center mb-3">
-                                        <span className="text-xs font-bold bg-green-100 text-green-700 px-2.5 py-1 rounded-full uppercase tracking-wide">
+                                        <span className="text-xs font-bold bg-green-50 text-green-600 px-2.5 py-1 rounded-full uppercase tracking-wide">
                                             Day {currentDay}
                                         </span>
                                         <span className="text-xs text-gray-500 font-medium bg-gray-100 px-2 py-1 rounded-lg">
@@ -81,7 +88,7 @@ export default function MyPlants() {
 
                                     <div className="w-full bg-gray-100 rounded-full h-2.5 mb-2">
                                         <div
-                                            className="bg-gradient-to-r from-green-500 to-emerald-600 h-2.5 rounded-full transition-all duration-500 shadow-sm"
+                                            className="bg-gradient-to-r from-green-400 to-emerald-500 h-2.5 rounded-full transition-all duration-500 shadow-sm"
                                             style={{ width: `${progress}%` }}
                                         ></div>
                                     </div>
@@ -99,7 +106,7 @@ export default function MyPlants() {
                             <p className="mb-4">You don't have any plants growing yet.</p>
                             <button
                                 onClick={() => navigate('/atlas')}
-                                className="text-green-600 font-bold hover:underline"
+                                className="text-green-500 font-bold hover:underline"
                             >
                                 Go to Seed Atlas to start one!
                             </button>

@@ -57,7 +57,7 @@ export default function Atlas() {
               <PlantImage seedName={seed.name} className="w-full h-full" />
               <div className="absolute top-4 right-4">
                 <span className={`px-3 py-1.5 text-xs font-bold rounded-full backdrop-blur-md shadow-sm ${seed.difficulty === 'Easy'
-                  ? 'bg-green-500/90 text-white'
+                  ? 'bg-green-400 text-white'
                   : 'bg-yellow-500/90 text-white'
                   }`}>
                   {seed.difficulty}
@@ -67,8 +67,8 @@ export default function Atlas() {
 
             <div className="p-6 flex-1 flex flex-col">
               <div className="mb-4">
-                <h3 className="text-2xl font-bold text-gray-900 group-hover:text-green-700 transition-colors">{seed.name}</h3>
-                <p className="text-sm text-gray-500 italic font-serif opacity-80">{seed.latin_name}</p>
+                <h3 className="text-2xl font-bold text-gray-900 group-hover:text-green-500 transition-colors">{seed.name}</h3>
+                <p className="text-lg text-gray-500 italic">{seed.latin_name}</p>
               </div>
 
               <p className="text-gray-600 text-sm mb-6 line-clamp-2 flex-grow">
@@ -79,7 +79,7 @@ export default function Atlas() {
               <div className="space-y-3 mb-6">
                 <div className="flex items-center justify-between text-sm text-gray-700 border-b border-gray-100 pb-2">
                   <div className="flex items-center">
-                    <Calendar className="w-4 h-4 mr-2 text-green-600" />
+                    <Calendar className="w-4 h-4 mr-2 text-green-500" />
                     <span>Harvest</span>
                   </div>
                   <span className="font-semibold">{seed.harvest_days || seed.growth_days} days</span>
@@ -87,7 +87,7 @@ export default function Atlas() {
 
                 <div className="flex items-center justify-between text-sm text-gray-700 border-b border-gray-100 pb-2">
                   <div className="flex items-center">
-                    <TrendingUp className="w-4 h-4 mr-2 text-green-600" />
+                    <TrendingUp className="w-4 h-4 mr-2 text-green-500" />
                     <span>Avg. Yield</span>
                   </div>
                   <span className="font-semibold">~{seed.avg_yield_grams}g</span>
@@ -100,7 +100,7 @@ export default function Atlas() {
               </div>
 
               <button
-                className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center mt-auto shadow-md hover:shadow-lg"
+                className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center mt-auto shadow-md hover:shadow-lg shadow-green-100"
                 onClick={(e) => {
                   e.stopPropagation();
                   setSelectedSeed(seed);

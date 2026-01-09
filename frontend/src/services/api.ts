@@ -248,6 +248,11 @@ export const adminApi = {
   deleteSeed: (id: number) => api.delete(`/api/seeds/${id}`),
 };
 
+export const aiApi = {
+  chat: (messages: Array<{ role: string; parts: string[] }>) =>
+    api.post<{ response: string; status: string }>('/api/ai/chat', { messages }),
+};
+
 export default api;
 
 

@@ -17,12 +17,15 @@ export default function Header() {
                     {/* Logo / Brand */}
                     <div className="flex">
                         <Link to="/" className="flex-shrink-0 flex items-center group">
-                            <div className="bg-gradient-to-br from-green-500 to-emerald-700 p-2.5 rounded-xl shadow-lg group-hover:shadow-green-200/50 transition-all duration-300">
+                            <div className="bg-gradient-to-br from-green-400 to-emerald-500 p-2 rounded-xl shadow-lg group-hover:shadow-green-300/50 transition-all duration-300 transform group-hover:-rotate-6">
                                 <Leaf className="h-6 w-6 text-white" />
                             </div>
                             <div className="ml-3 flex flex-col justify-center">
-                                <span className="text-xl font-bold text-gray-900 tracking-tight leading-none font-serif">URBAN SIMS</span>
-                                <span className="text-[10px] text-green-600 font-bold uppercase tracking-widest leading-none mt-1">Pro Grower</span>
+                                <div className="flex items-center">
+                                    <span className="text-xl font-extrabold text-gray-900 tracking-tight leading-none">Urban</span>
+                                    <span className="text-xl font-light text-green-400 tracking-tight leading-none ml-0.5">Sims</span>
+                                </div>
+                                <span className="text-[9px] text-gray-400 font-bold uppercase tracking-[0.2em] leading-none mt-1.5 overflow-hidden whitespace-nowrap">Professional Growth</span>
                             </div>
                         </Link>
                     </div>
@@ -32,7 +35,7 @@ export default function Header() {
                         <Link
                             to="/"
                             className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors ${isActive('/')
-                                ? 'border-green-500 text-gray-900'
+                                ? 'border-green-400 text-gray-900'
                                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                 }`}
                         >
@@ -43,7 +46,7 @@ export default function Header() {
                         <Link
                             to="/atlas"
                             className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors ${isActive('/atlas')
-                                ? 'border-green-500 text-gray-900'
+                                ? 'border-green-400 text-gray-900'
                                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                 }`}
                         >
@@ -54,7 +57,7 @@ export default function Header() {
                         <Link
                             to="/my-plants"
                             className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors ${isActive('/my-plants')
-                                ? 'border-green-500 text-gray-900'
+                                ? 'border-green-400 text-gray-900'
                                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                 }`}
                         >
@@ -80,10 +83,10 @@ export default function Header() {
                             </div>
                         ) : (
                             <div className="hidden sm:flex items-center space-x-4">
-                                <Link to="/login" className="text-gray-500 hover:text-green-600 font-medium text-sm">
+                                <Link to="/login" className="text-gray-500 hover:text-green-500 font-medium text-sm">
                                     Log in
                                 </Link>
-                                <Link to="/register" className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-md transition-all hover:shadow-lg">
+                                <Link to="/register" className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-md transition-all hover:shadow-lg">
                                     Get Started
                                 </Link>
                             </div>
