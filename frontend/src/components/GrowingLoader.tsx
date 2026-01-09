@@ -20,7 +20,7 @@ export default function GrowingLoader() {
 
                 {/* Plant Phase (66-100%) */}
                 <div className="absolute bottom-2 animate-plant-phase opacity-0 origin-bottom">
-                    <Sprout className="w-12 h-12 text-green-600 stroke-[1.5]" />
+                    <Sprout className="w-12 h-12 text-green-500 stroke-[1.5]" />
                 </div>
             </div>
             <p className="mt-4 text-sm font-medium text-green-800/60 animate-pulse tracking-widest uppercase text-[10px]">

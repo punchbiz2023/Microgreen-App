@@ -52,9 +52,9 @@ export default function SeedDetail() {
                         <div className="flex justify-between items-start mb-2">
                             <div>
                                 <h1 className="text-3xl font-bold text-gray-900">{seed.name}</h1>
-                                <p className="text-lg text-gray-500 italic font-serif">{seed.latin_name}</p>
+                                <p className="text-lg text-gray-500 italic">{seed.latin_name}</p>
                             </div>
-                            <span className={`px-4 py-1.5 rounded-full text-sm font-bold ${seed.difficulty === 'Easy' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                            <span className={`px-4 py-1.5 rounded-full text-sm font-bold ${seed.difficulty === 'Easy' ? 'bg-green-50 text-green-500' : 'bg-yellow-50 text-yellow-600'
                                 }`}>
                                 {seed.difficulty}
                             </span>
@@ -115,7 +115,7 @@ export default function SeedDetail() {
                         <div className="space-y-4">
                             <div className="flex items-center justify-between border-b border-gray-50 pb-2">
                                 <div className="flex items-center text-gray-700">
-                                    <Sprout className="w-5 h-5 mr-3 text-green-600" />
+                                    <Sprout className="w-5 h-5 mr-3 text-green-500" />
                                     Growing Time
                                 </div>
                                 <span className="font-bold text-gray-900">{seed.growth_days} - {seed.harvest_days || seed.growth_days + 2} days</span>
@@ -138,7 +138,7 @@ export default function SeedDetail() {
                             </div>
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center text-gray-700">
-                                    <span className="w-5 h-5 mr-3 font-serif font-bold text-center text-gray-400">@</span>
+                                    <span className="w-5 h-5 mr-3 font-bold text-center text-gray-400">#</span>
                                     Seed Count
                                 </div>
                                 <span className="font-bold text-gray-900">{seed.seed_count_per_gram || '300'}/g</span>
@@ -149,7 +149,7 @@ export default function SeedDetail() {
                     {/* Nutrition */}
                     <div className="mb-8">
                         <h3 className="text-lg font-bold text-gray-900 mb-2">Nutrition Benefits</h3>
-                        <p className="text-gray-600 leading-relaxed bg-green-50 p-4 rounded-xl border border-green-100">
+                        <p className="text-gray-600 leading-relaxed bg-green-50/50 p-4 rounded-xl border border-green-100/50">
                             {seed.nutrition || "Rich in Vitamins A, B, C, E, and K. High in Calcium, Iron, Magnesium, Phosphorus, Potassium, Zinc."}
                         </p>
                     </div>
@@ -160,7 +160,7 @@ export default function SeedDetail() {
                             {seed.pros && (
                                 <div>
                                     <h3 className="text-lg font-bold text-gray-900 mb-2 flex items-center">
-                                        <span className="bg-green-100 text-green-600 p-1 rounded-lg mr-2">👍</span> Suitable For
+                                        <span className="bg-green-50 text-green-500 p-1 rounded-lg mr-2">👍</span> Suitable For
                                     </h3>
                                     <p className="text-gray-600 bg-gray-50 p-4 rounded-xl border border-gray-100">
                                         {seed.pros}
@@ -210,7 +210,7 @@ export default function SeedDetail() {
                 <div className="max-w-3xl mx-auto">
                     <button
                         onClick={() => setShowWizard(true)}
-                        className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg transition-transform active:scale-[0.98] text-lg"
+                        className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-xl shadow-lg transition-transform active:scale-[0.98] text-lg shadow-green-100"
                     >
                         Start Growing {seed.name}
                     </button>

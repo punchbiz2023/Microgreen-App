@@ -4,6 +4,7 @@ import { cropsApi, logsApi, predictionsApi, type Crop, type DailyLog, type Predi
 import Timeline from '../components/Timeline';
 import StatusCard from '../components/StatusCard';
 import HistoryDetails from '../components/HistoryDetails';
+import GrowthSchedule from '../components/GrowthSchedule';
 import { ArrowLeft, Plus, Sprout } from 'lucide-react';
 import { differenceInDays } from 'date-fns';
 
@@ -107,7 +108,7 @@ export default function Dashboard() {
   if (loading || !crop) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600"></div>
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-500"></div>
       </div>
     );
   }
@@ -117,9 +118,14 @@ export default function Dashboard() {
   const blackoutDays = typeof crop.seed.blackout_time_days === 'string' ? parseInt(crop.seed.blackout_time_days || '0') : (crop.seed.blackout_time_days || 0);
 
   // Calculate current day
-  const daysSinceStart = differenceInDays(new Date(), new Date(crop.start_datetime)) + 1;
-  const currentDay = Math.min(daysSinceStart, growthDays);
-  const isHarvestDay = currentDay >= growthDays;
+  const start = new Date(crop.start_datetime);
+  const now = new Date();
+  let currentDay = 0;
+  if (now >= start) {
+    currentDay = differenceInDays(now, start) + 1;
+  }
+  currentDay = Math.min(currentDay, growthDays);
+  const isHarvestDay = currentDay >= growthDays && currentDay > 0;
 
   // Get completed and missed days
   const loggedDays = logs.map(log => log.day_number);
@@ -240,7 +246,7 @@ export default function Dashboard() {
                   disabled={loggedDays.includes(currentDay)}
                   className={`flex items-center space-x-3 px-8 py-4 font-bold text-lg rounded-xl shadow-lg transition-all ${loggedDays.includes(currentDay)
                     ? 'bg-gray-400 cursor-not-allowed'
-                    : 'bg-green-600 hover:bg-green-700 text-white hover:shadow-xl transform hover:scale-105'
+                    : 'bg-green-500 hover:bg-green-600 text-white hover:shadow-xl transform hover:scale-105 shadow-green-100'
                     }`}
                 >
                   <Plus className="w-6 h-6" />
@@ -263,6 +269,14 @@ export default function Dashboard() {
               phase={getPhase()}
               prediction={prediction}
             />
+
+            <div className="mt-8 bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm">
+              <GrowthSchedule
+                seed={crop.seed}
+                currentDay={currentDay}
+                blackoutDaysOverride={blackoutDays}
+              />
+            </div>
           </div>
         </div>
       </div>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
-import { Sprout } from 'lucide-react';
+import { Leaf } from 'lucide-react';
 
 export default function Login() {
     const [username, setUsername] = useState('');
@@ -41,15 +41,26 @@ export default function Login() {
         <div className="min-h-[80vh] flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg border border-gray-100">
                 <div className="text-center">
-                    <div className="mx-auto h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
-                        <Sprout className="h-8 w-8 text-green-600" />
+                    <div className="flex justify-center mb-6">
+                        <div className="flex items-center group">
+                            <div className="bg-gradient-to-br from-green-400 to-emerald-500 p-3 rounded-2xl shadow-lg transform -rotate-6">
+                                <Leaf className="h-8 w-8 text-white" />
+                            </div>
+                            <div className="ml-4 text-left">
+                                <div className="flex items-center">
+                                    <span className="text-3xl font-extrabold text-gray-900 tracking-tight leading-none">Urban</span>
+                                    <span className="text-3xl font-light text-green-500 tracking-tight leading-none ml-1">Sims</span>
+                                </div>
+                                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.3em] leading-none mt-2 block">Professional Growth</span>
+                            </div>
+                        </div>
                     </div>
-                    <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+                    <h2 className="text-2xl font-bold text-gray-900">
                         Sign in to your account
                     </h2>
                     <p className="mt-2 text-sm text-gray-600">
                         Or{' '}
-                        <Link to="/register" className="font-medium text-green-600 hover:text-green-500">
+                        <Link to="/register" className="font-medium text-green-500 hover:text-green-400">
                             create a new account
                         </Link>
                     </p>
@@ -60,7 +71,7 @@ export default function Login() {
                             <input
                                 type="text"
                                 required
-                                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
+                                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-green-400 focus:border-green-400 focus:z-10 sm:text-sm"
                                 placeholder="Username"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
@@ -70,7 +81,7 @@ export default function Login() {
                             <input
                                 type="password"
                                 required
-                                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
+                                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-green-400 focus:border-green-400 focus:z-10 sm:text-sm"
                                 placeholder="Password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
@@ -88,7 +99,7 @@ export default function Login() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors ${loading ? 'opacity-75 cursor-not-allowed' : ''
+                            className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 transition-colors ${loading ? 'opacity-75 cursor-not-allowed' : ''
                                 }`}
                         >
                             {loading ? 'Signing in...' : 'Sign in'}

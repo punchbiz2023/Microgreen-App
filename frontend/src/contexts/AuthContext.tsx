@@ -1,4 +1,6 @@
-import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
+import { createContext, useState, useEffect, useContext, ReactNode } from 'react';
+
+import api from '../services/api';
 
 interface AuthContextType {
     token: string | null;
@@ -15,41 +17,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<any | null>(null);
 
     useEffect(() => {
-        // Sync with local storage
+        // Sync with local storage and update API headers
         if (token) {
             localStorage.setItem('token', token);
-            // Set global header
-            // @ts-ignore
-            import('axios').then(axios => {
-                axios.default.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-                // Fetch User Details
-                axios.default.get('http://localhost:8000/api/users/me')
-                    .then(res => {
-                        setUser(res.data);
-                    })
-                    .catch(err => {
-                        console.error("Failed to fetch user", err);
-                        // If 401, maybe logout?
-                        if (err.response && err.response.status === 401) {
-                            setToken(null);
-                        }
-                    });
-            });
+            // Fetch User Details using centralized API
+            api.get('/api/users/me')
+                .then(res => {
+                    setUser(res.data);
+                })
+                .catch(err => {
+                    console.error("Failed to fetch user", err);
+                    // If 401, logout
+                    if (err.response && err.response.status === 401) {
+                        setToken(null);
+                        localStorage.removeItem('token');
+                    }
+                });
         } else {
             localStorage.removeItem('token');
             setUser(null);
-            // Remove global header
-            // @ts-ignore
-            import('axios').then(axios => {
-                delete axios.default.defaults.headers.common['Authorization'];
-            });
         }
     }, [token]);
 
-    const login = (newToken: string, username: string) => {
+    const login = (newToken: string, _username: string) => {
         setToken(newToken);
-        // User will be fetched by useEffect, but we can set temp user
-        // setUser({ username }); 
+        // User will be fetched by useEffect
     };
 
     const logout = () => {

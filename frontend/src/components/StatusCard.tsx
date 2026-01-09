@@ -9,11 +9,11 @@ interface StatusCardProps {
   prediction: Prediction | null;
 }
 
-export default function StatusCard({ 
-  dayNumber, 
-  totalDays, 
+export default function StatusCard({
+  dayNumber,
+  totalDays,
   phase,
-  prediction 
+  prediction
 }: StatusCardProps) {
   if (!prediction) {
     return (
@@ -24,11 +24,11 @@ export default function StatusCard({
       </div>
     );
   }
-  
+
   const getSuggestionIcon = (type: string) => {
     switch (type) {
       case 'success':
-        return <CheckCircle className="w-5 h-5 text-green-600" />;
+        return <CheckCircle className="w-5 h-5 text-green-500" />;
       case 'warning':
         return <AlertTriangle className="w-5 h-5 text-yellow-600" />;
       case 'critical':
@@ -37,7 +37,7 @@ export default function StatusCard({
         return <AlertCircle className="w-5 h-5 text-gray-600" />;
     }
   };
-  
+
   const getSuggestionStyle = (type: string) => {
     switch (type) {
       case 'success':
@@ -50,7 +50,7 @@ export default function StatusCard({
         return 'bg-gray-50 border-gray-200';
     }
   };
-  
+
   return (
     <div className="space-y-6">
       {/* Current Status */}
@@ -63,13 +63,13 @@ export default function StatusCard({
             {phase}
           </div>
         </div>
-        
-        <YieldGauge 
+
+        <YieldGauge
           predicted={prediction.predicted_yield}
           base={prediction.base_yield}
           status={prediction.status as any}
         />
-        
+
         {prediction.potential_loss > 0 && (
           <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
             <div className="text-center">
@@ -86,13 +86,13 @@ export default function StatusCard({
           </div>
         )}
       </div>
-      
+
       {/* Suggestions */}
       <div className="bg-white rounded-xl shadow-lg p-6">
         <h3 className="text-xl font-bold text-gray-900 mb-4">
           AI Suggestions
         </h3>
-        
+
         <div className="space-y-3">
           {prediction.suggestions.map((suggestion, index) => (
             <div
@@ -103,7 +103,7 @@ export default function StatusCard({
                 <div className="flex-shrink-0 mt-0.5">
                   {getSuggestionIcon(suggestion.type)}
                 </div>
-                
+
                 <div className="flex-1">
                   <div className="font-semibold text-gray-900 mb-1">
                     {suggestion.issue}
@@ -111,7 +111,7 @@ export default function StatusCard({
                   <div className="text-sm text-gray-700">
                     {suggestion.message}
                   </div>
-                  
+
                   {suggestion.potential_loss && (
                     <div className="mt-2 text-xs font-medium text-red-700">
                       Potential loss: {suggestion.potential_loss}

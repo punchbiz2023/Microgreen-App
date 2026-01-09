@@ -100,4 +100,59 @@ def get_growth_suggestion(crop, logs):
             "status": "error"
         }
 
+def get_chat_response(messages: list):
+    """
+    Handle multi-turn chat with the Urban Sims Expert persona.
+    Expected format for messages: [{"role": "user", "parts": ["..."]}, ...]
+    """
+    if not HAS_GEMINI or not API_KEY:
+        return {
+            "response": "AI Assistant is currently offline. Please check your configuration.",
+            "status": "warning"
+        }
 
+    try:
+        candidates = ['gemini-1.5-flash', 'gemini-1.5-flash-latest', 'gemini-pro']
+        
+        system_instruction = """
+        You are the 'Urban Sims Expert Guide', a helpful AI assistant integrated into a Microgreens Tracking application.
+        Your goal is to help users succeed in growing high-quality microgreens at home.
+        
+        - Be technical but accessible.
+        - Knowledgeable about varieties like Amaranth, Radish, Broccoli, Pea shoots, and Sunflower.
+        - Experts in: seed density, soaking times, blackout periods, watering frequency, and troubleshooting mold or yellowing.
+        - Tone: Encouraging, professional, and precise.
+        - If asked about something unrelated to plants or the app, politely steer back.
+        """
+
+        model = None
+        for model_name in candidates:
+            try:
+                model = genai.GenerativeModel(
+                    model_name=model_name,
+                    system_instruction=system_instruction
+                )
+                break
+            except Exception:
+                continue
+        
+        if not model:
+            raise Exception("No suitable AI model found")
+
+        # Convert simple chat history to Gemini format if needed, 
+        # but here we expect the caller to pass compatible structures or we map them.
+        # For simplicity, we'll use the model.start_chat context if history exists.
+        
+        chat = model.start_chat(history=messages[:-1])
+        response = chat.send_message(messages[-1]["parts"][0])
+        
+        return {
+            "response": response.text,
+            "status": "success"
+        }
+    except Exception as e:
+        print(f"Chat Error: {e}")
+        return {
+            "response": "I'm having trouble thinking clearly right now. Let's try again in a moment.",
+            "status": "error"
+        }
