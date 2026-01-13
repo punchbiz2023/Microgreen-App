@@ -148,6 +148,9 @@ export default function Dashboard() {
     const log = logs.find(l => l.day_number === day);
     if (log) {
       setSelectedLog(log);
+    } else if (day < currentDay) {
+      // Allow back-logging
+      navigate(`/log/${cropId}/${day}`);
     }
   };
 

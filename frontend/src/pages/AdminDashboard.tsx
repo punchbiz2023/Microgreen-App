@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { adminApi, seedsApi, statsApi, Seed, User } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -89,7 +89,7 @@ export default function AdminDashboard() {
     const openNewSeed = () => {
         setEditingSeed(null);
         setSeedForm({
-            seed_type: '', name: '', difficulty: 'Medium', growth_days: 10,
+            seed_type: '', name: '', difficulty: 'Medium', harvest_days: 10,
             avg_yield_grams: 500
         });
         setShowSeedModal(true);
@@ -251,13 +251,17 @@ export default function AdminDashboard() {
                             <button onClick={() => setShowSeedModal(false)} className="text-gray-400 hover:text-gray-700">&times;</button>
                         </div>
                         <div className="p-6 grid grid-cols-2 gap-4">
-                            <div className="col-span-2">
+                            <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-1">Plant Name</label>
-                                <input className="w-full p-2 border rounded-lg" value={seedForm.name} onChange={e => setSeedForm({ ...seedForm, name: e.target.value })} placeholder="e.g. Radish Rambo" />
+                                <input className="w-full p-2 border rounded-lg" value={seedForm.name || ''} onChange={e => setSeedForm({ ...seedForm, name: e.target.value })} placeholder="e.g. Radish Rambo" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">Latin Name</label>
+                                <input className="w-full p-2 border rounded-lg italic" value={seedForm.latin_name || ''} onChange={e => setSeedForm({ ...seedForm, latin_name: e.target.value })} placeholder="e.g. Raphanus sativus" />
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-1">Slug (Unique ID)</label>
-                                <input className="w-full p-2 border rounded-lg bg-gray-50" value={seedForm.seed_type} onChange={e => setSeedForm({ ...seedForm, seed_type: e.target.value })} placeholder="e.g. radish-rambo" disabled={!!editingSeed} />
+                                <input className="w-full p-2 border rounded-lg bg-gray-50" value={seedForm.seed_type || ''} onChange={e => setSeedForm({ ...seedForm, seed_type: e.target.value })} placeholder="e.g. radish-rambo" disabled={!!editingSeed} />
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-1">Difficulty</label>
@@ -268,27 +272,58 @@ export default function AdminDashboard() {
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-1">Growth Days</label>
-                                <input type="number" className="w-full p-2 border rounded-lg" value={seedForm.growth_days} onChange={e => setSeedForm({ ...seedForm, growth_days: parseFloat(e.target.value) })} />
+                                <label className="block text-sm font-bold text-gray-700 mb-1">Growth Days (Harvest)</label>
+                                <input type="number" className="w-full p-2 border rounded-lg"
+                                    value={seedForm.harvest_days ?? seedForm.growth_days ?? ''}
+                                    onChange={e => setSeedForm({ ...seedForm, harvest_days: e.target.value ? parseFloat(e.target.value) : undefined })}
+                                    placeholder="10" />
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-1">Base Yield (g)</label>
-                                <input type="number" className="w-full p-2 border rounded-lg" value={seedForm.avg_yield_grams} onChange={e => setSeedForm({ ...seedForm, avg_yield_grams: parseInt(e.target.value) })} />
+                                <input type="number" className="w-full p-2 border rounded-lg" value={seedForm.avg_yield_grams || ''} onChange={e => setSeedForm({ ...seedForm, avg_yield_grams: e.target.value ? parseInt(e.target.value) : undefined })} />
                             </div>
                             <div className="col-span-2">
-                                <label className="block text-sm font-bold text-gray-700 mb-1">Description</label>
-                                <textarea className="w-full p-2 border rounded-lg h-24" value={seedForm.description || ''} onChange={e => setSeedForm({ ...seedForm, description: e.target.value })} />
+                                <label className="block text-sm font-bold text-gray-700 mb-1">Description (Short)</label>
+                                <textarea className="w-full p-2 border rounded-lg h-20" value={seedForm.description || ''} onChange={e => setSeedForm({ ...seedForm, description: e.target.value })} />
+                            </div>
+                            <div className="col-span-2">
+                                <label className="block text-sm font-bold text-gray-700 mb-1">Full Care Instructions</label>
+                                <textarea className="w-full p-2 border rounded-lg h-20 placeholder:italic" value={seedForm.care_instructions || ''} onChange={e => setSeedForm({ ...seedForm, care_instructions: e.target.value })} placeholder="Detailed steps for growing..." />
                             </div>
                             <div className="col-span-2 border-t pt-4 mt-2">
                                 <h4 className="font-bold text-gray-900 mb-3">Growth Parameters</h4>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Ideal Temp (°C)</label>
-                                <input type="number" className="w-full p-2 border rounded-lg" value={seedForm.ideal_temp || ''} onChange={e => setSeedForm({ ...seedForm, ideal_temp: parseFloat(e.target.value) })} />
+                                <input type="number" className="w-full p-2 border rounded-lg" value={seedForm.ideal_temp || ''} onChange={e => setSeedForm({ ...seedForm, ideal_temp: e.target.value ? parseFloat(e.target.value) : undefined })} />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Ideal Humidity (%)</label>
-                                <input type="number" className="w-full p-2 border rounded-lg" value={seedForm.ideal_humidity || ''} onChange={e => setSeedForm({ ...seedForm, ideal_humidity: parseFloat(e.target.value) })} />
+                                <input type="number" className="w-full p-2 border rounded-lg" value={seedForm.ideal_humidity ?? ''} onChange={e => setSeedForm({ ...seedForm, ideal_humidity: e.target.value ? parseFloat(e.target.value) : undefined })} />
+                            </div>
+                            <div className="col-span-1">
+                                <label className="block text-sm font-bold text-gray-700 mb-1">Taste Profile</label>
+                                <input className="w-full p-2 border rounded-lg" value={seedForm.taste || ''} onChange={e => setSeedForm({ ...seedForm, taste: e.target.value })} placeholder="e.g. Peppery, Spicy" />
+                            </div>
+                            <div className="col-span-1">
+                                <label className="block text-sm font-bold text-gray-700 mb-1">Nutrition</label>
+                                <input className="w-full p-2 border rounded-lg" value={seedForm.nutrition || ''} onChange={e => setSeedForm({ ...seedForm, nutrition: e.target.value })} placeholder="e.g. Vitamins A, C, K" />
+                            </div>
+                            <div className="col-span-1">
+                                <label className="block text-sm font-bold text-gray-700 mb-1">Suitable For (Pros)</label>
+                                <textarea className="w-full p-2 border rounded-lg h-16" value={seedForm.pros || ''} onChange={e => setSeedForm({ ...seedForm, pros: e.target.value })} placeholder="What is it good for?" />
+                            </div>
+                            <div className="col-span-1">
+                                <label className="block text-sm font-bold text-gray-700 mb-1">Not Suitable For (Cons)</label>
+                                <textarea className="w-full p-2 border rounded-lg h-16" value={seedForm.cons || ''} onChange={e => setSeedForm({ ...seedForm, cons: e.target.value })} placeholder="Any drawbacks/difficulties?" />
+                            </div>
+                            <div className="col-span-2">
+                                <label className="block text-sm font-bold text-gray-700 mb-1">Fertilizer Tips</label>
+                                <textarea className="w-full p-2 border rounded-lg h-20" value={seedForm.fertilizer_info || ''} onChange={e => setSeedForm({ ...seedForm, fertilizer_info: e.target.value })} placeholder="Expert guidance on nutrients..." />
+                            </div>
+                            <div className="col-span-2">
+                                <label className="block text-sm font-bold text-gray-700 mb-1">Growth Tips</label>
+                                <textarea className="w-full p-2 border rounded-lg h-20" value={seedForm.growth_tips || ''} onChange={e => setSeedForm({ ...seedForm, growth_tips: e.target.value })} placeholder="Pro secrets for success..." />
                             </div>
                         </div>
                         <div className="p-6 bg-gray-50 border-t flex justify-end space-x-3">

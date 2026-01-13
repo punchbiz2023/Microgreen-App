@@ -95,6 +95,8 @@ export interface Seed {
   external_links?: Array<{ url: string; desc: string }>;
   care_instructions?: string;
   source_url?: string;
+  fertilizer_info?: string;
+  growth_tips?: string;
 
   growth_days: number;
 }

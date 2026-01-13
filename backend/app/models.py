@@ -59,6 +59,10 @@ class Seed(Base):
     temp_tolerance = Column(Float, nullable=False, default=2.5)
     humidity_tolerance = Column(Float, nullable=False, default=10)
     
+    # New: User-friendly instructions and fertilizer tips
+    fertilizer_info = Column(Text, nullable=True)
+    growth_tips = Column(Text, nullable=True)
+    
     # Rich Info
     description = Column(Text, nullable=True)
     pros = Column(Text, nullable=True) # New: Suitable For

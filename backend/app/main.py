@@ -112,6 +112,8 @@ class SeedResponse(BaseModel):
     external_links: Optional[List[Dict[str, str]]] = None    
     care_instructions: Optional[str] = None
     source_url: Optional[str] = None
+    fertilizer_info: Optional[str] = None
+    growth_tips: Optional[str] = None
     
     growth_days: int # Computed property
     
@@ -187,6 +189,8 @@ class SeedCreate(BaseModel):
     nutrition: Optional[str] = None
     care_instructions: Optional[str] = None
     source_url: Optional[str] = None
+    fertilizer_info: Optional[str] = None
+    growth_tips: Optional[str] = None
 
 class SeedUpdate(BaseModel):
     name: Optional[str] = None
@@ -195,36 +199,18 @@ class SeedUpdate(BaseModel):
     ideal_temp: Optional[float] = None
     ideal_humidity: Optional[float] = None
     description: Optional[str] = None
-
-class SeedCreate(BaseModel):
-    seed_type: str
-    name: str
-    latin_name: Optional[str] = None
-    difficulty: str
-    seed_count_per_gram: Optional[str] = None
-    sow_density: Optional[str] = None
+    fertilizer_info: Optional[str] = None
+    growth_tips: Optional[str] = None
+    harvest_days: Optional[float] = None
     soaking_duration_hours: Optional[float] = None
     blackout_time_days: Optional[float] = None
     germination_days: Optional[float] = None
-    harvest_days: Optional[float] = None
-    soaking_req: Optional[str] = None
-    watering_req: Optional[str] = None
-    avg_yield_grams: Optional[int] = None
-    ideal_temp: Optional[float] = None
-    ideal_humidity: Optional[float] = None
-    description: Optional[str] = None
-    taste: Optional[str] = None
-    nutrition: Optional[str] = None
     care_instructions: Optional[str] = None
-    source_url: Optional[str] = None
+    nutrition: Optional[str] = None
+    taste: Optional[str] = None
+    pros: Optional[str] = None
+    cons: Optional[str] = None
 
-class SeedUpdate(BaseModel):
-    name: Optional[str] = None
-    difficulty: Optional[str] = None
-    avg_yield_grams: Optional[int] = None
-    ideal_temp: Optional[float] = None
-    ideal_humidity: Optional[float] = None
-    description: Optional[str] = None
 
 class CropCreate(BaseModel):
     seed_id: int
@@ -276,7 +262,8 @@ async def startup_event():
         from app.init_seeds import init_seeds, create_default_user
         db = next(get_db())
         try:
-            init_seeds(db)
+            if db.query(Seed).count() == 0:
+                init_seeds(db)
             create_default_user(db)
         finally:
             db.close()
@@ -364,8 +351,6 @@ async def delete_crop(crop_id: int, db: Session = Depends(get_db), current_user:
     if crop.user_id != current_user.id and current_user.role != 'admin':
         raise HTTPException(status_code=403, detail="Not authorized")
     
-    db.delete(crop)
-    db.commit()
     db.delete(crop)
     db.commit()
     return {"status": "success", "message": "Crop deleted"}
@@ -841,6 +826,24 @@ async def update_seed(
     db.commit()
     db.refresh(seed)
     return seed
+
+@app.delete("/api/crops/{crop_id}")
+async def delete_crop(
+    crop_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    crop = db.query(Crop).filter(Crop.id == crop_id).first()
+    if not crop:
+        raise HTTPException(status_code=404, detail="Crop not found")
+    
+    # Check ownership
+    if crop.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to delete this crop")
+    
+    db.delete(crop)
+    db.commit()
+    return {"status": "success", "message": "Crop deleted"}
 
 @app.delete("/api/seeds/{seed_id}")
 async def delete_seed(

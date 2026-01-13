@@ -62,12 +62,7 @@ def init_seeds(db: Session):
     # Wipe Data - DISABLED for persistence
     # wipe_database(db) 
     
-    # Check if seeds already exist to avoid re-importing blindly (or implement update logic)
-    existing_count = db.query(Seed).count()
-    if existing_count > 0:
-        print(f"Seeds already exist ({existing_count}). Skipping full import to preserve IDs.")
-        # Optional: You could implement an 'update' logic here instead of skipping
-        return
+    print("Updating Seed Database...")
 
     print("Initializing Seed Database...")
     added_count = 0
@@ -148,24 +143,48 @@ def init_seeds(db: Session):
                 'care_instructions': f"Suggested soaking: {soak_time_raw}. Sprout time: {sprout_time_raw}. Growth time: {growth_time_raw}.",
                 
                 # Defaults
-                'ideal_temp': 22.0,
-                'ideal_humidity': 50.0,
-                'temp_tolerance': 3.0,
                 'humidity_tolerance': 10.0,
             }
+
+            # Enrichment: Add Fertilizer and Growth Tips
+            name_lower = crop_name.lower()
+            if 'sunflower' in name_lower:
+                seed_data['fertilizer_info'] = "Sunflowers benefit from a pinch of Calcium and Magnesium in the water after Day 4."
+                seed_data['growth_tips'] = "Apply a heavy weight on top during the blackout phase to help them shed their seed hulls."
+            elif 'broccoli' in name_lower:
+                seed_data['fertilizer_info'] = "Low-dose Nitrogen fertilizer can help if leaves look yellow towards Day 8."
+                seed_data['growth_tips'] = "Very sensitive to light; ensure even exposure to avoid 'leggy' stems."
+            elif 'pea' in name_lower:
+                seed_data['fertilizer_info'] = "Peas generally don't need fertilizer if using a rich soil medium."
+                seed_data['growth_tips'] = "Harvest when the second set of leaves (tendrils) just starts to appear for the best flavor."
+            elif 'radish' in name_lower:
+                seed_data['fertilizer_info'] = "Balanced liquid seaweed fertilizer at 25% strength works wonders on Day 5."
+                seed_data['growth_tips'] = "Radishes grow extremely fast! Keep a close eye on them from Day 6 onwards."
+            else:
+                seed_data['fertilizer_info'] = "Most microgreens thrive with just clean, pH-balanced water (6.0-6.5)."
+                seed_data['growth_tips'] = "Ensure good airflow to prevent surface mold especially during the blackout phase."
             
             try:
-                seed = Seed(**seed_data)
-                db.add(seed)
-                db.flush() # Try flushing to catch error immediately
+                # Check for existing seed by slug
+                existing_seed = db.query(Seed).filter(Seed.seed_type == seed_type_slug).first()
+                if existing_seed:
+                    for key, value in seed_data.items():
+                        setattr(existing_seed, key, value)
+                    print(f"Updated: {crop_name}")
+                else:
+                    seed = Seed(**seed_data)
+                    db.add(seed)
+                    print(f"Added: {crop_name}")
+                
+                db.flush() 
                 added_count += 1
             except Exception as e:
-                print(f"FAILED to add row {row.get('S.No')}: {crop_name}")
+                print(f"FAILED to process row {row.get('S.No')}: {crop_name}")
                 print(f"Error: {e}")
-                db.rollback() # Skip this bad row
+                db.rollback() 
                 
     db.commit()
-    print(f"Seed Import Complete: {added_count} seeds added.")
+    print(f"Seed Processing Complete: {added_count} seeds processed.")
 
 
 def create_default_user(db: Session):
