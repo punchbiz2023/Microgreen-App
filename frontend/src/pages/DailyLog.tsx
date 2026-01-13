@@ -91,6 +91,12 @@ export default function DailyLog() {
 
   const blackoutDays = typeof crop.seed.blackout_time_days === 'string' ? parseInt(crop.seed.blackout_time_days || '0') : (crop.seed.blackout_time_days || 0);
 
+  const startUtc = new Date(crop.start_datetime);
+  const nowUtc = new Date();
+  const diffTime = nowUtc.getTime() - startUtc.getTime();
+  const currentDay = Math.max(1, Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1);
+  const isBackLogging = parseInt(day || '0') < currentDay;
+
   const getTempColor = () => {
     const diff = Math.abs(temperature - (crop.seed.ideal_temp ?? 22));
     if (diff <= 1) return 'text-green-500';
@@ -120,12 +126,30 @@ export default function DailyLog() {
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Log Day {day}
+              {isBackLogging ? `Back-log: Day ${day}` : `Log Day ${day}`}
             </h1>
             <p className="text-gray-600">
               {crop.seed.name} - {parseInt(day!) <= blackoutDays ? 'Blackout Phase' : 'Light Phase'}
             </p>
           </div>
+
+          {isBackLogging && (
+            <div className="mb-8 p-4 bg-amber-50 border-l-4 border-amber-400 rounded-r-lg">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <Save className="h-5 w-5 text-amber-400" />
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm text-amber-700 font-medium">
+                    You are logging data for a past day.
+                  </p>
+                  <p className="text-xs text-amber-600 mt-1">
+                    This will update the historical record and re-calculate yield predictions for this crop.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Watering */}

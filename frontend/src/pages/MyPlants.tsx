@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { cropsApi, type Crop } from '../services/api';
 import PlantImage from '../components/PlantImage';
 import { format, differenceInDays } from 'date-fns';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Trash2 } from 'lucide-react';
 
 export default function MyPlants() {
     const [activeCrops, setActiveCrops] = useState<Crop[]>([]);
@@ -41,6 +41,20 @@ export default function MyPlants() {
         return { currentDay, progress };
     };
 
+    const [deletingCrop, setDeletingCrop] = useState<Crop | null>(null);
+
+    const handleDelete = async () => {
+        if (!deletingCrop) return;
+        try {
+            await cropsApi.delete(deletingCrop.id);
+            setActiveCrops(prev => prev.filter(c => c.id !== deletingCrop.id));
+            setDeletingCrop(null);
+        } catch (error) {
+            console.error('Failed to delete crop:', error);
+            alert('Failed to delete plant. Please try again.');
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex justify-center items-center h-64">
@@ -52,9 +66,11 @@ export default function MyPlants() {
     return (
         <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
             <div className="max-w-5xl mx-auto">
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900">My Plants</h1>
-                    <p className="text-gray-600 mt-2">Track your active crops and their progress.</p>
+                <div className="mb-8 flex justify-between items-end">
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-900">My Plants</h1>
+                        <p className="text-gray-600 mt-2">Track your active crops and their progress.</p>
+                    </div>
                 </div>
 
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -64,8 +80,19 @@ export default function MyPlants() {
                             <div
                                 key={crop.id}
                                 onClick={() => navigate(`/dashboard/${crop.id}`)}
-                                className="bg-white rounded-2xl shadow-sm cursor-pointer border border-gray-100 hover:shadow-md transition-all group overflow-hidden"
+                                className="bg-white rounded-2xl shadow-sm cursor-pointer border border-gray-100 hover:shadow-md transition-all group overflow-hidden relative"
                             >
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setDeletingCrop(crop);
+                                    }}
+                                    className="absolute top-3 right-3 z-10 p-2 bg-white/20 backdrop-blur-md rounded-xl text-white hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                                    title="Delete Plant"
+                                >
+                                    <Trash2 size={18} />
+                                </button>
+
                                 <div className="h-40 relative">
                                     <PlantImage seedName={crop.seed.name} className="w-full h-full object-cover" />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-4">
@@ -114,6 +141,35 @@ export default function MyPlants() {
                     )}
                 </div>
             </div>
+
+            {/* Delete Confirmation Modal */}
+            {deletingCrop && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl transform transition-all animate-in fade-in zoom-in duration-200">
+                        <div className="w-16 h-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mb-6 mx-auto">
+                            <Trash2 size={32} />
+                        </div>
+                        <h3 className="text-2xl font-bold text-gray-900 text-center mb-2">Delete Plant?</h3>
+                        <p className="text-gray-500 text-center mb-8">
+                            Are you sure you want to delete your <span className="font-bold text-gray-700">{deletingCrop.seed.name}</span>? This action cannot be undone and all growth history will be lost.
+                        </p>
+                        <div className="flex space-x-3">
+                            <button
+                                onClick={() => setDeletingCrop(null)}
+                                className="flex-1 px-6 py-3 rounded-xl font-bold text-gray-500 bg-gray-100 hover:bg-gray-200 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleDelete}
+                                className="flex-1 px-6 py-3 rounded-xl font-bold text-white bg-red-500 hover:bg-red-600 shadow-lg shadow-red-200 transition-all active:scale-95"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

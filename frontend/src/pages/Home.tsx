@@ -15,7 +15,7 @@ export default function Home() {
     const [predictionResult, setPredictionResult] = useState<any | null>(null);
     const [selectedAction, setSelectedAction] = useState<any | null>(null);
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const { } = useAuth();
 
     // Modal State
     const [temp, setTemp] = useState(22);
@@ -88,6 +88,14 @@ export default function Home() {
     };
 
     const getTimelineActions = () => {
+        /*
+        - [ ] Refine Home Page Action Feed (only show today's tasks) [/]
+        - [ ] Implement Back-logging in Dashboard:
+            - [ ] Allow clicking past days in the timeline to add/edit logs [/]
+            - [ ] Add warnings for back-dated entries [/]
+        - [ ] Audit Backend `log_action` for specific day support [/]
+        - [ ] Final verification and walkthrough
+        */
         const actions: any[] = [];
         const now = new Date();
 
@@ -98,8 +106,16 @@ export default function Home() {
             const dailyLogs = crop.daily_logs || [];
 
             const isActionLogged = (type: string, dayNum: number) => {
-                const dayLog = dailyLogs.find(log => log.day_number === dayNum);
-                return dayLog?.actions_recorded?.includes(type) || false;
+                const log = dailyLogs.find(l => l.day_number === dayNum);
+                if (!log) return false;
+
+                // If it's a specific action type (like 'water_morning'), it MUST be in actions_recorded
+                if (log.actions_recorded?.includes(type)) return true;
+
+                // Fallback for older logs or general 'watered' status
+                if (type === 'sow') return true;
+
+                return false;
             };
 
             if (currentDay <= 0) continue; // Skip future crops for actions
@@ -114,35 +130,33 @@ export default function Home() {
                     actions.push({ id: `${crop.id}-sow`, crop, title: "Sow to Tray", time: soakEndTime, type: 'sow', completed: false, priority: 'high', day_number: currentDay });
                 }
             } else {
-                // Check past and current days for watering
-                for (let d = 1; d <= currentDay; d++) {
-                    const morningTime = new Date(); morningTime.setHours(8, 0, 0, 0);
-                    const eveningTime = new Date(); eveningTime.setHours(18, 0, 0, 0);
+                // Only show today's actions on the Home page feed
+                const morningTime = new Date(); morningTime.setHours(8, 0, 0, 0);
+                const eveningTime = new Date(); eveningTime.setHours(18, 0, 0, 0);
 
-                    if (!isActionLogged('water_morning', d)) {
-                        actions.push({
-                            id: `${crop.id}-day${d}-water-am`,
-                            crop,
-                            title: d === currentDay ? "Morning Mist" : `Day ${d} Morning Mist`,
-                            time: morningTime,
-                            type: 'water_morning',
-                            completed: false,
-                            priority: d === currentDay ? 'medium' : 'high',
-                            day_number: d
-                        });
-                    }
-                    if (!isActionLogged('water_evening', d)) {
-                        actions.push({
-                            id: `${crop.id}-day${d}-water-pm`,
-                            crop,
-                            title: d === currentDay ? "Evening Mist" : `Day ${d} Evening Mist`,
-                            time: eveningTime,
-                            type: 'water_evening',
-                            completed: false,
-                            priority: d === currentDay ? 'medium' : 'high',
-                            day_number: d
-                        });
-                    }
+                if (!isActionLogged('water_morning', currentDay)) {
+                    actions.push({
+                        id: `${crop.id}-today-water-am`,
+                        crop,
+                        title: "Morning Mist",
+                        time: morningTime,
+                        type: 'water_morning',
+                        completed: false,
+                        priority: 'medium',
+                        day_number: currentDay
+                    });
+                }
+                if (!isActionLogged('water_evening', currentDay)) {
+                    actions.push({
+                        id: `${crop.id}-today-water-pm`,
+                        crop,
+                        title: "Evening Mist",
+                        time: eveningTime,
+                        type: 'water_evening',
+                        completed: false,
+                        priority: 'medium',
+                        day_number: currentDay
+                    });
                 }
             }
         }
@@ -192,8 +206,6 @@ export default function Home() {
                         <div className="space-y-4">
                             {timelineActions.length > 0 ? (
                                 timelineActions.map((action) => {
-                                    const nowTime = new Date();
-                                    const isFuture = isAfter(action.time, nowTime);
                                     const relTime = formatDistanceToNow(action.time, { addSuffix: true });
 
                                     return (
