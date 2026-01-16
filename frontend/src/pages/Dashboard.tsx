@@ -5,6 +5,7 @@ import Timeline from '../components/Timeline';
 import StatusCard from '../components/StatusCard';
 import HistoryDetails from '../components/HistoryDetails';
 import GrowthSchedule from '../components/GrowthSchedule';
+import CultivationCards from '../components/CultivationCards';
 import { ArrowLeft, Plus, Sprout } from 'lucide-react';
 import { differenceInDays } from 'date-fns';
 
@@ -232,6 +233,13 @@ export default function Dashboard() {
                 />
               </div>
             )}
+
+            {/* Cultivation Details Cards */}
+            <CultivationCards
+              seed={crop.seed}
+              traySize={crop.tray_size}
+              numberOfTrays={crop.number_of_trays}
+            />
 
             {/* Action Button */}
             <div className="flex justify-center">
