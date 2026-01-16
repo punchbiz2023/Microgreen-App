@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { seedsApi, type Seed } from '../services/api';
-import { Sprout, Droplet, Thermometer, Clock, Sun, Moon, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import PlantImage from '../components/PlantImage';
 import GrowWizard from '../components/GrowWizard';
 import GrowingLoader from '../components/GrowingLoader';
+import CultivationCards from '../components/CultivationCards';
 
 export default function SeedDetail() {
     const { id } = useParams();
@@ -12,6 +13,7 @@ export default function SeedDetail() {
     const [seed, setSeed] = useState<Seed | null>(null);
     const [loading, setLoading] = useState(true);
     const [showWizard, setShowWizard] = useState(false);
+    const [selectedTraySize, setSelectedTraySize] = useState("10x20 inch");
 
     useEffect(() => {
         if (id) loadSeed(Number(id));
@@ -85,66 +87,39 @@ export default function SeedDetail() {
                         </div>
                     </div>
 
-                    {/* Care Instructions */}
-                    <div className="mb-8">
-                        <h3 className="text-lg font-bold text-gray-900 mb-4">Care Instructions</h3>
-                        <div className="grid grid-cols-3 gap-4">
-                            <div className="bg-blue-50 p-4 rounded-xl text-center">
-                                <Droplet className="w-6 h-6 text-blue-500 mx-auto mb-2" />
-                                <span className="block text-xs text-gray-500 uppercase font-bold">Watering</span>
-                                <span className="font-semibold text-gray-900">{seed.watering_req || 'Standard'}</span>
-                            </div>
-                            <div className="bg-purple-50 p-4 rounded-xl text-center">
-                                <Clock className="w-6 h-6 text-purple-500 mx-auto mb-2" />
-                                <span className="block text-xs text-gray-500 uppercase font-bold">Soaking</span>
-                                <span className="font-semibold text-gray-900">
-                                    {seed.soaking_duration_hours ? `${seed.soaking_duration_hours}h` : 'No'}
-                                </span>
-                            </div>
-                            <div className="bg-orange-50 p-4 rounded-xl text-center">
-                                <Thermometer className="w-6 h-6 text-orange-500 mx-auto mb-2" />
-                                <span className="block text-xs text-gray-500 uppercase font-bold">Low Temp</span>
-                                <span className="font-semibold text-gray-900">No</span>
-                            </div>
+
+                    {/* Tray Size Selection */}
+                    <div className="mb-10 p-6 bg-white border-2 border-green-100 rounded-3xl shadow-sm">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-bold text-gray-900">Configure Growth</h3>
+                            <span className="text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full uppercase">Dynamic Scaling</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-3">
+                            {[
+                                { id: "10x20 inch", label: "10x20\"", area: "200 in²", mult: "1.0x" },
+                                { id: "10x10 inch", label: "10x10\"", area: "100 in²", mult: "0.5x" },
+                                { id: "5x5 inch", label: "5x5\"", area: "25 in²", mult: "0.125x" }
+                            ].map((tray) => (
+                                <button
+                                    key={tray.id}
+                                    onClick={() => setSelectedTraySize(tray.id)}
+                                    className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-1 ${selectedTraySize === tray.id
+                                        ? "border-green-500 bg-green-50 shadow-md scale-[1.02]"
+                                        : "border-gray-100 hover:border-green-200 bg-gray-50/50"
+                                        }`}
+                                >
+                                    <span className={`text-sm font-black ${selectedTraySize === tray.id ? "text-green-700" : "text-gray-900"}`}>{tray.label}</span>
+                                    <span className="text-[10px] font-bold text-gray-400 uppercase">{tray.area}</span>
+                                    <div className={`mt-1 px-2 py-0.5 rounded text-[10px] font-black ${selectedTraySize === tray.id ? "bg-green-200 text-green-700" : "bg-gray-200 text-gray-500"}`}>
+                                        {tray.mult}
+                                    </div>
+                                </button>
+                            ))}
                         </div>
                     </div>
 
-                    {/* Growing Cycle */}
-                    <div className="mb-8">
-                        <h3 className="text-lg font-bold text-gray-900 mb-4">Growing Cycle</h3>
-                        <div className="space-y-4">
-                            <div className="flex items-center justify-between border-b border-gray-50 pb-2">
-                                <div className="flex items-center text-gray-700">
-                                    <Sprout className="w-5 h-5 mr-3 text-green-500" />
-                                    Growing Time
-                                </div>
-                                <span className="font-bold text-gray-900">{seed.growth_days} - {seed.harvest_days || seed.growth_days + 2} days</span>
-                            </div>
-                            <div className="flex items-center justify-between border-b border-gray-50 pb-2">
-                                <div className="flex items-center text-gray-700">
-                                    <Moon className="w-5 h-5 mr-3 text-gray-800" />
-                                    Blackout Time
-                                </div>
-                                <span className="font-bold text-gray-900">{seed.blackout_time_days || 3} - {(seed.blackout_time_days || 3) + 1} days</span>
-                            </div>
-                            <div className="flex items-center justify-between border-b border-gray-50 pb-2">
-                                <div className="flex items-center text-gray-700">
-                                    <Sun className="w-5 h-5 mr-3 text-yellow-500" />
-                                    Light Time
-                                </div>
-                                <span className="font-bold text-gray-900">
-                                    {(seed.growth_days || 14) - (seed.blackout_time_days || 3)} days
-                                </span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center text-gray-700">
-                                    <span className="w-5 h-5 mr-3 font-bold text-center text-gray-400">#</span>
-                                    Seed Count
-                                </div>
-                                <span className="font-bold text-gray-900">{seed.seed_count_per_gram || '300'}/g</span>
-                            </div>
-                        </div>
-                    </div>
+                    {/* Cultivation & Yield Cards - Replaced with Component */}
+                    <CultivationCards seed={seed} traySize={selectedTraySize} />
 
                     {/* Nutrition */}
                     <div className="mb-8">
@@ -221,6 +196,7 @@ export default function SeedDetail() {
             {showWizard && (
                 <GrowWizard
                     seed={seed}
+                    initialTraySize={selectedTraySize}
                     onClose={() => setShowWizard(false)}
                 />
             )}

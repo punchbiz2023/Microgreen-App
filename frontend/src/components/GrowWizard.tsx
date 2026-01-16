@@ -6,10 +6,11 @@ import GrowthSchedule from './GrowthSchedule';
 
 interface GrowWizardProps {
     seed: Seed;
+    initialTraySize?: string;
     onClose: () => void;
 }
 
-const GrowWizard: React.FC<GrowWizardProps> = ({ seed, onClose }) => {
+const GrowWizard: React.FC<GrowWizardProps> = ({ seed, initialTraySize = "10x20 inch", onClose }) => {
     const navigate = useNavigate();
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
@@ -23,6 +24,7 @@ const GrowWizard: React.FC<GrowWizardProps> = ({ seed, onClose }) => {
     const [soakHours, setSoakHours] = useState(seed.soaking_duration_hours || 10);
     const [blackoutDays, setBlackoutDays] = useState(seed.blackout_time_days || 3);
     const [wateringFreq, setWateringFreq] = useState(2);
+    const [traySize, setTraySize] = useState(initialTraySize);
     const [numberOfTrays, setNumberOfTrays] = useState(1);
 
     // Notification Settings
@@ -54,7 +56,7 @@ const GrowWizard: React.FC<GrowWizardProps> = ({ seed, onClose }) => {
             const payload: any = {
                 seed_id: seed.id,
                 start_datetime: startDateTime,
-                tray_size: "10x20 inch",
+                tray_size: traySize,
                 number_of_trays: numberOfTrays,
                 custom_settings: customSettings,
                 notification_settings: notificationSettings
@@ -206,9 +208,27 @@ const GrowWizard: React.FC<GrowWizardProps> = ({ seed, onClose }) => {
                                 </div>
                             </div>
 
+                            {/* TRAY SIZE SELECTION */}
+                            <div className="pt-4 border-t border-gray-100">
+                                <label className="text-sm font-bold text-gray-700 block mb-2">Tray Size</label>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {["10x20 inch", "10x10 inch", "5x5 inch"].map(size => (
+                                        <button
+                                            key={size}
+                                            onClick={() => setTraySize(size)}
+                                            className={`py-3 rounded-xl text-xs font-bold border-2 transition-all ${traySize === size
+                                                ? 'border-green-500 bg-green-50 text-green-700'
+                                                : 'border-gray-100 text-gray-600 hover:border-gray-200'}`}
+                                        >
+                                            {size.split(' ')[0]}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
                             {/* BATCH SIZE (Always Visible) */}
                             <div className="pt-4 border-t border-gray-100">
-                                <label className="text-sm font-bold text-gray-700 block mb-2">Batch Size (Number of Trays)</label>
+                                <label className="text-sm font-bold text-gray-700 block mb-2">Number of Trays</label>
                                 <div className="flex items-center bg-white border-2 border-gray-100 rounded-xl p-1 focus-within:border-green-500 focus-within:ring-4 focus-within:ring-green-50 transition-all">
                                     <button onClick={() => setNumberOfTrays(Math.max(1, numberOfTrays - 1))} className="p-3 hover:bg-gray-100 rounded-lg text-gray-500 font-bold">-</button>
                                     <input
@@ -220,7 +240,7 @@ const GrowWizard: React.FC<GrowWizardProps> = ({ seed, onClose }) => {
                                     />
                                     <button onClick={() => setNumberOfTrays(numberOfTrays + 1)} className="p-3 hover:bg-gray-100 rounded-lg text-green-600 font-bold">+</button>
                                 </div>
-                                <p className="text-xs text-gray-400 mt-2 text-center">Standard 10x20" trays. Yield prediction will scale automatically.</p>
+                                <p className="text-xs text-gray-400 mt-2 text-center">Standard {traySize} trays. Yield prediction will scale automatically.</p>
                             </div>
                         </div>
                     )}

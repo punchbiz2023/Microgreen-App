@@ -102,11 +102,11 @@ def init_seeds(db: Session):
             blackout_days = max(0, germination_days - 1) # Estimation if not provided
             
             # Weights
-            seed_weight_raw = row.get('Seed Weight (gm)', '0')
-            harvest_weight_raw = row.get('Harvest Weight (gm)', '0')
+            seed_weight_raw = row.get('Seed Weight (gm)', '20')
+            harvest_weight_raw = row.get('Harvest Weight (gm)', '200')
             
-            seed_weight_g = parse_range_avg(seed_weight_raw)
-            harvest_weight_g = parse_range_avg(harvest_weight_raw)
+            seed_weight_g = parse_range_avg(seed_weight_raw) or 20.0
+            harvest_weight_g = parse_range_avg(harvest_weight_raw) or 200.0
             
             # Rich Data
             links = []
@@ -114,15 +114,23 @@ def init_seeds(db: Session):
             if row.get('Link 2'): links.append({"url": row.get('Link 2'), "desc": row.get('Link 2 Description', 'Link 2')})
             if row.get('Link 3'): links.append({"url": row.get('Link 3'), "desc": row.get('Link 3 Description', 'Link 3')})
             
+            # Final validation and defaults
+            if germination_days <= 0:
+                print(f"  [LOG] Missing Germination for {crop_name}, using default 3 days")
+                germination_days = 3.0
+            if harvest_days <= 0:
+                print(f"  [LOG] Missing Harvest for {crop_name}, using default 10 days")
+                harvest_days = 10.0
+
             seed_data = {
                 'seed_type': seed_type_slug,
                 'name': crop_name,
                 'latin_name': '', # Not in new CSV
                 'difficulty': 'Medium', # Default
                 
-                # New Fields
+                # Scaled Data
                 'suggested_seed_weight': seed_weight_g,
-                'avg_yield_grams': int(harvest_weight_g) if harvest_weight_g else 500,
+                'avg_yield_grams': int(harvest_weight_g),
                 
                 'soaking_duration_hours': soak_hours,
                 'germination_days': germination_days,
@@ -130,7 +138,7 @@ def init_seeds(db: Session):
                 'blackout_time_days': blackout_days,
                 
                 # Textual
-                'soaking_req': soak_time_raw,
+                'soaking_req': soak_time_raw or 'No Soak',
                 'watering_req': 'Regular', # Default
                 
                 # Metadata
@@ -140,7 +148,7 @@ def init_seeds(db: Session):
                 'external_links': links, # Store as JSON list
                 
                 'description': f"A variety of {crop_name}. Known for: {row.get('Nutritional Benefits', '')[:100]}...",
-                'care_instructions': f"Suggested soaking: {soak_time_raw}. Sprout time: {sprout_time_raw}. Growth time: {growth_time_raw}.",
+                'care_instructions': f"Suggested soaking: {soak_time_raw or 'None'}. Sprout time: {sprout_time_raw or '3 days'}. Growth time: {growth_time_raw or '10 days'}.",
                 
                 # Defaults
                 'humidity_tolerance': 10.0,
