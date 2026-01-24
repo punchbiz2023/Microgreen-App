@@ -5,6 +5,7 @@ import SeedDetail from './pages/SeedDetail'; // New
 import MyPlants from './pages/MyPlants';
 import Dashboard from './pages/Dashboard';
 import DailyLog from './pages/DailyLog';
+import DailyGuide from './pages/DailyGuide';
 import Harvest from './pages/Harvest';
 
 import Header from './components/Header';
@@ -44,6 +45,7 @@ function App() {
             <Route path="/atlas/:id" element={<ProtectedRoute><SeedDetail /></ProtectedRoute>} />
             <Route path="/my-plants" element={<ProtectedRoute><MyPlants /></ProtectedRoute>} />
             <Route path="/dashboard/:cropId" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/guide/:cropId" element={<ProtectedRoute><DailyGuide /></ProtectedRoute>} />
             <Route path="/log/:cropId/:day" element={<ProtectedRoute><DailyLog /></ProtectedRoute>} />
             <Route path="/harvest/:cropId" element={<ProtectedRoute><Harvest /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />

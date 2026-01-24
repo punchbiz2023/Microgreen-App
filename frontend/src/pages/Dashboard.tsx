@@ -1,17 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { cropsApi, logsApi, predictionsApi, type Crop, type DailyLog, type Prediction } from '../services/api';
 import Timeline from '../components/Timeline';
 import StatusCard from '../components/StatusCard';
 import HistoryDetails from '../components/HistoryDetails';
 import GrowthSchedule from '../components/GrowthSchedule';
 import CultivationCards from '../components/CultivationCards';
-import { ArrowLeft, Plus, Sprout } from 'lucide-react';
-import { differenceInDays } from 'date-fns';
+import { ArrowLeft, Plus, Sprout, Zap } from 'lucide-react';
+import { differenceInDays, format } from 'date-fns';
+import { ta as taLocale, enUS as enLocale } from 'date-fns/locale';
 
 export default function Dashboard() {
   const { cropId } = useParams<{ cropId: string }>();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+  const currentLocale = i18n.language === 'ta' ? taLocale : enLocale;
 
   const [crop, setCrop] = useState<Crop | null>(null);
   const [logs, setLogs] = useState<DailyLog[]>([]);
@@ -68,6 +72,7 @@ export default function Dashboard() {
              Give me 2-3 short, actionable tips for the next 24 hours to maximize yield.
              Keep it encouraging but technical.
              CRITICAL: Keep the response extremely concise. Maximum 3-4 lines total. Use bullet points.
+             LANGUAGE: Respond strictly in ${i18n.language === 'ta' ? 'Tamil' : 'English'}.
              `;
 
             try {
@@ -89,7 +94,7 @@ export default function Dashboard() {
               ...predResponse.data.suggestions,
               ...(aiSuggestion ? [{
                 type: 'success' as const,
-                issue: 'AI Growth Coach (Puter)',
+                issue: t('dashboard.ai_coach'),
                 message: aiSuggestion
               }] : [])
             ]
@@ -100,7 +105,7 @@ export default function Dashboard() {
       }
     } catch (error) {
       console.error('Failed to load data:', error);
-      alert('Failed to load crop data');
+      alert(t('dashboard.load_error'));
     } finally {
       setLoading(false);
     }
@@ -137,11 +142,11 @@ export default function Dashboard() {
   // Determine phase
   const getPhase = () => {
     if (currentDay <= blackoutDays) {
-      return 'Blackout Phase (Germination)';
+      return t('dashboard.blackout_phase_full');
     } else if (currentDay < growthDays) {
-      return 'Light Phase (Photosynthesis)';
+      return t('dashboard.light_phase_full');
     } else {
-      return 'Harvest Day';
+      return t('dashboard.harvest_day');
     }
   };
 
@@ -157,7 +162,7 @@ export default function Dashboard() {
 
   const handleLogToday = () => {
     if (loggedDays.includes(currentDay)) {
-      alert(`You've already logged Day ${currentDay}`);
+      alert(t('dashboard.day_logged', { day: currentDay }));
       return;
     }
     navigate(`/log/${cropId}/${currentDay}`);
@@ -168,7 +173,7 @@ export default function Dashboard() {
   };
 
   const handleDelete = async () => {
-    if (confirm('Are you sure you want to delete this crop? This cannot be undone.')) {
+    if (confirm(t('common.delete_confirm'))) {
       try {
         await cropsApi.delete(parseInt(cropId!));
         navigate('/atlas'); // Redirect to Atlas or Home
@@ -189,15 +194,15 @@ export default function Dashboard() {
             className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
-            Back to Atlas
+            {t('dashboard.back_to_atlas')}
           </button>
 
           <div className="text-center">
             <h1 className="text-3xl font-bold text-gray-900">
-              {crop.seed.name} Crop
+              {t('dashboard.crop_title', { name: crop.seed.name })}
             </h1>
             <p className="text-gray-600 mt-1">
-              Started on {new Date(crop.start_datetime).toLocaleDateString()}
+              {t('dashboard.started_on')} {format(new Date(crop.start_datetime), 'PPP', { locale: currentLocale })}
             </p>
           </div>
 
@@ -206,7 +211,7 @@ export default function Dashboard() {
               onClick={handleDelete}
               className="text-red-500 hover:text-red-700 text-sm font-semibold hover:underline"
             >
-              Delete
+              {t('common.delete')}
             </button>
           </div>
         </div>
@@ -228,7 +233,7 @@ export default function Dashboard() {
               <div className="mt-6">
                 <HistoryDetails
                   log={selectedLog}
-                  phase={selectedLog.day_number <= blackoutDays ? 'Blackout Phase' : 'Light Phase'}
+                  phase={selectedLog.day_number <= blackoutDays ? t('dashboard.blackout_phase') : t('dashboard.light_phase')}
                   onClose={() => setSelectedLog(null)}
                 />
               </div>
@@ -249,25 +254,34 @@ export default function Dashboard() {
                   className="flex items-center space-x-3 px-8 py-4 bg-purple-600 hover:bg-purple-700 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
                 >
                   <Sprout className="w-6 h-6" />
-                  <span>Harvest Now</span>
+                  <span>{t('dashboard.harvest_now')}</span>
                 </button>
               ) : (
-                <button
-                  onClick={handleLogToday}
-                  disabled={loggedDays.includes(currentDay)}
-                  className={`flex items-center space-x-3 px-8 py-4 font-bold text-lg rounded-xl shadow-lg transition-all ${loggedDays.includes(currentDay)
-                    ? 'bg-gray-400 cursor-not-allowed'
-                    : 'bg-green-500 hover:bg-green-600 text-white hover:shadow-xl transform hover:scale-105 shadow-green-100'
-                    }`}
-                >
-                  <Plus className="w-6 h-6" />
-                  <span>
-                    {loggedDays.includes(currentDay)
-                      ? `Day ${currentDay} Logged`
-                      : `Log Day ${currentDay}`
-                    }
-                  </span>
-                </button>
+                <div className="flex flex-col items-center gap-4">
+                  <button
+                    onClick={handleLogToday}
+                    disabled={loggedDays.includes(currentDay)}
+                    className={`flex items-center space-x-3 px-8 py-4 font-bold text-lg rounded-xl shadow-lg transition-all ${loggedDays.includes(currentDay)
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-green-500 hover:bg-green-600 text-white hover:shadow-xl transform hover:scale-105 shadow-green-100'
+                      }`}
+                  >
+                    <Plus className="w-6 h-6" />
+                    <span>
+                      {loggedDays.includes(currentDay)
+                        ? t('dashboard.day_logged', { day: currentDay })
+                        : t('dashboard.log_day', { day: currentDay })
+                      }
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => navigate(`/guide/${cropId}`)}
+                    className="flex items-center space-x-2 text-green-600 font-bold hover:underline"
+                  >
+                    <Zap size={16} />
+                    <span>{t('dashboard.view_full_guide')}</span>
+                  </button>
+                </div>
               )}
             </div>
           </div>
@@ -293,7 +307,7 @@ export default function Dashboard() {
       </div>
 
 
-    </div>
+    </div >
   );
 }
 

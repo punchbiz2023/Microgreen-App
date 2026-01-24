@@ -1,6 +1,8 @@
 import { Circle, Sprout } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function GrowingLoader() {
+    const { t } = useTranslation();
     return (
         <div className="min-h-[50vh] flex flex-col items-center justify-center">
             <div className="relative w-24 h-24 flex items-end justify-center">
@@ -24,7 +26,7 @@ export default function GrowingLoader() {
                 </div>
             </div>
             <p className="mt-4 text-sm font-medium text-green-800/60 animate-pulse tracking-widest uppercase text-[10px]">
-                Germinating...
+                {t('dashboard.germinating')}
             </p>
         </div>
     );

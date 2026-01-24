@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { seedsApi, type Seed } from '../services/api';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Zap, Sprout } from 'lucide-react';
 import PlantImage from '../components/PlantImage';
 import GrowWizard from '../components/GrowWizard';
 import GrowingLoader from '../components/GrowingLoader';
 import CultivationCards from '../components/CultivationCards';
+import GrowthRoadmap from '../components/GrowthRoadmap';
+import GrowthSchedule from '../components/GrowthSchedule';
+import TimelinePreview from '../components/TimelinePreview';
 
 export default function SeedDetail() {
     const { id } = useParams();
@@ -118,8 +121,37 @@ export default function SeedDetail() {
                         </div>
                     </div>
 
+                    {/* Growth Roadmap */}
+                    <GrowthRoadmap
+                        soakingHours={seed.soaking_duration_hours || 0}
+                        blackoutDays={seed.blackout_time_days || 0}
+                        harvestDays={seed.harvest_days || 10}
+                    />
+
                     {/* Cultivation & Yield Cards - Replaced with Component */}
                     <CultivationCards seed={seed} traySize={selectedTraySize} />
+
+                    {/* Timeline & Schedule - User requested on Seed Page */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                        <div className="bg-gray-50 p-6 rounded-[2rem] border border-gray-100 shadow-sm">
+                            <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                <Zap className="w-4 h-4 text-green-500" />
+                                Growth Timetable
+                            </h3>
+                            <GrowthSchedule seed={seed} />
+                        </div>
+                        <div className="bg-gray-50 p-6 rounded-[2rem] border border-gray-100 shadow-sm">
+                            <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                <Sprout className="w-4 h-4 text-green-500" />
+                                Progression
+                            </h3>
+                            <TimelinePreview
+                                seed={seed}
+                                blackoutDays={seed.blackout_time_days || 3}
+                                harvestDays={seed.harvest_days || 10}
+                            />
+                        </div>
+                    </div>
 
                     {/* Nutrition */}
                     <div className="mb-8">
@@ -128,6 +160,16 @@ export default function SeedDetail() {
                             {seed.nutrition || "Rich in Vitamins A, B, C, E, and K. High in Calcium, Iron, Magnesium, Phosphorus, Potassium, Zinc."}
                         </p>
                     </div>
+
+                    {/* Care Guide */}
+                    {seed.care_instructions && (
+                        <div className="mb-8">
+                            <h3 className="text-lg font-bold text-gray-900 mb-2">Detailed Care Guide</h3>
+                            <div className="text-gray-600 leading-relaxed bg-blue-50/50 p-4 rounded-xl border border-blue-100/50 whitespace-pre-line">
+                                {seed.care_instructions}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Pros & Cons */}
                     {(seed.pros || seed.cons) && (

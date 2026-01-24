@@ -99,7 +99,42 @@ def init_seeds(db: Session):
             
             germination_days = parse_range_avg(sprout_time_raw)
             harvest_days = parse_range_avg(growth_time_raw)
-            blackout_days = max(0, germination_days - 1) # Estimation if not provided
+            name_lower = crop_name.lower()
+            # Improved Blackout & Sprout estimation
+            # Radish/Broccoli usually 2-3 days blackout. Pea/Sunflower 3-4 days.
+            if 'pea' in name_lower or 'sunflower' in name_lower:
+                blackout_days = 4.0
+            elif 'radish' in name_lower or 'broccoli' in name_lower or 'mustard' in name_lower:
+                blackout_days = 3.0
+            elif 'amaranth' in name_lower:
+                blackout_days = 2.0
+            else:
+                blackout_days = max(1.0, germination_days - 1.0)
+            
+            # Improved Soaking Logic
+            if 'amaranth' in name_lower or 'basil' in name_lower or 'chia' in name_lower or 'mustard' in name_lower or 'broccoli' in name_lower or 'radish' in name_lower:
+                soak_hours = 0.0
+                soak_time_raw = 'No Soak' 
+            elif 'pea' in name_lower or 'sunflower' in name_lower or 'beet' in name_lower:
+                soak_hours = 12.0
+                soak_time_raw = '8-12 Hours'
+            elif 'wheat' in name_lower:
+                soak_hours = 8.0
+                soak_time_raw = '6-8 Hours'
+            else:
+                soak_hours = soak_hours or 0.0
+
+            # Microgreen Scale Overrides (Avoid mature plant days from CSV)
+            if 'amaranth' in name_lower:
+                harvest_days = 12.0
+            elif 'radish' in name_lower:
+                harvest_days = 8.0
+            elif 'broccoli' in name_lower:
+                harvest_days = 10.0
+            elif 'mustard' in name_lower:
+                harvest_days = 9.0
+            elif harvest_days > 25: 
+                harvest_days = 14.0
             
             # Weights
             seed_weight_raw = row.get('Seed Weight (gm)', '20')
@@ -148,29 +183,101 @@ def init_seeds(db: Session):
                 'external_links': links, # Store as JSON list
                 
                 'description': f"A variety of {crop_name}. Known for: {row.get('Nutritional Benefits', '')[:100]}...",
-                'care_instructions': f"Suggested soaking: {soak_time_raw or 'None'}. Sprout time: {sprout_time_raw or '3 days'}. Growth time: {growth_time_raw or '10 days'}.",
+                'care_instructions': f"Suggested soaking: {soak_time_raw or 'None'}. Sprout time: {germination_days} days. Growth time: {harvest_days} days.",
                 
                 # Defaults
                 'humidity_tolerance': 10.0,
             }
 
-            # Enrichment: Add Fertilizer and Growth Tips
-            name_lower = crop_name.lower()
-            if 'sunflower' in name_lower:
-                seed_data['fertilizer_info'] = "Sunflowers benefit from a pinch of Calcium and Magnesium in the water after Day 4."
-                seed_data['growth_tips'] = "Apply a heavy weight on top during the blackout phase to help them shed their seed hulls."
-            elif 'broccoli' in name_lower:
-                seed_data['fertilizer_info'] = "Low-dose Nitrogen fertilizer can help if leaves look yellow towards Day 8."
-                seed_data['growth_tips'] = "Very sensitive to light; ensure even exposure to avoid 'leggy' stems."
-            elif 'pea' in name_lower:
-                seed_data['fertilizer_info'] = "Peas generally don't need fertilizer if using a rich soil medium."
-                seed_data['growth_tips'] = "Harvest when the second set of leaves (tendrils) just starts to appear for the best flavor."
-            elif 'radish' in name_lower:
-                seed_data['fertilizer_info'] = "Balanced liquid seaweed fertilizer at 25% strength works wonders on Day 5."
-                seed_data['growth_tips'] = "Radishes grow extremely fast! Keep a close eye on them from Day 6 onwards."
+            # Enrichment: Highly specific variety data
+            tips_map = {
+                'amaranth': {
+                    'fert': "Low nitrogen bio-stimulant on Day 5 to boost betacyanin (pigment) levels.",
+                    'tips': "Extremely sensitive to overwatering; use fine mist only. Keep blackout weighted to improve stem strength. Do NOT soak."
+                },
+                'broccoli': {
+                    'fert': "Balanced ocean-based fertilizer at 25% strength after Day 4.",
+                    'tips': "High light intensity required; 16-18 hours of LED light prevents leggy stems. Harvest at first true leaf. No soak."
+                },
+                'pea': {
+                    'fert': "Rich compost tea in the soaking water. Usually self-sufficient after that.",
+                    'tips': "SOAK 8-12h. Weight heavily (2-4 kg) for 3-4 days to ensure strong root penetration. Harvest as tendrils appear."
+                },
+                'sunflower': {
+                    'fert': "Calcium-Magnesium supplement on Day 4 to assist with seed hull shedding.",
+                    'tips': "SOAK 8-12h. Stack trays during blackout to force hulls off. Mist hulls daily to keep them soft for shedding."
+                },
+                'radish': {
+                    'fert': "Liquid seaweed extract on Day 3 for rapid root development.",
+                    'tips': "Grows aggressively; monitor closely from Day 5. Harvesting early preserves the spicy 'kick'. No soak."
+                },
+                'chia': {
+                    'fert': "No fertilizer needed; Chia is a hyper-accumulator of nutrients from its own mucilage.",
+                    'tips': "Do not soak in water (mucilaginous). Dry sow on damp medium and mist heavily until germination."
+                },
+                'wheat': {
+                    'fert': "Azomite or rock dust for mineral-rich wheatgrass juice.",
+                    'tips': "SOAK 8-12h. High density sow. Harvest at 'jointing' stage (approx 7-9 inches) for max sugar content."
+                },
+                'basil': {
+                    'fert': "Moderate Nitrogen-Potassium mix starting Day 7 for aromatic oil production.",
+                    'tips': "Mucilaginous seeds; do not soak. Requires higher heat (24-26C) for optimal growth."
+                },
+                'beetroot': {
+                    'fert': "Boron-enriched water on Day 5 prevents 'black heart' in larger harvests.",
+                    'tips': "Seeds are actually multi-germ clusters; sow slightly thinner. Soak 8-12 hours in tepid water."
+                },
+                'fenugreek': {
+                    'fert': "Nitrogen-fixing not required for micro-stage; use pure water.",
+                    'tips': "Very prone to root rot. High airflow is mandatory. Harvest before the smell gets too pungent."
+                },
+                'mustard': {
+                    'fert': "Slightly acidic water (pH 5.8) improves sulfate uptake for pungency.",
+                    'tips': "Extremely fast grower. Keep blackout short (2 days) to avoid spindly yellow stems."
+                },
+                'kale': {
+                    'fert': "Micro-nutrient spray on Day 6 for 'superfood' mineral density.",
+                    'tips': "Tolerates cooler temperatures better than most. Harvest when leaves are deep green and crinkled."
+                },
+                'coriander': {
+                    'fert': "Phosphorus-rich fertilizer at Day 10 if harvesting as micro-cilantro.",
+                    'tips': "Slowest to germinate. Split the husks gently before sowing to speed up the process."
+                },
+                'cabbage': {
+                    'fert': "General-purpose organic liquid fertilizer at half strength on Day 5.",
+                    'tips': "Easy for beginners. Ensure even seed distribution to prevent cluster-mold."
+                },
+                'carrot': {
+                    'fert': "Humic acid on Day 10 helps development of delicate root systems.",
+                    'tips': "Micro-carrot takes longer (14-21 days). Needs consistent moisture; use a humidity dome."
+                },
+                'onion': {
+                    'fert': "Sulfur-based amendments increase flavor profile significantly.",
+                    'tips': "Keep the seed caps on for as long as possible; they contain most of the onion flavor."
+                },
+                'fennel': {
+                    'fert': "Trace minerals at Day 8 for anise-scented volative oils.",
+                    'tips': "Sensitive to root disturbance. Water exclusively from below after germination."
+                },
+                'alfalfa': {
+                    'fert': "Pure, filtered water is sufficient for this low-demand crop.",
+                    'tips': "Rotate or stir gently during the first 2 days of sprout phase to prevent matting."
+                }
+            }
+
+            # Search tips with fallback
+            matched_knowlege = None
+            for key in tips_map:
+                if key in name_lower:
+                    matched_knowlege = tips_map[key]
+                    break
+            
+            if matched_knowlege:
+                seed_data['fertilizer_info'] = matched_knowlege['fert']
+                seed_data['growth_tips'] = matched_knowlege['tips']
             else:
-                seed_data['fertilizer_info'] = "Most microgreens thrive with just clean, pH-balanced water (6.0-6.5)."
-                seed_data['growth_tips'] = "Ensure good airflow to prevent surface mold especially during the blackout phase."
+                seed_data['fertilizer_info'] = "Most microgreens thrive with just clean, pH-balanced water (6.0-6.5). For 30+ day cycles, consider dilute kelp."
+                seed_data['growth_tips'] = "Standard 10x20 tray: Ensure good airflow and maintain even moisture. Avoid top-watering after Day 3."
             
             try:
                 # Check for existing seed by slug

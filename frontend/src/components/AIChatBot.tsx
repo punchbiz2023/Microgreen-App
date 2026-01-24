@@ -1,5 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageSquare, X, Send, User, Bot, ChevronDown, Minus } from 'lucide-react';
+import { MessageSquare, X, Send, Bot, ChevronDown, Minus } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { useTranslation } from 'react-i18next';
 
 interface ChatMessage {
     role: 'user' | 'model';
@@ -7,12 +10,13 @@ interface ChatMessage {
 }
 
 const AIChatBot: React.FC = () => {
+    const { t, i18n } = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
     const [isMinimized, setIsMinimized] = useState(false);
     const [messages, setMessages] = useState<ChatMessage[]>([
         {
             role: 'model',
-            parts: ["Hello! I'm your Urban Sims Expert Guide. How can I help you with your microgreens today?"]
+            parts: [t('chat.welcome_msg')]
         }
     ]);
     const [inputValue, setInputValue] = useState('');
@@ -40,31 +44,24 @@ const AIChatBot: React.FC = () => {
         setIsLoading(true);
 
         try {
-            // Puter.js AI integration
+            // Reverting to Puter.js AI as requested by user
             // @ts-ignore
             const response = await puter.ai.chat(
-                `You are the 'Urban Sims Expert Guide', a helpful AI assistant integrated into a Microgreens Tracking application.
-                Your goal is to help users succeed in growing high-quality microgreens at home.
+                `${t('chat.ai_instruction')}
                 
-                - Be technical but accessible.
-                - Knowledgeable about varieties like Amaranth, Radish, Broccoli, Pea shoots, and Sunflower.
-                - Expert in: seed density, soaking times, blackout periods, watering frequency, and troubleshooting mold or yellowing.
-                - Tone: Encouraging, professional, and precise.
+                LANGUAGE: Respond strictly in ${i18n.language === 'ta' ? 'Tamil' : 'English'}.
                 
-                Keep history in mind: ${newMessages.map(m => `${m.role}: ${m.parts[0]}`).join('\n')}
-                
-                Respond to the last message: ${inputValue}`
+                Respond to: ${inputValue}`
             );
 
-            // Puter response is usually the text itself or an object with message
             const botText = typeof response === 'string' ? response : response.message?.content || JSON.stringify(response);
 
-            setMessages(prev => [...prev, { role: 'model', parts: [botText] }]);
+            setMessages((prev: ChatMessage[]) => [...prev, { role: 'model', parts: [botText] }]);
         } catch (error: any) {
             console.error("Puter Chat Error:", error);
-            setMessages(prev => [...prev, {
+            setMessages((prev: ChatMessage[]) => [...prev, {
                 role: 'model',
-                parts: ["I'm sorry, I'm having trouble connecting to my brain via Puter. Please try again later!"]
+                parts: [t('chat.error_msg')]
             }]);
         } finally {
             setIsLoading(false);
@@ -93,10 +90,10 @@ const AIChatBot: React.FC = () => {
                         <Bot size={20} />
                     </div>
                     <div>
-                        <h4 className="font-bold text-sm">Grow Guide AI</h4>
+                        <h4 className="font-bold text-sm">{t('chat.title')}</h4>
                         <div className="flex items-center space-x-1">
                             <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
-                            <span className="text-[10px] text-green-50 font-medium uppercase tracking-wider">Online</span>
+                            <span className="text-[10px] text-green-50 font-medium uppercase tracking-wider">{t('chat.online')}</span>
                         </div>
                     </div>
                 </div>
@@ -121,13 +118,21 @@ const AIChatBot: React.FC = () => {
             {!isMinimized && (
                 <div className="flex-1 flex flex-col min-h-0">
                     <div className="flex-1 overflow-y-auto p-5 space-y-4">
-                        {messages.map((m, idx) => (
+                        {messages.map((m: ChatMessage, idx: number) => (
                             <div key={idx} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                 <div className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm ${m.role === 'user'
                                     ? 'bg-green-500 text-white rounded-tr-none shadow-md shadow-green-100'
                                     : 'bg-gray-100 text-gray-800 rounded-tl-none border border-gray-200'
                                     }`}>
-                                    <p className="leading-relaxed">{m.parts[0]}</p>
+                                    {m.role === 'user' ? (
+                                        <p className="leading-relaxed">{m.parts[0]}</p>
+                                    ) : (
+                                        <div className="prose prose-sm max-w-none text-gray-800 leading-relaxed markdown-container">
+                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                                {m.parts[0]}
+                                            </ReactMarkdown>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         ))}
@@ -148,7 +153,7 @@ const AIChatBot: React.FC = () => {
                         <div className="flex items-center bg-white rounded-xl border border-gray-200 px-3 py-1 focus-within:border-green-500 focus-within:ring-4 focus-within:ring-green-50 transition-all">
                             <input
                                 type="text"
-                                placeholder="Ask about growth..."
+                                placeholder={t('chat.placeholder')}
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}

@@ -1,5 +1,6 @@
 import YieldGauge from './YieldGauge';
 import { AlertCircle, CheckCircle, AlertTriangle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { Prediction } from '../services/api';
 
 interface StatusCardProps {
@@ -15,11 +16,12 @@ export default function StatusCard({
   phase,
   prediction
 }: StatusCardProps) {
+  const { t } = useTranslation();
   if (!prediction) {
     return (
       <div className="bg-white rounded-xl shadow-lg p-6">
         <div className="text-center text-gray-500">
-          No prediction data available yet. Submit your first log to see predictions!
+          {t('dashboard.no_prediction')}
         </div>
       </div>
     );
@@ -57,7 +59,7 @@ export default function StatusCard({
       <div className="bg-white rounded-xl shadow-lg p-6">
         <div className="text-center mb-6">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            Day {dayNumber} of {totalDays}
+            {t('dashboard.day_of', { current: dayNumber, total: totalDays })}
           </h2>
           <div className="inline-block px-4 py-2 bg-blue-100 text-blue-800 rounded-full font-semibold">
             {phase}
@@ -74,13 +76,13 @@ export default function StatusCard({
           <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
             <div className="text-center">
               <div className="text-sm text-red-700 font-medium">
-                Potential Yield Loss
+                {t('dashboard.potential_loss')}
               </div>
               <div className="text-2xl font-bold text-red-900 mt-1">
                 {prediction.potential_loss.toFixed(0)}g
               </div>
               <div className="text-xs text-red-600 mt-1">
-                Check suggestions below to recover
+                {t('dashboard.check_suggestions')}
               </div>
             </div>
           </div>
@@ -90,7 +92,7 @@ export default function StatusCard({
       {/* Suggestions */}
       <div className="bg-white rounded-xl shadow-lg p-6">
         <h3 className="text-xl font-bold text-gray-900 mb-4">
-          AI Suggestions
+          {t('dashboard.ai_suggestions')}
         </h3>
 
         <div className="space-y-3">
@@ -114,7 +116,7 @@ export default function StatusCard({
 
                   {suggestion.potential_loss && (
                     <div className="mt-2 text-xs font-medium text-red-700">
-                      Potential loss: {suggestion.potential_loss}
+                      {t('dashboard.loss_label')}: {suggestion.potential_loss}
                     </div>
                   )}
                 </div>

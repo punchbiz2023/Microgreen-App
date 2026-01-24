@@ -2,6 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Markdown Content Styles */
+.markdown-container h1, .markdown-container h2, .markdown-container h3 {
+  font-weight: 700;
+  margin-top: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.markdown-container p {
+  margin-bottom: 0.5rem;
+}
+
+.markdown-container p:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-container ul, .markdown-container ol {
+  margin-left: 1.25rem;
+  margin-bottom: 0.5rem;
+  list-style-type: disc;
+}
+
+.markdown-container strong {
+  font-weight: 700;
+  color: #059669; /* emerald-600 */
+}
+
+.markdown-container code {
+  background-color: #f3f4f6;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-family: monospace;
+}
+
 * {
   margin: 0;
   padding: 0;

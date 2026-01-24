@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { seedsApi, type Seed } from '../services/api';
 import { TrendingUp, Calendar, Info } from 'lucide-react';
 import GrowWizard from '../components/GrowWizard';
@@ -8,6 +9,7 @@ import PlantImage from '../components/PlantImage';
 import GrowingLoader from '../components/GrowingLoader';
 
 export default function Atlas() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [seeds, setSeeds] = useState<Seed[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,10 +39,10 @@ export default function Atlas() {
       {/* Header */}
       <div className="text-center mb-12">
         <h2 className="text-3xl font-extrabold text-gray-900 mb-3 tracking-tight">
-          Seed Atlas
+          {t('atlas.title')}
         </h2>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          Explore our curated collection of premium microgreen seeds.
+          {t('atlas.subtitle')}
         </p>
       </div>
 
@@ -80,22 +82,22 @@ export default function Atlas() {
                 <div className="flex items-center justify-between text-sm text-gray-700 border-b border-gray-100 pb-2">
                   <div className="flex items-center">
                     <Calendar className="w-4 h-4 mr-2 text-green-500" />
-                    <span>Harvest</span>
+                    <span>{t('atlas.harvest')}</span>
                   </div>
-                  <span className="font-semibold">{seed.harvest_days || seed.growth_days} days</span>
+                  <span className="font-semibold">{seed.harvest_days || seed.growth_days} {t('common.days')}</span>
                 </div>
 
                 <div className="flex items-center justify-between text-sm text-gray-700 border-b border-gray-100 pb-2">
                   <div className="flex items-center">
                     <TrendingUp className="w-4 h-4 mr-2 text-green-500" />
-                    <span>Avg. Yield</span>
+                    <span>{t('atlas.avg_yield')}</span>
                   </div>
                   <span className="font-semibold">~{seed.avg_yield_grams}g</span>
                 </div>
 
                 <div className="flex items-center pt-1 text-xs text-gray-500">
                   <Info className="w-4 h-4 mr-2 text-blue-500 flex-shrink-0" />
-                  <span className="line-clamp-1">{seed.care_instructions || 'Follow standard care'}</span>
+                  <span className="line-clamp-1">{seed.care_instructions || t('atlas.standard_care')}</span>
                 </div>
               </div>
 
@@ -106,7 +108,7 @@ export default function Atlas() {
                   setSelectedSeed(seed);
                 }}
               >
-                Grow {seed.name}
+                {t('atlas.grow')} {seed.name}
               </button>
             </div>
           </div>

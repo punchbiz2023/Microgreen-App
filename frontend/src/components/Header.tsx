@@ -1,14 +1,19 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, LogOut, Home as HomeIcon, Leaf } from 'lucide-react';
-// We will add auth hook later
+import { LayoutDashboard, LogOut, Home as HomeIcon, Leaf, Globe } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Header() {
     const location = useLocation();
-    // Placeholder for auth
+    const { t, i18n } = useTranslation();
     const { isAuthenticated, logout, user } = useAuth();
 
     const isActive = (path: string) => location.pathname === path;
+
+    const toggleLanguage = () => {
+        const newLang = i18n.language === 'ta' ? 'en' : 'ta';
+        i18n.changeLanguage(newLang);
+    };
 
     return (
         <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -25,7 +30,7 @@ export default function Header() {
                                     <span className="text-xl font-extrabold text-gray-900 tracking-tight leading-none">Urban</span>
                                     <span className="text-xl font-light text-green-400 tracking-tight leading-none ml-0.5">Sims</span>
                                 </div>
-                                <span className="text-[9px] text-gray-400 font-bold uppercase tracking-[0.2em] leading-none mt-1.5 overflow-hidden whitespace-nowrap">Professional Growth</span>
+                                <span className="text-[9px] text-gray-400 font-bold uppercase tracking-[0.2em] leading-none mt-1.5 overflow-hidden whitespace-nowrap">{t('header.slogan')}</span>
                             </div>
                         </Link>
                     </div>
@@ -40,7 +45,7 @@ export default function Header() {
                                 }`}
                         >
                             <HomeIcon className="w-4 h-4 mr-2" />
-                            Home
+                            {t('header.home')}
                         </Link>
 
                         <Link
@@ -51,7 +56,7 @@ export default function Header() {
                                 }`}
                         >
                             <LayoutDashboard className="w-4 h-4 mr-2" />
-                            Seed Atlas
+                            {t('header.atlas')}
                         </Link>
 
                         <Link
@@ -62,32 +67,44 @@ export default function Header() {
                                 }`}
                         >
                             <Leaf className="w-4 h-4 mr-2" />
-                            My Plants
+                            {t('header.my_plants')}
                         </Link>
                     </div>
 
                     {/* User/Auth Section */}
-                    <div className="flex items-center">
+                    <div className="flex items-center space-x-6">
+                        {/* Language Switcher */}
+                        <button
+                            onClick={toggleLanguage}
+                            className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-gray-50 hover:bg-green-50 text-gray-600 hover:text-green-600 border border-gray-200 hover:border-green-200 transition-all duration-300"
+                            title="Switch Language"
+                        >
+                            <Globe className="w-4 h-4" />
+                            <span className="text-xs font-bold uppercase tracking-wider">
+                                {i18n.language === 'ta' ? 'English' : 'தமிழ்'}
+                            </span>
+                        </button>
+
                         {isAuthenticated ? (
                             <div className="flex items-center space-x-4">
                                 <span className="text-sm font-medium text-gray-700">
-                                    Welcome, {user?.username}
+                                    {t('header.welcome', { name: user?.username })}
                                 </span>
                                 <button
                                     onClick={logout}
                                     className="flex items-center text-sm font-medium text-gray-500 hover:text-red-600 transition-colors"
                                 >
                                     <LogOut className="w-4 h-4 mr-1" />
-                                    Logout
+                                    {t('header.logout')}
                                 </button>
                             </div>
                         ) : (
                             <div className="hidden sm:flex items-center space-x-4">
                                 <Link to="/login" className="text-gray-500 hover:text-green-500 font-medium text-sm">
-                                    Log in
+                                    {t('header.login')}
                                 </Link>
                                 <Link to="/register" className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-md transition-all hover:shadow-lg">
-                                    Get Started
+                                    {t('header.get_started')}
                                 </Link>
                             </div>
                         )}
