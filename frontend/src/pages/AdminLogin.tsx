@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { ShieldCheck, Lock } from 'lucide-react';
-import axios from 'axios';
 import api from '../services/api';
 
 export default function AdminLogin() {
@@ -29,17 +28,19 @@ export default function AdminLogin() {
             // We should use relative path if proxy is set, or same absolute path. 
             // Let's use relative '/api/auth/token' and hope Vite proxy or axios base URL handles it.
             // If Login.tsx uses hardcoded localhost:8000, I should probably do same or fix both.
-            // api.ts has axios instance. Let's try using that.
+            // api.ts has axios instance. Let's use that.
 
-            const tokenRes = await axios.post('http://localhost:8000/api/auth/token', formData, {
+            const tokenRes = await api.post('/api/auth/token', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 
             const { access_token } = tokenRes.data;
 
             // 2. Verify Role (Using the new token)
-            // We need to pass the token explicitly because auth context isn't updated yet
-            const userRes = await axios.get('http://localhost:8000/api/users/me', {
+            // We can pass the token in headers if we want to be explicit, 
+            // but api instance will use it from localStorage if we set it first.
+            // For safety here, we pass it directly.
+            const userRes = await api.get('/api/users/me', {
                 headers: { Authorization: `Bearer ${access_token}` }
             });
 

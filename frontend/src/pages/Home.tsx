@@ -1,15 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { cropsApi, type Crop } from '../services/api';
 import {
     CheckCircle, X, Plus, Droplet, Clock,
     ChevronRight, Zap, CalendarDays
 } from 'lucide-react';
 import { differenceInDays, format, addHours, isAfter, formatDistanceToNow } from 'date-fns';
+import { ta as taLocale, enUS as enLocale } from 'date-fns/locale';
 import { useAuth } from '../contexts/AuthContext';
 import GrowingLoader from '../components/GrowingLoader';
 
 export default function Home() {
+    const { t, i18n } = useTranslation();
+    const currentLocale = i18n.language === 'ta' ? taLocale : enLocale;
     const [activeCrops, setActiveCrops] = useState<Crop[]>([]);
     const [loading, setLoading] = useState(true);
     const [predictionResult, setPredictionResult] = useState<any | null>(null);
@@ -123,11 +127,11 @@ export default function Home() {
             if (hoursSinceStart < 48 && !isActionLogged('sow', currentDay)) {
                 const soakDuration = crop.seed.soaking_duration_hours || 10;
                 if (!isActionLogged('start_soak', currentDay)) {
-                    actions.push({ id: `${crop.id}-start-soak`, crop, title: "Initial Soak", time: start, type: 'start_soak', completed: false, priority: 'high', day_number: currentDay });
+                    actions.push({ id: `${crop.id}-start-soak`, crop, title: t('home.initial_soak'), time: start, type: 'start_soak', completed: false, priority: 'high', day_number: currentDay });
                 }
                 if (!isActionLogged('sow', currentDay)) {
                     const soakEndTime = addHours(start, soakDuration);
-                    actions.push({ id: `${crop.id}-sow`, crop, title: "Sow to Tray", time: soakEndTime, type: 'sow', completed: false, priority: 'high', day_number: currentDay });
+                    actions.push({ id: `${crop.id}-sow`, crop, title: t('home.sow_to_tray'), time: soakEndTime, type: 'sow', completed: false, priority: 'high', day_number: currentDay });
                 }
             } else {
                 // Only show today's actions on the Home page feed
@@ -138,7 +142,7 @@ export default function Home() {
                     actions.push({
                         id: `${crop.id}-today-water-am`,
                         crop,
-                        title: "Morning Mist",
+                        title: t('home.morning_mist'),
                         time: morningTime,
                         type: 'water_morning',
                         completed: false,
@@ -146,11 +150,11 @@ export default function Home() {
                         day_number: currentDay
                     });
                 }
-                if (!isActionLogged('water_evening', currentDay)) {
+                if (!isActionLogged('water_evening', currentDay) && now.getHours() >= 14) {
                     actions.push({
                         id: `${crop.id}-today-water-pm`,
                         crop,
-                        title: "Evening Mist",
+                        title: t('home.evening_mist'),
                         time: eveningTime,
                         type: 'water_evening',
                         completed: false,
@@ -180,33 +184,33 @@ export default function Home() {
                     {/* Header: Professional & Integrated */}
                     <div className="flex justify-between items-end mb-10 pb-6 border-b border-gray-200">
                         <div>
-                            <span className="text-[10px] font-bold text-green-500 uppercase tracking-widest block mb-1">Activity Command</span>
+                            <span className="text-[10px] font-bold text-green-500 uppercase tracking-widest block mb-1">{t('home.activity_command')}</span>
                             <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight flex items-center">
-                                Today's Actions
+                                {t('home.todays_actions')}
                                 <span className="ml-3 bg-gray-100 text-gray-400 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-tighter">
-                                    {timelineActions.length} Pending
+                                    {timelineActions.length} {t('home.pending')}
                                 </span>
                             </h1>
                         </div>
                         <div className="flex flex-col items-end">
-                            <p className="text-sm font-medium text-gray-500 mb-3">{format(new Date(), 'EEEE, MMMM do')}</p>
+                            <p className="text-sm font-medium text-gray-500 mb-3">{format(new Date(), 'EEEE, MMMM do', { locale: currentLocale })}</p>
                             <button
                                 onClick={() => navigate('/atlas')}
                                 className="bg-green-500 hover:bg-green-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md transition-all hover:shadow-lg flex items-center group"
                             >
                                 <Plus size={14} className="mr-2 group-hover:rotate-90 transition-transform" />
-                                New Crop
+                                {t('common.new_crop')}
                             </button>
                         </div>
                     </div>
 
                     {/* Pending Actions Section */}
                     <div className="mb-12">
-                        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6 px-1">Attention Required</h3>
+                        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6 px-1">{t('home.attention_required')}</h3>
                         <div className="space-y-4">
                             {timelineActions.length > 0 ? (
                                 timelineActions.map((action) => {
-                                    const relTime = formatDistanceToNow(action.time, { addSuffix: true });
+                                    const relTime = formatDistanceToNow(action.time, { addSuffix: true, locale: currentLocale });
 
                                     return (
                                         <div
@@ -223,7 +227,7 @@ export default function Home() {
                                                             <h4 className="text-lg font-bold text-gray-900 leading-none">{action.title}</h4>
                                                             {action.day_number < getCropStatus(action.crop).currentDay && (
                                                                 <span className="bg-red-100 text-red-600 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase animate-pulse">
-                                                                    Overdue
+                                                                    {t('common.overdue')}
                                                                 </span>
                                                             )}
                                                         </div>
@@ -244,7 +248,7 @@ export default function Home() {
                                                         : 'bg-white border-gray-200 text-gray-600 hover:border-green-400 hover:text-green-500'
                                                         }`}
                                                 >
-                                                    Complete Action
+                                                    {t('common.complete_action')}
                                                     <ChevronRight size={14} className="ml-1.5" />
                                                 </button>
                                             </div>
@@ -256,15 +260,15 @@ export default function Home() {
                                     <div className="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center mx-auto mb-6 transform rotate-3">
                                         <CheckCircle size={28} className="text-green-500" />
                                     </div>
-                                    <h4 className="text-xl font-bold text-gray-900 mb-2">Maximum Efficiency</h4>
+                                    <h4 className="text-xl font-bold text-gray-900 mb-2">{t('home.max_efficiency')}</h4>
                                     <p className="text-gray-500 text-sm max-w-xs mx-auto leading-relaxed">
-                                        All your cultivation tasks for today have been logged. Sit back and watch your microgreens thrive!
+                                        {t('home.all_logged')}
                                     </p>
                                     <button
                                         onClick={() => navigate('/atlas')}
                                         className="mt-8 inline-flex items-center text-green-500 font-bold text-xs uppercase tracking-widest hover:text-green-600 transition-colors"
                                     >
-                                        Browse Atlas for more crops
+                                        {t('home.browse_atlas')}
                                         <ChevronRight size={14} className="ml-1" />
                                     </button>
                                 </div>
@@ -275,8 +279,8 @@ export default function Home() {
                     {/* All Crops Section */}
                     <div className="mt-16 mb-12">
                         <div className="flex justify-between items-center mb-6 px-1">
-                            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Your Active Crops</h3>
-                            <span className="text-[10px] font-bold text-gray-300 uppercase">{activeCrops.length} Total</span>
+                            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t('home.your_active_crops')}</h3>
+                            <span className="text-[10px] font-bold text-gray-300 uppercase">{activeCrops.length} {t('home.total')}</span>
                         </div>
 
                         {activeCrops.length > 0 ? (
@@ -299,7 +303,7 @@ export default function Home() {
                                                     <h4 className="font-bold text-gray-900 truncate">{crop.seed.name}</h4>
                                                     <div className="flex items-center text-[10px] font-bold mt-0.5">
                                                         <span className={isFuture ? 'text-blue-500' : 'text-green-500'}>
-                                                            {isFuture ? 'Scheduled' : `Day ${currentDay}`}
+                                                            {isFuture ? t('home.scheduled') : t('home.day_n', { day: currentDay })}
                                                         </span>
                                                         <span className="mx-2 text-gray-200">|</span>
                                                         <span className="text-gray-400">{crop.tray_size}</span>
@@ -324,7 +328,7 @@ export default function Home() {
                             </div>
                         ) : (
                             <div className="bg-white border border-gray-100 rounded-3xl p-10 text-center">
-                                <p className="text-sm text-gray-400 font-medium">No active crops found.</p>
+                                <p className="text-sm text-gray-400 font-medium">{t('home.no_active_crops')}</p>
                             </div>
                         )}
                     </div>
@@ -340,8 +344,8 @@ export default function Home() {
                                     <CalendarDays size={18} />
                                 </div>
                                 <div className="min-w-0">
-                                    <h5 className="text-sm font-bold text-gray-900 truncate">Plant Manager</h5>
-                                    <p className="text-[10px] text-gray-400 font-medium">View all active grow cycles</p>
+                                    <h5 className="text-sm font-bold text-gray-900 truncate">{t('home.plant_manager')}</h5>
+                                    <p className="text-[10px] text-gray-400 font-medium">{t('home.view_all')}</p>
                                 </div>
                             </div>
                             <ChevronRight size={16} className="text-gray-300 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all" />
@@ -356,8 +360,8 @@ export default function Home() {
                     <div className="bg-white rounded-3xl max-w-sm w-full p-8 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
                         <div className="flex justify-between items-center mb-8">
                             <div>
-                                <h3 className="text-xl font-bold text-gray-900">Finalize Action</h3>
-                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Growth Intelligence Logging</p>
+                                <h3 className="text-xl font-bold text-gray-900">{t('home.finalize_action')}</h3>
+                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{t('home.growth_intel')}</p>
                             </div>
                             <button onClick={() => setSelectedAction(null)} className="p-2 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600">
                                 <X size={18} />
@@ -377,7 +381,7 @@ export default function Home() {
                         <div className="space-y-6 mb-8">
                             <div>
                                 <div className="flex justify-between text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-3">
-                                    <span className="flex items-center">Ambient Temperature</span>
+                                    <span className="flex items-center">{t('home.ambient_temp')}</span>
                                     <span className="text-green-600 font-extrabold">{temp}°C</span>
                                 </div>
                                 <input
@@ -388,7 +392,7 @@ export default function Home() {
                             </div>
                             <div>
                                 <div className="flex justify-between text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-3">
-                                    <span className="flex items-center">Relative Humidity</span>
+                                    <span className="flex items-center">{t('home.relative_humidity')}</span>
                                     <span className="text-blue-500 font-extrabold">{hum}%</span>
                                 </div>
                                 <input
@@ -403,7 +407,7 @@ export default function Home() {
                             onClick={handleLogAction}
                             className="w-full py-4 bg-green-500 text-white rounded-2xl font-bold text-sm shadow-lg shadow-green-100 hover:bg-green-600 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center"
                         >
-                            Sync with Cloud & Save
+                            {t('home.sync_cloud')}
                             <ChevronRight size={16} className="ml-1" />
                         </button>
                     </div>
@@ -415,11 +419,11 @@ export default function Home() {
                     <div className="bg-white rounded-[2.5rem] max-w-sm w-full p-10 shadow-2xl animate-in slide-in-from-bottom-10 duration-500 relative overflow-hidden text-center border-t-8 border-green-500">
                         <div className="relative z-10">
                             <div className="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-sm text-3xl">🪴</div>
-                            <h2 className="text-2xl font-extrabold text-gray-900 mb-2">Growth Insight</h2>
-                            <p className="text-sm font-medium text-gray-500 mb-10">Your cultivation care has been recorded.</p>
+                            <h2 className="text-2xl font-extrabold text-gray-900 mb-2">{t('home.growth_insight')}</h2>
+                            <p className="text-sm font-medium text-gray-500 mb-10">{t('home.care_recorded')}</p>
 
                             <div className="bg-gray-50 rounded-3xl p-6 mb-8 border border-gray-100">
-                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Projected Recovery</p>
+                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">{t('home.projected_recovery')}</p>
                                 <div className="text-5xl font-extrabold text-gray-900 tracking-tighter">
                                     {predictionResult.predicted_yield}<span className="text-xl text-green-500 ml-1">g</span>
                                 </div>
@@ -429,7 +433,7 @@ export default function Home() {
                                 onClick={closePredictionModal}
                                 className="w-full py-4 bg-gray-900 text-white rounded-2xl font-bold shadow-xl hover:bg-black transition-all group mb-3"
                             >
-                                Continue Cultivation
+                                {t('home.continue_cultivation')}
                                 <ChevronRight size={16} className="inline ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
                             </button>
 
@@ -441,7 +445,7 @@ export default function Home() {
                                 }}
                                 className="w-full py-3 bg-white border border-gray-200 text-gray-600 rounded-2xl font-bold text-xs hover:border-green-500 hover:text-green-500 transition-all"
                             >
-                                Go to Crop Details
+                                {t('home.go_to_details')}
                             </button>
                         </div>
                     </div>

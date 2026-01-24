@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { Leaf } from 'lucide-react';
 
@@ -22,7 +22,7 @@ export default function Login() {
             formData.append('username', username);
             formData.append('password', password);
 
-            const response = await axios.post('http://localhost:8000/api/auth/token', formData, {
+            const response = await api.post('/api/auth/token', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' } // OAuth2 expects form data
             });
 

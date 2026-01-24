@@ -544,6 +544,32 @@ async def log_action(
             prediction_result['predicted_yield'] *= crop.number_of_trays
             if 'base_yield' in prediction_result:
                 prediction_result['base_yield'] *= crop.number_of_trays
+            if 'potential_loss' in prediction_result:
+                prediction_result['potential_loss'] *= crop.number_of_trays
+            
+            # Scale numbers in suggestion messages
+            if 'suggestions' in prediction_result:
+                for sugg in prediction_result['suggestions']:
+                    if 'message' in sugg:
+                        # Find patterns like "25-40g" or "10g" and scale them
+                        import re
+                        def scale_match(match):
+                            val1 = float(match.group(1)) * crop.number_of_trays
+                            if match.group(2):
+                                val2 = float(match.group(2)) * crop.number_of_trays
+                                return f"{int(val1)}-{int(val2)}g"
+                            return f"{int(val1)}g"
+                        
+                        sugg['message'] = re.sub(r'(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?g', scale_match, sugg['message'])
+                    if 'potential_loss' in sugg and sugg['potential_loss']:
+                        import re
+                        def scale_match_loss(match):
+                            val1 = float(match.group(1)) * crop.number_of_trays
+                            if match.group(2):
+                                val2 = float(match.group(2)) * crop.number_of_trays
+                                return f"{int(val1)}-{int(val2)}g"
+                            return f"{int(val1)}g"
+                        sugg['potential_loss'] = re.sub(r'(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?g', scale_match_loss, str(sugg['potential_loss']))
         
         # Update log with prediction
         log.predicted_yield = prediction_result['predicted_yield']
@@ -628,6 +654,11 @@ async def create_daily_log(
     
     try:
         prediction = ml_service.predict_yield(seed_config, logs_data)
+        
+        # SCALE BY TRAYS
+        if crop.number_of_trays > 1:
+            prediction['predicted_yield'] *= crop.number_of_trays
+            
         daily_log.predicted_yield = prediction['predicted_yield']
     except Exception as e:
         print(f"Prediction failed: {e}")
@@ -699,11 +730,14 @@ async def get_prediction(crop_id: int, db: Session = Depends(get_db)):
                 'watered': l.watered
             })
         else:
+            # IMPROVEMENT: If it's the current day and hasn't been logged yet,
+            # assume it's on track for prediction purposes so status isn't prematurely 'poor'.
+            is_today = (d == current_day)
             daily_logs.append({
                 'day': d,
                 'temperature': crop.seed.ideal_temp,
                 'humidity': crop.seed.ideal_humidity,
-                'watered': False
+                'watered': True if is_today else False
             })
         
     prediction = ml_service.predict_yield(seed_config, daily_logs)
@@ -711,6 +745,24 @@ async def get_prediction(crop_id: int, db: Session = Depends(get_db)):
         prediction['predicted_yield'] *= crop.number_of_trays
         if 'base_yield' in prediction:
             prediction['base_yield'] *= crop.number_of_trays
+        if 'potential_loss' in prediction:
+            prediction['potential_loss'] *= crop.number_of_trays
+            
+        # Scale numbers in suggestion messages
+        if 'suggestions' in prediction:
+            import re
+            def scale_match(match):
+                val1 = float(match.group(1)) * crop.number_of_trays
+                if match.group(2):
+                    val2 = float(match.group(2)) * crop.number_of_trays
+                    return f"{int(val1)}-{int(val2)}g"
+                return f"{int(val1)}g"
+                
+            for sugg in prediction['suggestions']:
+                if 'message' in sugg:
+                    sugg['message'] = re.sub(r'(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?g', scale_match, sugg['message'])
+                if 'potential_loss' in sugg and sugg['potential_loss']:
+                    sugg['potential_loss'] = re.sub(r'(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?g', scale_match, str(sugg['potential_loss']))
     return prediction
 
 
@@ -746,11 +798,14 @@ async def harvest_crop(crop_id: int, harvest_data: HarvestCreate, db: Session = 
     crop = db.query(Crop).filter(Crop.id == crop_id).first()
     if not crop: raise HTTPException(status_code=404, detail="Crop not found")
     
-    # Simple harvest logic
+    # Calculate predicted weight scaled by trays
+    base_predicted = crop.seed.avg_yield_grams or 0
+    total_predicted = base_predicted * crop.number_of_trays
+    
     harvest = Harvest(
         crop_id=crop_id,
         actual_weight=harvest_data.actual_weight,
-        predicted_weight=crop.seed.avg_yield_grams or 0, # Simplify
+        predicted_weight=total_predicted,
         accuracy_percent=100.0, # Placeholder
         notes=harvest_data.notes
     )
