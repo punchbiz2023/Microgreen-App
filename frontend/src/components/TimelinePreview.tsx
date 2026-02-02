@@ -1,4 +1,4 @@
-import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Seed } from '../services/api';
 
 interface TimelinePreviewProps {
@@ -8,6 +8,7 @@ interface TimelinePreviewProps {
 }
 
 export default function TimelinePreview({ seed, blackoutDays, harvestDays }: TimelinePreviewProps) {
+    const { t } = useTranslation();
     const totalDays = harvestDays || seed.growth_days;
     const lightDays = totalDays - blackoutDays;
 
@@ -17,7 +18,7 @@ export default function TimelinePreview({ seed, blackoutDays, harvestDays }: Tim
 
     return (
         <div className="w-full">
-            <h4 className="text-sm font-semibold text-gray-700 mb-3">Timeline Preview</h4>
+            <h4 className="text-sm font-semibold text-gray-700 mb-3">{t('seeds.labels.timeline_preview')}</h4>
 
             {/* Bar */}
             <div className="h-6 w-full bg-gray-100 rounded-full flex overflow-hidden shadow-inner">
@@ -25,18 +26,18 @@ export default function TimelinePreview({ seed, blackoutDays, harvestDays }: Tim
                 <div
                     className="h-full bg-gray-800 relative group flex items-center justify-center"
                     style={{ width: `${blackoutPct}%` }}
-                    title={`Blackout: ${blackoutDays} days`}
+                    title={`${t('seeds.labels.dark')}: ${blackoutDays}d`}
                 >
-                    <span className="text-[10px] uppercase font-bold text-gray-300 tracking-wider">Dark</span>
+                    <span className="text-[10px] uppercase font-bold text-gray-300 tracking-wider">{t('seeds.labels.dark')}</span>
                 </div>
 
                 {/* Light Phase */}
                 <div
                     className="h-full bg-yellow-400 relative group flex items-center justify-center"
                     style={{ width: `${lightPct}%` }}
-                    title={`Light: ${lightDays} days`}
+                    title={`${t('seeds.labels.light')}: ${lightDays}d`}
                 >
-                    <span className="text-[10px] uppercase font-bold text-yellow-900 tracking-wider">Light</span>
+                    <span className="text-[10px] uppercase font-bold text-yellow-900 tracking-wider">{t('seeds.labels.light')}</span>
                 </div>
             </div>
 
@@ -44,14 +45,14 @@ export default function TimelinePreview({ seed, blackoutDays, harvestDays }: Tim
             <div className="flex justify-between mt-2 text-xs text-gray-500">
                 <div className="flex items-center">
                     <span className="w-3 h-3 rounded-full bg-gray-800 mr-1"></span>
-                    <span>Blackout ({blackoutDays}d)</span>
+                    <span>{t('seeds.labels.dark')} ({blackoutDays}d)</span>
                 </div>
                 <div className="flex items-center">
                     <span className="w-3 h-3 rounded-full bg-yellow-400 mr-1"></span>
-                    <span>Light ({lightDays}d)</span>
+                    <span>{t('seeds.labels.light')} ({lightDays}d)</span>
                 </div>
                 <div className="font-bold text-green-700">
-                    Harvest: Day {totalDays}
+                    {t('seeds.labels.harvest_day')} (Day {totalDays})
                 </div>
             </div>
         </div>

@@ -30,7 +30,12 @@
         "back": "Back",
         "delete": "Delete",
         "delete_confirm": "Are you sure you want to delete this crop? This cannot be undone.",
-        "day": "Day"
+        "day": "Day",
+        "difficulty": {
+            "easy": "Easy",
+            "medium": "Medium",
+            "hard": "Hard"
+        }
     },
     "home": {
         "activity_command": "Activity Command",
@@ -190,5 +195,112 @@
         "step_4_desc": "Expose to light and water",
         "step_5": "Harvest",
         "step_5_desc": "Snip and enjoy!"
+    },
+    "seeds": {
+        "labels": {
+            "leaves_color": "Leaves Color",
+            "stem_color": "Stem Color",
+            "configure_growth": "Configure Growth",
+            "dynamic_scaling": "Dynamic Scaling",
+            "expert_advice": "Expert Care & Advice",
+            "fert_guide": "Fertilizer Guide",
+            "pro_tip": "Pro Growth Tip",
+            "todays_action": "Today's Action",
+            "full_timeline": "Full Growth Timeline",
+            "progression": "Progression",
+            "timeline_preview": "Timeline Preview",
+            "dark": "Dark",
+            "light": "Light",
+            "resources": "Resources",
+            "start_growing": "Start Growing {{name}}",
+            "blackout_phase": "Blackout Phase - Day {{day}}",
+            "light_phase": "Light Phase - Day {{day}}",
+            "harvest_day": "Harvest Day!",
+            "timetable": "Growth Timetable",
+            "prep_title": "Preparation",
+            "prep_soak_title": "Preparation & Soaking",
+            "prep_desc": "Sow seeds directly onto moist growing medium.",
+            "soak_desc": "Soak seeds for {{hours}} hours in clean water before sowing.",
+            "blackout_desc": "Keep in complete darkness. Mist twice daily with water.",
+            "light_desc": "Expose to bright light. Continue misting 2x daily.",
+            "harvest_desc": "Your microgreens are ready! Cut at the base and enjoy."
+        },
+        "taste_label": "Taste",
+        "nutrition_label": "Nutrition Benefits",
+        "care_guide_label": "Detailed Care Guide",
+        "pros_label": "Suitable For",
+        "cons_label": "Cons",
+        "tags": {
+            "mild": "Mild",
+            "fresh": "Fresh",
+            "crunchy": "Crunchy",
+            "spicy": "Spicy",
+            "sweet": "Sweet",
+            "earthy": "Earthy",
+            "nutty": "Nutty"
+        },
+        "amaranth": {
+            "name": "Amaranth",
+            "nutrition": "Rich in Vitamins A, C, E, and K. High in Calcium and Iron.",
+            "care": "Avoid overwatering. Keep blackout weighted to improve stem strength. No soak required.",
+            "pros": "Suitable for all soil types. Fast grower.",
+            "cons": "Sensitive to extreme heat.",
+            "fert": "Low nitrogen bio-stimulant on Day 5 to boost betacyanin (pigment) levels.",
+            "tips": "Extremely sensitive to overwatering; use fine mist only. Keep blackout weighted to improve stem strength. Do NOT soak."
+        },
+        "radish": {
+            "name": "Radish",
+            "nutrition": "Rich in enzymes and antioxidants that aid digestion.",
+            "care": "Grows fast, monitor from Day 5. Harvest early for a spicy kick.",
+            "pros": "Very easy for beginners.",
+            "cons": "Prone to root rot if overwatered.",
+            "fert": "Liquid seaweed extract on Day 3 for rapid root development.",
+            "tips": "Grows aggressively; monitor closely from Day 5. Harvesting early preserves the spicy 'kick'. No soak."
+        },
+        "broccoli": {
+            "name": "Broccoli",
+            "nutrition": "Rich in Sulforaphane, which has anti-cancer properties.",
+            "care": "High light intensity required. Harvest at first true leaf.",
+            "pros": "High nutritional value.",
+            "cons": "Requires steady moisture.",
+            "fert": "Balanced ocean-based fertilizer at 25% strength after Day 4.",
+            "tips": "High light intensity required; 16-18 hours of LED light prevents leggy stems. Harvest at first true leaf. No soak."
+        },
+        "pea-shoots": {
+            "name": "Pea Shoots",
+            "nutrition": "High in protein and Vitamins A, C.",
+            "care": "Soak for 8-12 hours. Use heavy weight for strong roots.",
+            "pros": "Sweet taste, loved by children.",
+            "cons": "Soaking is mandatory.",
+            "fert": "Rich compost tea in the soaking water. Usually self-sufficient after that.",
+            "tips": "SOAK 8-12h. Weight heavily (2-4 kg) for 3-4 days to ensure strong root penetration. Harvest as tendrils appear."
+        },
+        "sunflower": {
+            "name": "Sunflower",
+            "nutrition": "Rich in healthy fats and protein.",
+            "care": "Soak for 8-12 hours. Use cover to help hulls shed easily.",
+            "pros": "Large leaves, high yield.",
+            "cons": "Seed hulls can be hard to remove.",
+            "fert": "Calcium-Magnesium supplement on Day 4 to assist with seed hull shedding.",
+            "tips": "SOAK 8-12h. Stack trays during blackout to force hulls off. Mist hulls daily to keep them soft for shedding."
+        },
+        "beetroot": {
+            "name": "Beetroot",
+            "nutrition": "Rich in nitrates that help improve blood flow.",
+            "care": "Soak for 8-12 hours. Sow with space as seeds are clusters.",
+            "pros": "Beautiful red color, great for salads.",
+            "cons": "Longer growth time.",
+            "fert": "Boron-enriched water on Day 5 prevents 'black heart' in larger harvests.",
+            "tips": "Seeds are actually multi-germ clusters; sow slightly thinner. Soak 8-12 hours in tepid water."
+        },
+        "red-amaranthus": {
+            "name": "Red Amaranth",
+            "nutrition": "High iron, vitamin C, antioxidants; anti-anemia, heart health.",
+            "care": "Suggested soaking: No Soak. Sprout time: 2.5 days. Growth time: 12.0 days.",
+            "pros": "Anemia-prone, vegans; boosts energy. Great for garnishing.",
+            "cons": "Oxalates may affect kidney stones if overconsumed.",
+            "fert": "Low nitrogen bio-stimulant on Day 5 to boost betacyanin (pigment) levels.",
+            "tips": "Extremely sensitive to overwatering; use fine mist only. Keep blackout weighted to improve stem strength. Do NOT soak."
+        }
     }
 }
