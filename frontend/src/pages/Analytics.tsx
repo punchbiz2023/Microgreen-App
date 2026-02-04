@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { cropsApi, type Crop } from '../services/api';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-    LineChart, Line, Cell
+    LineChart, Line
 } from 'recharts';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
