@@ -182,12 +182,12 @@ export default function Home() {
             <main className="flex-1 p-6 lg:p-10">
                 <div className="max-w-3xl mx-auto">
                     {/* Header: Professional & Integrated */}
-                    <div className="flex justify-between items-end mb-10 pb-6 border-b border-gray-200">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 pb-6 border-b border-gray-200 gap-4">
                         <div>
                             <span className="text-[10px] font-bold text-green-500 uppercase tracking-widest block mb-1">{t('home.activity_command')}</span>
-                            <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight flex items-center">
+                            <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight flex items-center flex-wrap">
                                 {t('home.todays_actions')}
-                                <span className="ml-3 bg-gray-100 text-gray-400 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-tighter">
+                                <span className="ml-0 sm:ml-3 mt-2 sm:mt-0 bg-gray-100 text-gray-400 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-tighter">
                                     {timelineActions.length} {t('home.pending')}
                                 </span>
                             </h1>
@@ -217,21 +217,21 @@ export default function Home() {
                                             key={action.id}
                                             className={`group relative bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all border-l-4 ${action.day_number < getCropStatus(action.crop).currentDay ? 'border-l-red-500' : 'border-l-green-400'}`}
                                         >
-                                            <div className="flex items-center justify-between">
+                                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                                                 <div className="flex items-center space-x-5">
                                                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${action.day_number < getCropStatus(action.crop).currentDay ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-500'}`}>
                                                         {action.type.includes('water') ? <Droplet size={20} /> : <Zap size={20} />}
                                                     </div>
                                                     <div>
                                                         <div className="flex items-center space-x-2 mb-1">
-                                                            <h4 className="text-lg font-bold text-gray-900 leading-none">{action.title}</h4>
+                                                            <h4 className="text-base sm:text-lg font-bold text-gray-900 leading-none">{action.title}</h4>
                                                             {action.day_number < getCropStatus(action.crop).currentDay && (
                                                                 <span className="bg-red-100 text-red-600 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase animate-pulse">
                                                                     {t('common.overdue')}
                                                                 </span>
                                                             )}
                                                         </div>
-                                                        <div className="flex items-center text-[11px] font-medium text-gray-400">
+                                                        <div className="flex flex-wrap items-center text-[11px] font-medium text-gray-400 gap-y-1">
                                                             <span className="text-green-500 font-bold uppercase tracking-wide mr-2">{action.crop.seed.name}</span>
                                                             <span className="flex items-center">
                                                                 <Clock size={12} className="mr-1" />
@@ -243,7 +243,7 @@ export default function Home() {
 
                                                 <button
                                                     onClick={() => openLogModal(action)}
-                                                    className={`px-6 py-2.5 rounded-xl font-bold text-xs shadow-sm transition-all flex items-center border ${action.day_number < getCropStatus(action.crop).currentDay
+                                                    className={`w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold text-xs shadow-sm transition-all flex items-center justify-center border ${action.day_number < getCropStatus(action.crop).currentDay
                                                         ? 'bg-gray-900 text-white border-gray-900 hover:bg-black'
                                                         : 'bg-white border-gray-200 text-gray-600 hover:border-green-400 hover:text-green-500'
                                                         }`}
