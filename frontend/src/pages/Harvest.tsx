@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { cropsApi, harvestApi, predictionsApi, type Crop, type Prediction } from '../services/api';
+
 import { ArrowLeft, Award, TrendingUp, BarChart3, CheckCircle, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 export default function Harvest() {

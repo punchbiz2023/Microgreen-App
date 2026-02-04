@@ -25,9 +25,9 @@ const PlantImage: React.FC<PlantImageProps> = ({ seedName, className = '', alt }
     const [error, setError] = useState(false);
 
     // Simple fuzzy match or default
-    const findImage = (name: string) => {
+    const findImage = (name: string): string | undefined => {
         const key = Object.keys(IMAGE_MAP).find(k => name.toLowerCase().includes(k.toLowerCase()));
-        return key ? IMAGE_MAP[key] : null;
+        return key ? IMAGE_MAP[key] : undefined;
     };
 
     const imageUrl = findImage(seedName);
@@ -44,7 +44,7 @@ const PlantImage: React.FC<PlantImageProps> = ({ seedName, className = '', alt }
     return (
         <div className={`overflow-hidden bg-gray-100 ${className}`}>
             <img
-                src={imageUrl}
+                src={imageUrl!}
                 alt={alt || seedName}
                 className="w-full h-full object-cover transition-transform duration-700 hover:scale-110"
                 onError={() => setError(true)}

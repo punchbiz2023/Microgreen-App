@@ -1,4 +1,4 @@
-import { X, Droplet, Thermometer, CloudRain, CheckCircle, XCircle } from 'lucide-react';
+import { X, Thermometer, CloudRain, CheckCircle, XCircle } from 'lucide-react';
 import type { DailyLog } from '../services/api';
 import { format } from 'date-fns';
 
@@ -158,17 +158,21 @@ function getAssessment(log: DailyLog): string {
   const issues = [];
 
   // Check temperature (assuming ideal around 22°C, tolerance ±3°C)
-  if (log.temperature > 25) {
-    issues.push('Temperature was high');
-  } else if (log.temperature < 19) {
-    issues.push('Temperature was low');
+  if (log.temperature !== undefined) {
+    if (log.temperature > 25) {
+      issues.push('Temperature was high');
+    } else if (log.temperature < 19) {
+      issues.push('Temperature was low');
+    }
   }
 
   // Check humidity (assuming ideal around 50%, tolerance ±10%)
-  if (log.humidity < 40) {
-    issues.push('Humidity was low');
-  } else if (log.humidity > 70) {
-    issues.push('Humidity was high');
+  if (log.humidity !== undefined) {
+    if (log.humidity < 40) {
+      issues.push('Humidity was low');
+    } else if (log.humidity > 70) {
+      issues.push('Humidity was high');
+    }
   }
 
   // Check watering
