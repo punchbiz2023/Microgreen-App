@@ -98,6 +98,14 @@ export interface Seed {
   fertilizer_info?: string;
   growth_tips?: string;
 
+  is_mucilaginous: boolean;
+  growth_category?: string;
+
+  // Pro Specs
+  target_dli?: number;
+  protein_gram_per_100g?: number;
+  vitamin_c_mg_per_100g?: number;
+
   growth_days: number;
 }
 
@@ -109,11 +117,23 @@ export interface Crop {
   number_of_trays: number;
   status: string;
   created_at: string;
+  harvested_at?: string;
   seed: Seed;
+  harvest?: Harvest;
 
   custom_settings: Record<string, any>;
   notification_settings: Record<string, any>;
   daily_logs: DailyLog[];
+
+  // Pro Cultivation Specs
+  ppfd_level?: number;
+  light_hours_per_day: number;
+
+  // Pro Financials
+  seed_cost: number;
+  soil_cost: number;
+  energy_cost_per_kwh: number;
+  other_costs: number;
 }
 
 export interface DailyLog {
@@ -179,6 +199,12 @@ export const cropsApi = {
       notes: string;
       actions_recorded: string[];
     };
+    ppfd_level?: number;
+    light_hours_per_day: number;
+    seed_cost: number;
+    soil_cost: number;
+    energy_cost_per_kwh: number;
+    other_costs: number;
   }) => api.post<Crop>('/api/crops', data),
 
   getAll: (status?: string) =>

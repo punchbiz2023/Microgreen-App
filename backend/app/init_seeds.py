@@ -137,11 +137,38 @@ def init_seeds(db: Session):
                 harvest_days = 14.0
             
             # Weights
-            seed_weight_raw = row.get('Seed Weight (gm)', '20')
-            harvest_weight_raw = row.get('Harvest Weight (gm)', '200')
+            # Improved Seeding Density & Weights (Commercial Standards)
+            # Calculations based on 10x20 tray (approx 1290 cm2)
+            if any(x in name_lower for x in ['pea', 'sunflower', 'corn']):
+                target_density = 0.085 # g/cm2
+                seed_weight_g = 110.0
+            elif any(x in name_lower for x in ['mustard', 'broccoli', 'radish', 'cabbage', 'kohlrabi', 'kale']):
+                target_density = 0.050 # g/cm2
+                seed_weight_g = 65.0
+            elif any(x in name_lower for x in ['basil', 'arugula', 'dill', 'cilantro', 'cress', 'alfalfa']):
+                target_density = 0.042 # g/cm2
+                seed_weight_g = 55.0
+            else:
+                seed_weight_g = parse_range_avg(row.get('Seed Weight (gm)', '25')) or 25.0
+                target_density = seed_weight_g / 1290.0
             
-            seed_weight_g = parse_range_avg(seed_weight_raw) or 20.0
-            harvest_weight_g = parse_range_avg(harvest_weight_raw) or 200.0
+            harvest_weight_g = parse_range_avg(row.get('Harvest Weight (gm)', '200')) or 200.0
+            
+            # Growth Categorization (Commercial Speeds)
+            growth_category = "Other"
+            if any(x in name_lower for x in ['cabbage', 'corn', 'cress', 'kale', 'kohlrabi', 'mustard', 'radish', 'broccoli']):
+                growth_category = "Fast"
+            elif any(x in name_lower for x in ['amaranth', 'arugula', 'beet', 'carrot', 'chard', 'scallion', 'spinning']):
+                growth_category = "Slow Veg"
+            elif any(x in name_lower for x in ['basil', 'cilantro', 'dill', 'fennel', 'parsley', 'shisho', 'sorrel']):
+                growth_category = "Slow Herb"
+            
+            # Mucilaginous Check (Do NOT Soak)
+            is_mucilaginous = any(x in name_lower for x in ['arugula', 'basil', 'chia', 'cress', 'flax'])
+            
+            if is_mucilaginous:
+                soak_hours = 0.0
+                soak_time_raw = 'No Soak (Mucilaginous)'
             
             # Rich Data
             links = []
@@ -160,8 +187,12 @@ def init_seeds(db: Session):
             seed_data = {
                 'seed_type': seed_type_slug,
                 'name': crop_name,
-                'latin_name': '', # Not in new CSV
-                'difficulty': 'Medium', # Default
+                'latin_name': '', 
+                'difficulty': 'Medium', 
+                
+                # PDF-Based Classification
+                'is_mucilaginous': is_mucilaginous,
+                'growth_category': growth_category,
                 
                 # Scaled Data
                 'suggested_seed_weight': seed_weight_g,
@@ -171,6 +202,7 @@ def init_seeds(db: Session):
                 'germination_days': germination_days,
                 'harvest_days': harvest_days,
                 'blackout_time_days': blackout_days,
+                'target_density_g_cm2': target_density,
                 
                 # Textual
                 'soaking_req': soak_time_raw or 'No Soak',

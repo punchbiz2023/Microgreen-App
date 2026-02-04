@@ -44,6 +44,15 @@ export default function Atlas() {
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
           {t('atlas.subtitle')}
         </p>
+
+        {/* Growth Category Filter/Legend */}
+        <div className="flex flex-wrap justify-center gap-2 mt-6">
+          {["Fast", "Slow Veg", "Slow Herb"].map(cat => (
+            <span key={cat} className="px-3 py-1 bg-gray-50 text-gray-400 text-[10px] font-bold uppercase tracking-widest rounded-full border border-gray-100">
+              {t(`atlas.categories.${cat}`)}
+            </span>
+          ))}
+        </div>
       </div>
 
       {/* Seeds Grid */}
@@ -57,13 +66,21 @@ export default function Atlas() {
             {/* Image Section */}
             <div className="relative h-48">
               <PlantImage seedName={seed.name} className="w-full h-full" />
-              <div className="absolute top-4 right-4">
+
+              {/* Badges Stack */}
+              <div className="absolute top-4 right-4 flex flex-col items-end gap-2">
                 <span className={`px-3 py-1.5 text-xs font-bold rounded-full backdrop-blur-md shadow-sm ${seed.difficulty === 'Easy'
                   ? 'bg-green-400 text-white'
                   : 'bg-yellow-500/90 text-white'
                   }`}>
                   {seed.difficulty}
                 </span>
+
+                {seed.growth_category && (
+                  <span className="px-3 py-1 bg-black/40 text-white text-[10px] font-bold backdrop-blur-md rounded-full">
+                    {t(`atlas.categories.${seed.growth_category}`)}
+                  </span>
+                )}
               </div>
             </div>
 

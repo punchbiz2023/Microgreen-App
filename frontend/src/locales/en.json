@@ -3,6 +3,7 @@
         "home": "Home",
         "atlas": "Atlas",
         "my_plants": "My Plants",
+        "analytics": "Analytics",
         "admin": "Admin",
         "slogan": "Professional Growth",
         "welcome": "Welcome, {{name}}",
@@ -73,7 +74,13 @@
         "harvest": "Harvest",
         "avg_yield": "Avg Yield",
         "standard_care": "Follow standard care instructions",
-        "grow": "Grow"
+        "grow": "Grow",
+        "categories": {
+            "Fast": "⚡ Fast Growing",
+            "Slow Veg": "🥗 Slow Growing (Veg)",
+            "Slow Herb": "🌿 Slow Growing (Herb)",
+            "Other": "Others"
+        }
     },
     "wizard": {
         "title": "Grow {{name}}",
@@ -112,7 +119,11 @@
         "sow_evenly": "Sow seeds evenly across tray",
         "mist_seeds": "Mist seeds thoroughly",
         "apply_blackout": "Apply weighted cover for blackout",
-        "tasks_completed": "All preparation tasks completed"
+        "tasks_completed": "All preparation tasks completed",
+        "mucilaginous_warning": "Mucilaginous Warning",
+        "mucilaginous_desc": "This seed forms a gel when wet. **DO NOT SOAK**. Mist only.",
+        "commercial_tip": "Commercial Best Practice",
+        "seeding_density_tip": "For consistent commercial results, aim for {{weight}}g per tray."
     },
     "dashboard": {
         "back_to_atlas": "Back to Atlas",
@@ -133,7 +144,14 @@
         "check_suggestions": "Check suggestions below to recover",
         "ai_suggestions": "AI Suggestions",
         "loss_label": "Potential loss",
-        "ai_coach": "AI Growth Coach (Puter)",
+        "ai_coach": "GrowGuide Pro Coach",
+        "batch_control": "Batch Control Center",
+        "batch_found": "Found {{count}} identical active crops",
+        "sync_logs": "Sync Today's Log",
+        "compare_batch": "Compare Batch Performance",
+        "batch_sync_confirm": "Apply today's log to this crop AND {{count}} other identical crops?",
+        "batch_sync_success": "Batch synced successfully!",
+        "batch_sync_error": "Failed to sync batch",
         "load_error": "Failed to load crop data",
         "germinating": "Germinating..."
     },
@@ -302,5 +320,14 @@
             "fert": "Low nitrogen bio-stimulant on Day 5 to boost betacyanin (pigment) levels.",
             "tips": "Extremely sensitive to overwatering; use fine mist only. Keep blackout weighted to improve stem strength. Do NOT soak."
         }
+    },
+    "harvest": {
+        "title": "Harvest Success Checklist",
+        "subtitle": "Ensure commercial quality and food safety.",
+        "cut_at_base": "Cut at base with clean scissors/knife",
+        "wash_2_3x": "Wash in cold water (2-3 times)",
+        "dry_thoroughly": "Dry thoroughly (prevents microbial growth)",
+        "refrigerate": "Refrigerate immediately (< 4°C)",
+        "checklist_gate": "Please complete all quality checks before finishing."
     }
 }
