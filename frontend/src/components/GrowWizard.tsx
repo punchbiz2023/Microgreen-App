@@ -30,7 +30,7 @@ const GrowWizard: React.FC<GrowWizardProps> = ({ seed, initialTraySize = "10x20 
     const [numberOfTrays, setNumberOfTrays] = useState(1);
 
     // Notification Settings
-    const [notifyEnabled, setNotifyEnabled] = useState(true);
+    const [notifyEnabled] = useState(true);
 
     // INITIAL LOG STATE (Dream Workflow)
     const [logInitial, setLogInitial] = useState(false);
