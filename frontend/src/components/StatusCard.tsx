@@ -104,7 +104,7 @@ export default function StatusCard({
         {isPro && roi !== undefined && (
           <div className="mt-4 p-4 bg-purple-50 border border-purple-200 rounded-xl">
             <div className="flex justify-between items-center">
-              <span className="text-xs font-bold text-purple-700 uppercase tracking-wider">Est. Net Profit</span>
+              <span className="text-xs font-bold text-purple-700 uppercase tracking-wider">{t('analytics.net_profit')}</span>
               <span className={`text-lg font-black ${roi >= 0 ? 'text-green-600' : 'text-red-500'}`}>
                 {roi >= 0 ? '+' : ''}${roi.toFixed(2)}
               </span>

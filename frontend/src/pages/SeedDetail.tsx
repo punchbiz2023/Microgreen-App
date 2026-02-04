@@ -71,11 +71,11 @@ export default function SeedDetail() {
                         <div className="grid grid-cols-2 gap-4 mt-4 text-sm">
                             <div>
                                 <span className="text-gray-500 block">{t('seeds.labels.leaves_color')}</span>
-                                <span className="font-semibold text-gray-900">Green / Purple</span>
+                                <span className="font-semibold text-gray-900">{t(`seeds.traits.leaves_green_purple`)}</span>
                             </div>
                             <div>
                                 <span className="text-gray-500 block">{t('seeds.labels.stem_color')}</span>
-                                <span className="font-semibold text-gray-900">White / Pink</span>
+                                <span className="font-semibold text-gray-900">{t(`seeds.traits.stem_white_pink`)}</span>
                             </div>
                         </div>
 
@@ -100,9 +100,9 @@ export default function SeedDetail() {
                             </div>
                             <div className="grid grid-cols-3 gap-3">
                                 {[
-                                    { id: "10x20 inch", label: "10x20\"", area: "200 in²", mult: "1.0x" },
-                                    { id: "10x10 inch", label: "10x10\"", area: "100 in²", mult: "0.5x" },
-                                    { id: "5x5 inch", label: "5x5\"", area: "25 in²", mult: "0.125x" }
+                                    { id: "10x20 inch", key: "10x20", area: 200 },
+                                    { id: "10x10 inch", key: "10x10", area: 100 },
+                                    { id: "5x5 inch", key: "5x5", area: 25 }
                                 ].map((tray) => (
                                     <button
                                         key={tray.id}
@@ -112,10 +112,14 @@ export default function SeedDetail() {
                                             : "border-gray-100 hover:border-green-200 bg-gray-50/50"
                                             }`}
                                     >
-                                        <span className={`text-sm font-black ${selectedTraySize === tray.id ? "text-green-700" : "text-gray-900"}`}>{tray.label}</span>
-                                        <span className="text-[10px] font-bold text-gray-400 uppercase">{tray.area}</span>
+                                        <span className={`text-sm font-black ${selectedTraySize === tray.id ? "text-green-700" : "text-gray-900"}`}>
+                                            {t(`seeds.trays.${tray.key}_label`)}
+                                        </span>
+                                        <span className="text-[10px] font-bold text-gray-400 uppercase">
+                                            {tray.area} {t('seeds.trays.area_unit')}
+                                        </span>
                                         <div className={`mt-1 px-2 py-0.5 rounded text-[10px] font-black ${selectedTraySize === tray.id ? "bg-green-200 text-green-700" : "bg-gray-200 text-gray-500"}`}>
-                                            {tray.mult}
+                                            {(tray.area / 200).toFixed(2)}x
                                         </div>
                                     </button>
                                 ))}
@@ -232,7 +236,7 @@ export default function SeedDetail() {
                             onClick={() => setShowWizard(true)}
                             className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-xl shadow-lg transition-transform active:scale-[0.98] text-lg shadow-green-100"
                         >
-                            {t('seeds.labels.start_growing', { name: seed.name })}
+                            {t('seeds.labels.start_growing', { name: t(`seeds.${seed.seed_type}.name`, { defaultValue: seed.name }) })}
                         </button>
                     </div>
                 </div>

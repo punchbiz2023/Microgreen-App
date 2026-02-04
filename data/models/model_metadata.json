@@ -16,7 +16,9 @@
     "max_temp",
     "min_temp",
     "max_humidity",
-    "min_humidity"
+    "min_humidity",
+    "latest_height_mm",
+    "seeding_density_g_cm2"
   ],
   "rf_weight": 0.4,
   "nn_weight": 0.6,

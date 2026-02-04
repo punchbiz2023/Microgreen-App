@@ -69,7 +69,9 @@ class MicrogreensYieldPredictor:
             'max_temp',
             'min_temp',
             'max_humidity',
-            'min_humidity'
+            'min_humidity',
+            'latest_height_mm',
+            'seeding_density_g_cm2'
         ]
         
         X = df[feature_cols].values

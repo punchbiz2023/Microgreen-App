@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import { Leaf } from 'lucide-react';
 
 export default function Register() {
+    const { t } = useTranslation();
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -46,7 +48,7 @@ export default function Register() {
             if (axios.isAxiosError(err) && err.response?.data?.detail) {
                 setError(err.response.data.detail);
             } else {
-                setError('Failed to create account. Try a different username.');
+                setError(t('auth.failed_register', { defaultValue: 'Failed to create account. Try a different username.' }));
             }
         } finally {
             setLoading(false);
@@ -64,20 +66,20 @@ export default function Register() {
                             </div>
                             <div className="ml-4 text-left">
                                 <div className="flex items-center">
-                                    <span className="text-3xl font-extrabold text-gray-900 tracking-tight leading-none">Urban</span>
-                                    <span className="text-3xl font-light text-green-500 tracking-tight leading-none ml-1">Sims</span>
+                                    <span className="text-3xl font-extrabold text-gray-900 tracking-tight leading-none">{t('header.brand_urban')}</span>
+                                    <span className="text-3xl font-light text-green-500 tracking-tight leading-none ml-1">{t('header.brand_sims')}</span>
                                 </div>
-                                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.3em] leading-none mt-2 block">Professional Growth</span>
+                                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.3em] leading-none mt-2 block">{t('header.slogan')}</span>
                             </div>
                         </div>
                     </div>
                     <h2 className="text-2xl font-bold text-gray-900">
-                        Create an account
+                        {t('auth.create_account')}
                     </h2>
                     <p className="mt-2 text-sm text-gray-600">
-                        Already have an account?{' '}
+                        {t('auth.already_have_account')}{' '}
                         <Link to="/login" className="font-medium text-green-500 hover:text-green-400">
-                            Sign in
+                            {t('auth.sign_in')}
                         </Link>
                     </p>
                 </div>
@@ -88,7 +90,7 @@ export default function Register() {
                                 type="text"
                                 required
                                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-xl focus:outline-none focus:ring-green-400 focus:border-green-400 focus:z-10 sm:text-sm"
-                                placeholder="Username"
+                                placeholder={t('auth.username')}
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
                             />
@@ -98,7 +100,7 @@ export default function Register() {
                                 type="email"
                                 required
                                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-400 focus:border-green-400 focus:z-10 sm:text-sm"
-                                placeholder="Email address"
+                                placeholder={t('auth.email')}
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                             />
@@ -108,7 +110,7 @@ export default function Register() {
                                 type="password"
                                 required
                                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-xl focus:outline-none focus:ring-green-400 focus:border-green-400 focus:z-10 sm:text-sm"
-                                placeholder="Password"
+                                placeholder={t('auth.password')}
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                             />
@@ -117,7 +119,7 @@ export default function Register() {
 
                     {/* Preference Mode Selection */}
                     <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
-                        <label className="block text-sm font-medium text-gray-700 mb-3">I am a...</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-3">{t('auth.i_am_a')}</label>
                         <div className="grid grid-cols-2 gap-3">
                             <label className={`cursor-pointer border rounded-lg p-3 flex flex-col items-center text-center transition-all ${preferenceMode === 'home' ? 'bg-white border-green-400 shadow-sm ring-1 ring-green-400' : 'bg-transparent border-gray-300 hover:bg-white'}`}>
                                 <input
@@ -128,8 +130,8 @@ export default function Register() {
                                     onChange={(e) => setPreferenceMode(e.target.value)}
                                     className="sr-only"
                                 />
-                                <span className="font-bold text-gray-900">Home Grower</span>
-                                <span className="text-xs text-gray-500 mt-1">Simple tracking</span>
+                                <span className="font-bold text-gray-900">{t('auth.home_grower')}</span>
+                                <span className="text-xs text-gray-500 mt-1">{t('auth.simple_tracking')}</span>
                             </label>
 
                             <label className={`cursor-pointer border rounded-lg p-3 flex flex-col items-center text-center transition-all ${preferenceMode === 'pro' ? 'bg-white border-green-400 shadow-sm ring-1 ring-green-400' : 'bg-transparent border-gray-300 hover:bg-white'}`}>
@@ -141,8 +143,8 @@ export default function Register() {
                                     onChange={(e) => setPreferenceMode(e.target.value)}
                                     className="sr-only"
                                 />
-                                <span className="font-bold text-gray-900">Professional</span>
-                                <span className="text-xs text-gray-500 mt-1">Batch management</span>
+                                <span className="font-bold text-gray-900">{t('auth.professional')}</span>
+                                <span className="text-xs text-gray-500 mt-1">{t('auth.batch_management')}</span>
                             </label>
                         </div>
                     </div>
@@ -159,7 +161,7 @@ export default function Register() {
                         className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 transition-colors ${loading ? 'opacity-75 cursor-not-allowed' : ''
                             }`}
                     >
-                        {loading ? 'Creating account...' : 'Create Account'}
+                        {loading ? t('auth.creating_account', { defaultValue: 'Creating account...' }) : t('auth.create_account')}
                     </button>
                 </form>
             </div>

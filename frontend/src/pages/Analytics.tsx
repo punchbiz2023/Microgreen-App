@@ -4,13 +4,16 @@ import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     LineChart, Line, Cell
 } from 'recharts';
-import { TrendingUp, DollarSign, Scale, Sprout, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { TrendingUp, DollarSign, Scale, Sprout, ArrowLeft, Zap } from 'lucide-react';
 
 export default function Analytics() {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const [crops, setCrops] = useState<Crop[]>([]);
     const [loading, setLoading] = useState(true);
+    const isPro = true; // Analytics is a pro feature
 
     useEffect(() => {
         loadData();
@@ -72,44 +75,47 @@ export default function Analytics() {
                     <div>
                         <button onClick={() => navigate('/')} className="flex items-center text-gray-500 hover:text-gray-900 mb-4 transition-colors">
                             <ArrowLeft size={18} className="mr-2" />
-                            Back to Dashboard
+                            {t('common.back')}
                         </button>
-                        <h1 className="text-4xl font-black text-gray-900 tracking-tight">Farm <span className="text-purple-600">Analytics</span></h1>
-                        <p className="text-gray-500 font-medium mt-1">Commercial production performance & profitability</p>
+                        <h1 className="text-4xl font-black text-gray-900 tracking-tight">{t('analytics.title')}</h1>
+                        <p className="text-gray-500 font-medium mt-1">{t('analytics.subtitle')}</p>
                     </div>
-                    <div className="bg-purple-100 px-4 py-2 rounded-2xl border border-purple-200">
-                        <span className="text-purple-700 font-bold text-sm uppercase tracking-widest">Pro Mode Active</span>
-                    </div>
+                    {isPro && (
+                        <div className="bg-purple-100 px-4 py-2 rounded-full flex items-center gap-2 border border-purple-200 shadow-sm animate-pulse-slow">
+                            <Zap className="w-4 h-4 text-purple-600 fill-purple-600" />
+                            <span className="text-purple-700 font-bold text-sm uppercase tracking-widest">{t('analytics.pro_mode')}</span>
+                        </div>
+                    )}
                 </div>
 
                 {/* Top Stats */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
                     <StatCard
                         icon={<Scale className="text-blue-600" />}
-                        label="Total Yield"
+                        label={t('analytics.total_yield', { defaultValue: 'Total Yield' })}
                         value={`${totalGrams.toLocaleString()}g`}
-                        sub="Across all cycles"
+                        sub={t('analytics.across_all_cycles', { defaultValue: 'Across all cycles' })}
                         color="blue"
                     />
                     <StatCard
                         icon={<TrendingUp className="text-green-600" />}
-                        label="Avg. Efficiency"
+                        label={t('analytics.avg_efficiency', { defaultValue: 'Avg. Efficiency' })}
                         value={`${avgEfficiency.toFixed(1)}%`}
-                        sub="Precision score"
+                        sub={t('analytics.precision_score', { defaultValue: 'Precision score' })}
                         color="green"
                     />
                     <StatCard
                         icon={<DollarSign className="text-purple-600" />}
-                        label="Total Profit"
+                        label={t('analytics.total_profit', { defaultValue: 'Total Profit' })}
                         value={`$${totalProfit.toFixed(2)}`}
-                        sub="Estimated ROI"
+                        sub={t('analytics.estimated_profits', { defaultValue: 'Estimated Profits' })}
                         color="purple"
                     />
                     <StatCard
                         icon={<Sprout className="text-emerald-600" />}
-                        label="Active Crops"
+                        label={t('analytics.active_crops', { defaultValue: 'Active Crops' })}
                         value={crops.length.toString()}
-                        sub="Completed batches"
+                        sub={t('analytics.completed_batches', { defaultValue: 'Completed batches' })}
                         color="emerald"
                     />
                 </div>
@@ -117,46 +123,37 @@ export default function Analytics() {
                 {/* Charts Section */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {/* Yield Chart */}
-                    <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
-                        <h3 className="text-xl font-bold text-gray-800 mb-6">Yield Performance (Grams)</h3>
-                        <div className="h-[300px] w-full">
+                    <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-xl lg:col-span-2">
+                        <h3 className="text-xl font-bold text-gray-800 mb-6">{t('analytics.yield_performance')}</h3>
+                        <div className="h-[400px]">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={performanceData}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 600, fill: '#94a3b8' }} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 600, fill: '#94a3b8' }} />
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} />
+                                    <YAxis axisLine={false} tickLine={false} />
                                     <Tooltip
-                                        contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
                                         cursor={{ fill: '#f8fafc' }}
+                                        contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
                                     />
-                                    <Bar dataKey="yield" radius={[6, 6, 0, 0]} barSize={40}>
-                                        {performanceData.map((_, index) => (
-                                            <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#8b5cf6' : '#c084fc'} />
-                                        ))}
-                                    </Bar>
+                                    <Bar dataKey="yield" fill="#3b82f6" radius={[6, 6, 0, 0]} />
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
 
-                    {/* Profitability Trend */}
-                    <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
-                        <h3 className="text-xl font-bold text-gray-800 mb-6">Profitability Trend ($)</h3>
-                        <div className="h-[300px] w-full">
+                    {/* Profit Trend Chart */}
+                    <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-xl">
+                        <h3 className="text-xl font-bold text-gray-800 mb-6">{t('analytics.profitability_trend')}</h3>
+                        <div className="h-[400px]">
                             <ResponsiveContainer width="100%" height="100%">
                                 <LineChart data={performanceData}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 600, fill: '#94a3b8' }} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 600, fill: '#94a3b8' }} />
-                                    <Tooltip contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
-                                    <Line
-                                        type="monotone"
-                                        dataKey="profit"
-                                        stroke="#10b981"
-                                        strokeWidth={4}
-                                        dot={{ r: 6, fill: '#10b981', stroke: '#fff' }}
-                                        activeDot={{ r: 8 }}
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                    <XAxis dataKey="date" axisLine={false} tickLine={false} />
+                                    <YAxis axisLine={false} tickLine={false} />
+                                    <Tooltip
+                                        contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
                                     />
+                                    <Line type="monotone" dataKey="profit" stroke="#8b5cf6" strokeWidth={4} dot={{ r: 6, fill: '#8b5cf6' }} />
                                 </LineChart>
                             </ResponsiveContainer>
                         </div>
@@ -164,20 +161,20 @@ export default function Analytics() {
                 </div>
 
                 {/* Detailed Table */}
-                <div className="mt-10 bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
+                <div className="mt-10 bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
                     <div className="p-8 border-b border-gray-50 flex justify-between items-center">
-                        <h3 className="text-xl font-bold text-gray-800">Batch Deep-Dive</h3>
-                        <button className="text-xs font-bold text-purple-600 uppercase tracking-widest hover:underline">Export CSV</button>
+                        <h3 className="text-xl font-bold text-gray-800">{t('analytics.batch_deep_dive')}</h3>
+                        <button className="text-xs font-bold text-purple-600 uppercase tracking-widest hover:underline">{t('analytics.export_csv')}</button>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full text-left">
                             <thead>
                                 <tr className="bg-gray-50">
-                                    <th className="px-8 py-4 text-xs font-black text-gray-400 uppercase tracking-widest">Seed Variety</th>
-                                    <th className="px-8 py-4 text-xs font-black text-gray-400 uppercase tracking-widest">Yield</th>
-                                    <th className="px-8 py-4 text-xs font-black text-gray-400 uppercase tracking-widest">Accuracy</th>
-                                    <th className="px-8 py-4 text-xs font-black text-gray-400 uppercase tracking-widest">ROI %</th>
-                                    <th className="px-8 py-4 text-xs font-black text-gray-400 uppercase tracking-widest">Net Profit</th>
+                                    <th className="px-8 py-4 text-xs font-black text-gray-400 uppercase tracking-widest">{t('analytics.table.seed_variety', { defaultValue: 'Seed Variety' })}</th>
+                                    <th className="px-8 py-4 text-xs font-black text-gray-400 uppercase tracking-widest">{t('analytics.table.yield', { defaultValue: 'Yield' })}</th>
+                                    <th className="px-8 py-4 text-xs font-black text-gray-400 uppercase tracking-widest">{t('analytics.table.accuracy', { defaultValue: 'Accuracy' })}</th>
+                                    <th className="px-8 py-4 text-xs font-black text-gray-400 uppercase tracking-widest">{t('analytics.table.roi', { defaultValue: 'ROI %' })}</th>
+                                    <th className="px-8 py-4 text-xs font-black text-gray-400 uppercase tracking-widest">{t('analytics.table.net_profit', { defaultValue: 'Net Profit' })}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">

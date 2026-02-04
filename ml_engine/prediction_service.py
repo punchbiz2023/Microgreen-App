@@ -23,7 +23,7 @@ class YieldPredictionService:
         Predict final yield based on current progress
         
         Args:
-            seed_config: Dict with seed parameters (name, base_yield, ideal_temp, etc.)
+            seed_config: Dict with seed parameters (name, base_yield, ideal_temp, target_density, etc.)
             daily_logs: List of daily log dictionaries
         
         Returns:
@@ -70,10 +70,13 @@ class YieldPredictionService:
         missed_watering_days = sum([1 for log in daily_logs if not log['watered']])
         
         # Max/Min values
-        max_temp = max([log['temperature'] for log in daily_logs])
-        min_temp = min([log['temperature'] for log in daily_logs])
         max_humidity = max([log['humidity'] for log in daily_logs])
         min_humidity = min([log['humidity'] for log in daily_logs])
+        
+        # New Features: Latest Height and Seeding Density
+        latest_height = daily_logs[-1].get('measured_height_mm', 0)
+        # If density not provided in logs/config, use target density
+        seeding_density = seed_config.get('seeding_density', seed_config.get('target_density', seed_config['base_yield'] / 1290.0))
         
         # Create feature DataFrame
         features = pd.DataFrame([{
@@ -95,7 +98,9 @@ class YieldPredictionService:
             'max_temp': max_temp,
             'min_temp': min_temp,
             'max_humidity': max_humidity,
-            'min_humidity': min_humidity
+            'min_humidity': min_humidity,
+            'latest_height_mm': latest_height,
+            'seeding_density_g_cm2': seeding_density
         }])
         
         # Make prediction

@@ -102,7 +102,7 @@ export default function MyPlants() {
                                     <PlantImage seedName={crop.seed.name} className="w-full h-full object-cover" />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-4">
                                         <div>
-                                            <h3 className="font-bold text-white text-xl shadow-sm">{crop.seed.name}</h3>
+                                            <h3 className="font-bold text-white text-xl shadow-sm">{t(`seeds.${crop.seed.seed_type}.name`, { defaultValue: crop.seed.name })}</h3>
                                             <p className="text-white/90 text-xs font-medium">{t('my_plants.started')} {format(new Date(crop.start_datetime), 'MMM d', { locale: currentLocale })}</p>
                                         </div>
                                     </div>
@@ -156,7 +156,7 @@ export default function MyPlants() {
                         </div>
                         <h3 className="text-2xl font-bold text-gray-900 text-center mb-2">{t('my_plants.delete_plant_q')}</h3>
                         <p className="text-gray-500 text-center mb-8">
-                            {t('my_plants.delete_warning', { name: deletingCrop.seed.name })}
+                            {t('my_plants.delete_warning', { name: t(`seeds.${deletingCrop.seed.seed_type}.name`, { defaultValue: deletingCrop.seed.name }) })}
                         </p>
                         <div className="flex space-x-3">
                             <button
