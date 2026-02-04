@@ -39,6 +39,10 @@ class Seed(Base):
     latin_name = Column(String(100), nullable=True)
     difficulty = Column(String(50), nullable=False)
     
+    # PDF-Based Classification
+    is_mucilaginous = Column(Boolean, default=False)
+    growth_category = Column(String(50), nullable=True) # 'Fast', 'Slow Veg', 'Slow Herb'
+    
     # Growing specifics (Defaults)
     seed_count_per_gram = Column(String(50), nullable=True)
     sow_density = Column(String(50), nullable=True)
@@ -58,6 +62,7 @@ class Seed(Base):
     ideal_humidity = Column(Float, nullable=True)
     temp_tolerance = Column(Float, nullable=False, default=2.5)
     humidity_tolerance = Column(Float, nullable=False, default=10)
+    target_density_g_cm2 = Column(Float, nullable=True) # Commercial density target
     
     # New: User-friendly instructions and fertilizer tips
     fertilizer_info = Column(Text, nullable=True)
@@ -72,6 +77,11 @@ class Seed(Base):
     care_instructions = Column(Text, nullable=True) 
     source_url = Column(String(255), nullable=True) # Keep for compatibility or main link
     external_links = Column(JSON, nullable=True) # New: Link 1, 2, 3 with descriptions
+    
+    # Pro Commercial Specs
+    target_dli = Column(Float, nullable=True, default=6.0) # mol/m²/d
+    protein_gram_per_100g = Column(Float, nullable=True)
+    vitamin_c_mg_per_100g = Column(Float, nullable=True)
     
     # Relationships
     crops = relationship('Crop', back_populates='seed')
@@ -100,6 +110,10 @@ class Crop(Base):
     number_of_trays = Column(Integer, nullable=False, default=1) # Batches
     status = Column(String(20), nullable=False, default='active')  # 'active', 'harvested', 'failed'
     
+    # Biological Stage Tracking
+    # Stages: 'soaking', 'blackout', 'sprouting', 'maturing', 'ready_for_harvest'
+    current_stage = Column(String(30), nullable=False, default='blackout')
+    
     # Custom Configurations (JSON)
     # e.g., { "soak_hours": 4, "blackout_days": 3, "watering_freq": 2 }
     custom_settings = Column(JSON, nullable=False, default={}) 
@@ -107,6 +121,16 @@ class Crop(Base):
     # Notification Preferences (JSON)
     # e.g., { "enabled": true, "times": ["08:00", "18:00"] }
     notification_settings = Column(JSON, nullable=False, default={})
+    
+    # Pro Cultivation Specs
+    ppfd_level = Column(Float, nullable=True) # µmol/m²/s
+    light_hours_per_day = Column(Float, nullable=True, default=16.0)
+    
+    # Pro Financials
+    seed_cost = Column(Float, nullable=True, default=0.0)
+    soil_cost = Column(Float, nullable=True, default=0.0)
+    energy_cost_per_kwh = Column(Float, nullable=True, default=0.12)
+    other_costs = Column(Float, nullable=True, default=0.0)
     
     # Relationships
     user = relationship('User', back_populates='crops')
@@ -138,6 +162,7 @@ class DailyLog(Base):
     notes = Column(Text, nullable=True)
     
     predicted_yield = Column(Float, nullable=True)
+    measured_height_mm = Column(Float, nullable=True) # Manual height entry
     logged_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships

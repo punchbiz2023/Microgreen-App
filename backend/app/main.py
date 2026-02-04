@@ -114,6 +114,13 @@ class SeedResponse(BaseModel):
     source_url: Optional[str] = None
     fertilizer_info: Optional[str] = None
     growth_tips: Optional[str] = None
+    is_mucilaginous: bool
+    growth_category: Optional[str]
+    
+    # Pro Commercial Specs
+    target_dli: float = 6.0
+    protein_gram_per_100g: Optional[float] = None
+    vitamin_c_mg_per_100g: Optional[float] = None
     
     growth_days: int # Computed property
     
@@ -150,6 +157,16 @@ class CropResponse(BaseModel):
     custom_settings: Dict[str, Any]
     notification_settings: Dict[str, Any]
     daily_logs: List[DailyLogResponse] = []
+    
+    # Pro Cultivation Specs
+    ppfd_level: Optional[float] = None
+    light_hours_per_day: float = 16.0
+    
+    # Pro Financials
+    seed_cost: float = 0.0
+    soil_cost: float = 0.0
+    energy_cost_per_kwh: float = 0.12
+    other_costs: float = 0.0
     
     class Config:
         from_attributes = True
@@ -191,6 +208,11 @@ class SeedCreate(BaseModel):
     source_url: Optional[str] = None
     fertilizer_info: Optional[str] = None
     growth_tips: Optional[str] = None
+    is_mucilaginous: bool = False
+    growth_category: Optional[str] = None
+    target_dli: float = 6.0
+    protein_gram_per_100g: Optional[float] = None
+    vitamin_c_mg_per_100g: Optional[float] = None
 
 class SeedUpdate(BaseModel):
     name: Optional[str] = None
@@ -210,6 +232,11 @@ class SeedUpdate(BaseModel):
     taste: Optional[str] = None
     pros: Optional[str] = None
     cons: Optional[str] = None
+    is_mucilaginous: Optional[bool] = None
+    growth_category: Optional[str] = None
+    target_dli: Optional[float] = None
+    protein_gram_per_100g: Optional[float] = None
+    vitamin_c_mg_per_100g: Optional[float] = None
 
 
 class CropCreate(BaseModel):
@@ -225,6 +252,14 @@ class CropCreate(BaseModel):
     
     # Optional Initial Log (Dream Workflow)
     initial_log: Optional[DailyLogCreate] = None
+
+    # Pro Logic
+    ppfd_level: Optional[float] = None
+    light_hours_per_day: float = 16.0
+    seed_cost: float = 0.0
+    soil_cost: float = 0.0
+    energy_cost_per_kwh: float = 0.12
+    other_costs: float = 0.0
 
 class HarvestCreate(BaseModel):
     actual_weight: float

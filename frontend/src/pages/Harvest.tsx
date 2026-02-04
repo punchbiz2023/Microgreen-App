@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { cropsApi, harvestApi, predictionsApi, type Crop, type Prediction } from '../services/api';
-import { ArrowLeft, Award, TrendingUp, BarChart3, CheckCircle } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+import { ArrowLeft, Award, TrendingUp, BarChart3, CheckCircle, Info } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 export default function Harvest() {
+  const { t } = useTranslation();
   const { cropId } = useParams<{ cropId: string }>();
   const navigate = useNavigate();
 
@@ -15,6 +17,16 @@ export default function Harvest() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [harvestResult, setHarvestResult] = useState<any>(null);
+
+  // Harvest Success Checklist
+  const [checklist, setChecklist] = useState({
+    cut: false,
+    wash: false,
+    dry: false,
+    cool: false
+  });
+
+  const isChecklistComplete = checklist.cut && checklist.wash && checklist.dry && checklist.cool;
 
   useEffect(() => {
     if (cropId) {
@@ -167,8 +179,8 @@ export default function Harvest() {
 
               {/* Performance Message */}
               <div className={`rounded-xl p-6 border-2 ${difference >= 0
-                  ? 'bg-green-50 border-green-200'
-                  : 'bg-yellow-50 border-yellow-200'
+                ? 'bg-green-50 border-green-200'
+                : 'bg-yellow-50 border-yellow-200'
                 }`}>
                 <div className="flex items-start space-x-4">
                   <div className="flex-shrink-0 mt-1">
@@ -289,6 +301,51 @@ export default function Harvest() {
             </div>
           )}
 
+          {/* Harvest Success Checklist */}
+          <div className="mb-10 space-y-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-900">{t('harvest.title')}</h2>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest ${isChecklistComplete ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                {isChecklistComplete ? 'Ready' : 'Pending'}
+              </span>
+            </div>
+
+            <p className="text-sm text-gray-500 mb-6">{t('harvest.subtitle')}</p>
+
+            <div className="grid gap-3">
+              {[
+                { id: 'cut', label: t('harvest.cut_at_base') },
+                { id: 'wash', label: t('harvest.wash_2_3x') },
+                { id: 'dry', label: t('harvest.dry_thoroughly') },
+                { id: 'cool', label: t('harvest.refrigerate') }
+              ].map(item => (
+                <label
+                  key={item.id}
+                  className={`flex items-center p-4 border-2 rounded-2xl cursor-pointer transition-all ${checklist[item.id as keyof typeof checklist]
+                    ? 'border-green-500 bg-green-50 shadow-sm'
+                    : 'border-gray-100 hover:border-green-200'
+                    }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={checklist[item.id as keyof typeof checklist]}
+                    onChange={(e) => setChecklist({ ...checklist, [item.id]: e.target.checked })}
+                    className="w-5 h-5 rounded text-green-600 mr-4"
+                  />
+                  <span className={`font-semibold ${checklist[item.id as keyof typeof checklist] ? 'text-green-700' : 'text-gray-700'}`}>
+                    {item.label}
+                  </span>
+                </label>
+              ))}
+            </div>
+
+            {!isChecklistComplete && (
+              <p className="text-xs text-amber-600 font-bold mt-4 flex items-center justify-center">
+                <Info className="w-3 h-3 mr-1" /> {t('harvest.checklist_gate')}
+              </p>
+            )}
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-lg font-semibold text-gray-900 mb-3">
@@ -323,10 +380,10 @@ export default function Harvest() {
 
             <button
               type="submit"
-              disabled={submitting || !actualWeight}
-              className={`w-full flex items-center justify-center space-x-3 px-8 py-4 font-bold text-lg rounded-xl shadow-lg transition-all ${submitting || !actualWeight
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-purple-600 hover:bg-purple-700 text-white hover:shadow-xl transform hover:scale-105'
+              disabled={submitting || !actualWeight || !isChecklistComplete}
+              className={`w-full flex items-center justify-center space-x-3 px-8 py-4 font-bold text-lg rounded-xl shadow-lg transition-all ${submitting || !actualWeight || !isChecklistComplete
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-purple-600 hover:bg-purple-700 text-white hover:shadow-xl transform hover:scale-105'
                 }`}
             >
               <Award className="w-6 h-6" />
