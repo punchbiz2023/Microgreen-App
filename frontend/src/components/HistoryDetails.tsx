@@ -1,4 +1,4 @@
-import { X, Droplet, Thermometer, CloudRain, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { X, Thermometer, CloudRain, CheckCircle, XCircle, Clock } from 'lucide-react';
 import type { DailyLog } from '../services/api';
 import { format } from 'date-fns';
 
