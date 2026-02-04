@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # PostgreSQL Database
   postgres:
@@ -35,6 +33,7 @@ services:
       - ./backend:/app
       - ./ml_engine:/app/ml_engine
       - ./data:/app/data
+      - ./33_microgreens_full-1.csv:/33_microgreens_full-1.csv
       - backend_static:/app/static
     ports:
       - "8000:8000"

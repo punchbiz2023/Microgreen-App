@@ -96,7 +96,6 @@ class NotificationService {
       badge: '/icon-192.png',
       tag: cropId ? `crop-${cropId}` : 'microgreens',
       requireInteraction: false,
-      vibrate: [200, 100, 200],
     });
     
     notification.onclick = () => {
