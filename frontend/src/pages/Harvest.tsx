@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { cropsApi, harvestApi, predictionsApi, type Crop, type Prediction } from '../services/api';
-import { ArrowLeft, Award, TrendingUp, BarChart3, CheckCircle } from 'lucide-react';
+
+import { ArrowLeft, Award, TrendingUp, BarChart3, CheckCircle, Info } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 export default function Harvest() {
+  const { t } = useTranslation();
   const { cropId } = useParams<{ cropId: string }>();
   const navigate = useNavigate();
 
@@ -15,6 +19,16 @@ export default function Harvest() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [harvestResult, setHarvestResult] = useState<any>(null);
+
+  // Harvest Success Checklist
+  const [checklist, setChecklist] = useState({
+    cut: false,
+    wash: false,
+    dry: false,
+    cool: false
+  });
+
+  const isChecklistComplete = checklist.cut && checklist.wash && checklist.dry && checklist.cool;
 
   useEffect(() => {
     if (cropId) {
@@ -41,7 +55,7 @@ export default function Harvest() {
 
     const weight = parseFloat(actualWeight);
     if (isNaN(weight) || weight <= 0) {
-      alert('Please enter a valid weight');
+      alert(t('harvest.invalid_weight'));
       return;
     }
 
@@ -57,7 +71,7 @@ export default function Harvest() {
       setSubmitted(true);
     } catch (error: any) {
       console.error('Failed to submit harvest:', error);
-      alert(error.response?.data?.detail || 'Failed to submit harvest. Please try again.');
+      alert(error.response?.data?.detail || t('harvest.submit_error'));
     } finally {
       setSubmitting(false);
     }
@@ -74,17 +88,17 @@ export default function Harvest() {
   if (submitted && harvestResult) {
     const chartData = [
       {
-        name: 'Predicted',
+        name: t('harvest.predicted'),
         weight: harvestResult.predicted_weight,
         fill: '#3b82f6'
       },
       {
-        name: 'Actual',
+        name: t('harvest.actual'),
         weight: harvestResult.actual_weight,
         fill: '#22c55e'
       },
       {
-        name: 'Base',
+        name: t('harvest.base'),
         weight: crop.seed.avg_yield_grams,
         fill: '#94a3b8'
       }
@@ -105,10 +119,10 @@ export default function Harvest() {
                 </div>
               </div>
               <h1 className="text-4xl font-bold text-white mb-2">
-                Harvest Complete!
+                {t('harvest.complete_title')}
               </h1>
               <p className="text-green-100 text-lg">
-                {crop.seed.name} - {crop.seed.growth_days} Day Cycle
+                {t(`seeds.${crop.seed.seed_type}.name`, { defaultValue: crop.seed.name })} - {crop.seed.growth_days} {t('harvest.cycle_complete')}
               </p>
             </div>
 
@@ -117,14 +131,14 @@ export default function Harvest() {
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
                   <BarChart3 className="w-6 h-6 mr-2 text-purple-600" />
-                  Yield Comparison
+                  {t('harvest.yield_comparison')}
                 </h2>
 
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
-                    <YAxis label={{ value: 'Grams', angle: -90, position: 'insideLeft' }} />
+                    <YAxis label={{ value: t('harvest.grams'), angle: -90, position: 'insideLeft' }} />
                     <Tooltip />
                     <Bar dataKey="weight" radius={[8, 8, 0, 0]}>
                       {chartData.map((entry, index) => (
@@ -139,7 +153,7 @@ export default function Harvest() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-blue-50 rounded-xl p-6 border-2 border-blue-200">
                   <div className="text-sm text-blue-700 font-medium mb-2">
-                    AI Predicted
+                    {t('harvest.ai_predicted')}
                   </div>
                   <div className="text-4xl font-bold text-blue-900">
                     {harvestResult.predicted_weight.toFixed(0)}g
@@ -148,7 +162,7 @@ export default function Harvest() {
 
                 <div className="bg-green-50 rounded-xl p-6 border-2 border-green-200">
                   <div className="text-sm text-green-700 font-medium mb-2">
-                    Actual Harvest
+                    {t('harvest.actual_harvest')}
                   </div>
                   <div className="text-4xl font-bold text-green-900">
                     {harvestResult.actual_weight.toFixed(0)}g
@@ -157,7 +171,7 @@ export default function Harvest() {
 
                 <div className="bg-purple-50 rounded-xl p-6 border-2 border-purple-200">
                   <div className="text-sm text-purple-700 font-medium mb-2">
-                    AI Accuracy
+                    {t('harvest.ai_accuracy')}
                   </div>
                   <div className="text-4xl font-bold text-purple-900">
                     {harvestResult.accuracy_percent.toFixed(1)}%
@@ -167,8 +181,8 @@ export default function Harvest() {
 
               {/* Performance Message */}
               <div className={`rounded-xl p-6 border-2 ${difference >= 0
-                  ? 'bg-green-50 border-green-200'
-                  : 'bg-yellow-50 border-yellow-200'
+                ? 'bg-green-50 border-green-200'
+                : 'bg-yellow-50 border-yellow-200'
                 }`}>
                 <div className="flex items-start space-x-4">
                   <div className="flex-shrink-0 mt-1">
@@ -182,21 +196,23 @@ export default function Harvest() {
                     <h3 className={`text-xl font-bold mb-2 ${difference >= 0 ? 'text-green-900' : 'text-yellow-900'
                       }`}>
                       {difference >= 0
-                        ? '🎉 Great Job! You Beat the AI Prediction!'
-                        : 'Learning Opportunity'
+                        ? t('harvest.great_job')
+                        : t('harvest.learning_opportunity')
                       }
                     </h3>
                     <p className={`text-lg ${difference >= 0 ? 'text-green-800' : 'text-yellow-800'
                       }`}>
-                      You {difference >= 0 ? 'exceeded' : 'came close to'} the prediction by{' '}
-                      <span className="font-bold">{Math.abs(difference).toFixed(0)}g</span>{' '}
-                      ({Math.abs(percentDiff).toFixed(1)}%).
+                      {t('harvest.performance_msg', {
+                        result: difference >= 0 ? t('harvest.exceeded') : t('harvest.came_close'),
+                        weight: Math.abs(difference).toFixed(0),
+                        percent: Math.abs(percentDiff).toFixed(1)
+                      })}
                     </p>
                     <p className={`text-sm mt-2 ${difference >= 0 ? 'text-green-700' : 'text-yellow-700'
                       }`}>
                       {difference >= 0
-                        ? 'Your excellent care resulted in optimal conditions! Keep up this standard.'
-                        : 'The AI is learning from this data to improve future predictions for you.'
+                        ? t('harvest.success_detail')
+                        : t('harvest.learning_detail')
                       }
                     </p>
                   </div>
@@ -207,7 +223,7 @@ export default function Harvest() {
               {harvestResult.notes && (
                 <div className="bg-gray-50 rounded-xl p-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    Your Notes
+                    {t('harvest.your_notes')}
                   </h3>
                   <p className="text-gray-700">{harvestResult.notes}</p>
                 </div>
@@ -216,11 +232,10 @@ export default function Harvest() {
               {/* Model Learning Info */}
               <div className="bg-purple-50 rounded-xl p-6 border-2 border-purple-200">
                 <h3 className="text-lg font-bold text-purple-900 mb-2">
-                  🤖 AI Model Training
+                  {t('harvest.ai_training_title')}
                 </h3>
                 <p className="text-sm text-purple-800">
-                  Your harvest data has been added to the training dataset. The AI will use this real-world
-                  data to improve predictions for future crops. The model automatically retrains every 10 harvests!
+                  {t('harvest.ai_training_desc')}
                 </p>
               </div>
 
@@ -230,14 +245,14 @@ export default function Harvest() {
                   onClick={() => navigate('/atlas')}
                   className="flex-1 px-6 py-4 bg-green-500 hover:bg-green-600 text-white font-bold text-lg rounded-xl transition-colors shadow-lg hover:shadow-xl shadow-green-100"
                 >
-                  Start New Crop
+                  {t('harvest.start_new')}
                 </button>
 
                 <button
                   onClick={() => navigate('/atlas')}
                   className="flex-1 px-6 py-4 border-2 border-gray-300 text-gray-700 font-bold text-lg rounded-xl hover:bg-gray-50 transition-colors"
                 >
-                  Back to Atlas
+                  {t('harvest.back_to_atlas')}
                 </button>
               </div>
             </div>
@@ -255,7 +270,7 @@ export default function Harvest() {
           className="flex items-center text-gray-600 hover:text-gray-900 transition-colors mb-6"
         >
           <ArrowLeft className="w-5 h-5 mr-2" />
-          Back to Dashboard
+          {t('harvest.back_to_dashboard')}
         </button>
 
         <div className="bg-white rounded-2xl shadow-xl p-8">
@@ -266,10 +281,10 @@ export default function Harvest() {
               </div>
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Harvest Time! 🌱
+              {t('harvest.harvest_time')}
             </h1>
             <p className="text-gray-600">
-              {crop.seed.name} - {crop.seed.growth_days} Day Cycle Complete
+              {t(`seeds.${crop.seed.seed_type}.name`, { defaultValue: crop.seed.name })} - {crop.seed.growth_days} {t('harvest.cycle_complete')}
             </p>
           </div>
 
@@ -277,60 +292,105 @@ export default function Harvest() {
             <div className="bg-blue-50 rounded-xl p-6 border-2 border-blue-200 mb-8">
               <div className="text-center">
                 <div className="text-sm text-blue-700 font-medium mb-1">
-                  AI Predicted Yield
+                  {t('harvest.ai_predicted_yield')}
                 </div>
                 <div className="text-5xl font-bold text-blue-900 mb-2">
                   {prediction.predicted_yield.toFixed(0)}g
                 </div>
                 <div className="text-sm text-blue-700">
-                  Based on your {crop.seed.growth_days}-day growing conditions
+                  {t('harvest.based_on_conditions', { days: crop.seed.growth_days })}
                 </div>
               </div>
             </div>
           )}
 
+          {/* Harvest Success Checklist */}
+          <div className="mb-10 space-y-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-900">{t('harvest.title')}</h2>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest ${isChecklistComplete ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                {isChecklistComplete ? t('harvest.ready') : t('harvest.pending')}
+              </span>
+            </div>
+
+            <p className="text-sm text-gray-500 mb-6">{t('harvest.subtitle')}</p>
+
+            <div className="grid gap-3">
+              {[
+                { id: 'cut', label: t('harvest.cut_at_base') },
+                { id: 'wash', label: t('harvest.wash_2_3x') },
+                { id: 'dry', label: t('harvest.dry_thoroughly') },
+                { id: 'cool', label: t('harvest.refrigerate') }
+              ].map(item => (
+                <label
+                  key={item.id}
+                  className={`flex items-center p-4 border-2 rounded-2xl cursor-pointer transition-all ${checklist[item.id as keyof typeof checklist]
+                    ? 'border-green-500 bg-green-50 shadow-sm'
+                    : 'border-gray-100 hover:border-green-200'
+                    }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={checklist[item.id as keyof typeof checklist]}
+                    onChange={(e) => setChecklist({ ...checklist, [item.id]: e.target.checked })}
+                    className="w-5 h-5 rounded text-green-600 mr-4"
+                  />
+                  <span className={`font-semibold ${checklist[item.id as keyof typeof checklist] ? 'text-green-700' : 'text-gray-700'}`}>
+                    {item.label}
+                  </span>
+                </label>
+              ))}
+            </div>
+
+            {!isChecklistComplete && (
+              <p className="text-xs text-amber-600 font-bold mt-4 flex items-center justify-center">
+                <Info className="w-3 h-3 mr-1" /> {t('harvest.checklist_gate')}
+              </p>
+            )}
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-lg font-semibold text-gray-900 mb-3">
-                Actual Harvested Weight (grams)
+                {t('harvest.actual_weight_label')}
               </label>
               <input
                 type="number"
                 step="0.1"
                 value={actualWeight}
                 onChange={(e) => setActualWeight(e.target.value)}
-                placeholder="Enter weight in grams"
+                placeholder={t('harvest.enter_weight_placeholder')}
                 required
                 className="w-full p-4 text-2xl font-bold border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none text-center"
               />
               <p className="text-sm text-gray-600 mt-2 text-center">
-                Weigh your harvested microgreens and enter the total weight
+                {t('harvest.weight_desc')}
               </p>
             </div>
 
             <div>
               <label className="block text-lg font-semibold text-gray-900 mb-3">
-                Notes (Optional)
+                {t('harvest.notes_label')}
               </label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={3}
-                placeholder="Any observations about this harvest? (e.g., 'Great flavor', 'Some browning on edges')"
+                placeholder={t('harvest.notes_placeholder')}
                 className="w-full p-4 border-2 border-gray-300 rounded-lg focus:border-purple-600 focus:outline-none resize-none"
               />
             </div>
 
             <button
               type="submit"
-              disabled={submitting || !actualWeight}
-              className={`w-full flex items-center justify-center space-x-3 px-8 py-4 font-bold text-lg rounded-xl shadow-lg transition-all ${submitting || !actualWeight
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-purple-600 hover:bg-purple-700 text-white hover:shadow-xl transform hover:scale-105'
+              disabled={submitting || !actualWeight || !isChecklistComplete}
+              className={`w-full flex items-center justify-center space-x-3 px-8 py-4 font-bold text-lg rounded-xl shadow-lg transition-all ${submitting || !actualWeight || !isChecklistComplete
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-purple-600 hover:bg-purple-700 text-white hover:shadow-xl transform hover:scale-105'
                 }`}
             >
               <Award className="w-6 h-6" />
-              <span>{submitting ? 'Processing...' : 'Complete Harvest & See Results'}</span>
+              <span>{submitting ? t('harvest.processing') : t('harvest.complete_btn')}</span>
             </button>
           </form>
         </div>

@@ -8,13 +8,19 @@ interface StatusCardProps {
   totalDays: number;
   phase: string;
   prediction: Prediction | null;
+  dli?: number;
+  roi?: number;
+  isPro?: boolean;
 }
 
 export default function StatusCard({
   dayNumber,
   totalDays,
   phase,
-  prediction
+  prediction,
+  dli,
+  roi,
+  isPro
 }: StatusCardProps) {
   const { t } = useTranslation();
   if (!prediction) {
@@ -61,8 +67,15 @@ export default function StatusCard({
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
             {t('dashboard.day_of', { current: dayNumber, total: totalDays })}
           </h2>
-          <div className="inline-block px-4 py-2 bg-blue-100 text-blue-800 rounded-full font-semibold">
-            {phase}
+          <div className="flex flex-wrap justify-center gap-2">
+            <div className="inline-block px-4 py-2 bg-blue-100 text-blue-800 rounded-full font-semibold">
+              {phase}
+            </div>
+            {isPro && dli !== undefined && (
+              <div className={`inline-block px-4 py-2 rounded-full font-semibold text-white ${dli >= 6 && dli <= 12 ? 'bg-green-500' : 'bg-amber-500'}`}>
+                DLI: {dli.toFixed(1)}
+              </div>
+            )}
           </div>
         </div>
 
@@ -84,6 +97,17 @@ export default function StatusCard({
               <div className="text-xs text-red-600 mt-1">
                 {t('dashboard.check_suggestions')}
               </div>
+            </div>
+          </div>
+        )}
+
+        {isPro && roi !== undefined && (
+          <div className="mt-4 p-4 bg-purple-50 border border-purple-200 rounded-xl">
+            <div className="flex justify-between items-center">
+              <span className="text-xs font-bold text-purple-700 uppercase tracking-wider">{t('analytics.net_profit')}</span>
+              <span className={`text-lg font-black ${roi >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                {roi >= 0 ? '+' : ''}${roi.toFixed(2)}
+              </span>
             </div>
           </div>
         )}

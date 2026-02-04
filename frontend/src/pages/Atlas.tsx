@@ -44,6 +44,15 @@ export default function Atlas() {
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
           {t('atlas.subtitle')}
         </p>
+
+        {/* Growth Category Filter/Legend */}
+        <div className="flex flex-wrap justify-center gap-2 mt-6">
+          {["Fast", "Slow Veg", "Slow Herb"].map(cat => (
+            <span key={cat} className="px-3 py-1 bg-gray-50 text-gray-400 text-[10px] font-bold uppercase tracking-widest rounded-full border border-gray-100">
+              {t(`atlas.categories.${cat}`)}
+            </span>
+          ))}
+        </div>
       </div>
 
       {/* Seeds Grid */}
@@ -57,24 +66,32 @@ export default function Atlas() {
             {/* Image Section */}
             <div className="relative h-48">
               <PlantImage seedName={seed.name} className="w-full h-full" />
-              <div className="absolute top-4 right-4">
+
+              {/* Badges Stack */}
+              <div className="absolute top-4 right-4 flex flex-col items-end gap-2">
                 <span className={`px-3 py-1.5 text-xs font-bold rounded-full backdrop-blur-md shadow-sm ${seed.difficulty === 'Easy'
                   ? 'bg-green-400 text-white'
                   : 'bg-yellow-500/90 text-white'
                   }`}>
                   {seed.difficulty}
                 </span>
+
+                {seed.growth_category && (
+                  <span className="px-3 py-1 bg-black/40 text-white text-[10px] font-bold backdrop-blur-md rounded-full">
+                    {t(`atlas.categories.${seed.growth_category}`)}
+                  </span>
+                )}
               </div>
             </div>
 
             <div className="p-6 flex-1 flex flex-col">
               <div className="mb-4">
-                <h3 className="text-2xl font-bold text-gray-900 group-hover:text-green-500 transition-colors">{seed.name}</h3>
+                <h3 className="text-2xl font-bold text-gray-900 group-hover:text-green-500 transition-colors">{t(`seeds.${seed.seed_type}.name`, { defaultValue: seed.name })}</h3>
                 <p className="text-lg text-gray-500 italic">{seed.latin_name}</p>
               </div>
 
               <p className="text-gray-600 text-sm mb-6 line-clamp-2 flex-grow">
-                {seed.description}
+                {t(`seeds.${seed.seed_type}.description`, { defaultValue: seed.description })}
               </p>
 
               {/* Stats Grid */}
@@ -108,7 +125,7 @@ export default function Atlas() {
                   setSelectedSeed(seed);
                 }}
               >
-                {t('atlas.grow')} {seed.name}
+                {t('atlas.grow')} {t(`seeds.${seed.seed_type}.name`, { defaultValue: seed.name })}
               </button>
             </div>
           </div>

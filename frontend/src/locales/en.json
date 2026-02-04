@@ -3,12 +3,15 @@
         "home": "Home",
         "atlas": "Atlas",
         "my_plants": "My Plants",
+        "analytics": "Analytics",
         "admin": "Admin",
         "slogan": "Professional Growth",
         "welcome": "Welcome, {{name}}",
         "logout": "Logout",
         "login": "Log in",
-        "get_started": "Get Started"
+        "get_started": "Get Started",
+        "brand_urban": "Urban",
+        "brand_sims": "Sims"
     },
     "chat": {
         "title": "Grow Guide AI",
@@ -30,6 +33,7 @@
         "back": "Back",
         "delete": "Delete",
         "delete_confirm": "Are you sure you want to delete this crop? This cannot be undone.",
+        "failed_delete": "Failed to delete",
         "day": "Day",
         "difficulty": {
             "easy": "Easy",
@@ -73,7 +77,13 @@
         "harvest": "Harvest",
         "avg_yield": "Avg Yield",
         "standard_care": "Follow standard care instructions",
-        "grow": "Grow"
+        "grow": "Grow",
+        "categories": {
+            "Fast": "⚡ Fast Growing",
+            "Slow Veg": "🥗 Slow Growing (Veg)",
+            "Slow Herb": "🌿 Slow Growing (Herb)",
+            "Other": "Others"
+        }
     },
     "wizard": {
         "title": "Grow {{name}}",
@@ -112,7 +122,11 @@
         "sow_evenly": "Sow seeds evenly across tray",
         "mist_seeds": "Mist seeds thoroughly",
         "apply_blackout": "Apply weighted cover for blackout",
-        "tasks_completed": "All preparation tasks completed"
+        "tasks_completed": "All preparation tasks completed",
+        "mucilaginous_warning": "Mucilaginous Warning",
+        "mucilaginous_desc": "This seed forms a gel when wet. **DO NOT SOAK**. Mist only.",
+        "commercial_tip": "Commercial Best Practice",
+        "seeding_density_tip": "For consistent commercial results, aim for {{weight}}g per tray."
     },
     "dashboard": {
         "back_to_atlas": "Back to Atlas",
@@ -133,7 +147,16 @@
         "check_suggestions": "Check suggestions below to recover",
         "ai_suggestions": "AI Suggestions",
         "loss_label": "Potential loss",
-        "ai_coach": "AI Growth Coach (Puter)",
+        "ai_coach": "GrowGuide Pro Coach",
+        "batch_control": "Batch Control Center",
+        "batch_found": "Found {{count}} identical active crops",
+        "sync_logs": "Sync Today's Log",
+        "compare_batch": "Compare Batch Performance",
+        "batch_sync_confirm": "Apply today's log to this crop AND {{count}} other identical crops?",
+        "batch_sync_success": "Batch synced successfully!",
+        "batch_sync_error": "Failed to sync batch",
+        "batch_sync_notes": "Batch sync from {{name}} (Batch Root: {{id}})",
+        "batch_sync_initiated": "Batch sync initiated",
         "load_error": "Failed to load crop data",
         "germinating": "Germinating..."
     },
@@ -147,7 +170,8 @@
         "no_plants": "You don't have any plants growing yet.",
         "go_to_atlas": "Go to Seed Atlas to start one!",
         "delete_plant_q": "Delete Plant?",
-        "delete_warning": "Are you sure you want to delete your {{name}}? This action cannot be undone and all growth history will be lost."
+        "delete_warning": "Are you sure you want to delete your {{name}}? This action cannot be undone and all growth history will be lost.",
+        "harvest_day_exclamation": "Harvest Day!"
     },
     "daily_guide": {
         "back_to_dashboard": "Back to Dashboard",
@@ -161,7 +185,31 @@
         "light_phase_day": "Light Phase - Day {{day}}",
         "harvest_day_exclamation": "Harvest Day!",
         "pro_tip": "Pro Tip",
-        "expert_notes": "Expert Cultivation Notes"
+        "expert_notes": "Expert Cultivation Notes",
+        "descriptions": {
+            "prep_soak": "Soak seeds for {{hours}} hours. Prepare your {{size}} tray with moist medium and sow evenly.",
+            "prep_no_soak": "Prepare your {{size}} tray with moist medium and sow seeds evenly. No soaking required.",
+            "blackout": "Keep seeds in the dark to encourage stretching and strong stem growth.",
+            "light": "Expose to light to activate photosynthesis and develop vibrant green leaves.",
+            "harvest": "Your microgreens have reached peak nutrition and flavor. Time to harvest!"
+        },
+        "tasks": {
+            "measure_seeds": "Measure seeds accurately",
+            "soak_seeds": "Soak seeds in clean water",
+            "moisten_medium": "Moisten growing medium",
+            "spread_seeds": "Spread seeds evenly across the tray",
+            "mist_after_sowing": "Mist with water after sowing",
+            "verify_height": "Verify plant height (standard is 2-3 inches)",
+            "cut_base": "Cut at the base with clean scissors",
+            "rinse_lightly": "Rinse lightly if needed",
+            "store_ventilated": "Enjoy fresh or store in a ventilated container",
+            "check_moisture": "Check moisture levels in the medium",
+            "morning_mist": "Morning Mist: Ensure even coverage",
+            "evening_mist": "Evening Mist: Maintain hydration overnight",
+            "check_light": "Check light exposure and rotation",
+            "ensure_no_leaks": "Ensure no light leaks"
+        },
+        "soak_tip": "Soaking helps {{name}} germinate faster and more evenly."
     },
     "cultivation": {
         "specs_title": "Cultivation Specs",
@@ -239,14 +287,99 @@
             "earthy": "Earthy",
             "nutty": "Nutty"
         },
+        "traits": {
+            "leaves_green_purple": "Green / Purple",
+            "stem_white_pink": "White / Pink"
+        },
+        "trays": {
+            "10x20_label": "10x20\"",
+            "10x10_label": "10x10\"",
+            "5x5_label": "5x5\"",
+            "area_unit": "in²"
+        },
+        "bean-greens": {
+            "name": "Bean Greens",
+            "nutrition": "Vitamins A, C, K, folate, fiber; aids digestion, immunity.",
+            "description": "Various bean green varieties. Aids digestion and immunity.",
+            "care": "Soak for 8-12 hours. 5 days sprout time, 14 days growth time.",
+            "pros": "High yield and nutrient dense.",
+            "cons": "Longer growth cycle.",
+            "tips": "Ensure thorough soaking and consistent moisture.",
+            "fert": "Light fertilizer mid-growth cycle."
+        },
+        "red-amaranthus": {
+            "name": "Red Amaranth",
+            "nutrition": "High iron, Vitamin C, antioxidants; anti-anemic.",
+            "description": "Red Amaranth is a great source of iron and Vitamin C.",
+            "care": "Avoid overwatering. 2-3 days blackout. Harvest day 12.",
+            "pros": "Nutrient dense, great for salads.",
+            "cons": "Prone to root rot if overwatered.",
+            "fert": "Low nitrogen bio-stimulant on Day 5 to boost betacyanin (pigment) levels.",
+            "tips": "Extremely sensitive to overwatering; use fine mist only. Keep blackout weighted to improve stem strength. Do NOT soak."
+        },
         "amaranth": {
             "name": "Amaranth",
-            "nutrition": "Rich in Vitamins A, C, E, and K. High in Calcium and Iron.",
-            "care": "Avoid overwatering. Keep blackout weighted to improve stem strength. No soak required.",
+            "nutrition": "Protein, magnesium, lysine; muscle repair, bone health.",
+            "description": "A variety of Amaranth rich in protein and minerals.",
+            "care": "Avoid overwatering. Keep blackout weighted for strong stems. No soak required.",
             "pros": "Suitable for all soil types. Fast grower.",
             "cons": "Sensitive to extreme heat.",
             "fert": "Low nitrogen bio-stimulant on Day 5 to boost betacyanin (pigment) levels.",
             "tips": "Extremely sensitive to overwatering; use fine mist only. Keep blackout weighted to improve stem strength. Do NOT soak."
+        },
+        "chia-sabja": {
+            "name": "Chia / Sabja",
+            "nutrition": "High Omega-3, calcium, fiber; heart and bone health.",
+            "description": "Blend of Chia and Sabja seeds. High in protein and fiber.",
+            "care": "Do not soak (forms mucilage). 2.5 days sprout time.",
+            "pros": "Highly nutritious, great for drinks.",
+            "cons": "Excess moisture causes slime.",
+            "tips": "Mist seeds only, do not soak."
+        },
+        "onion": {
+            "name": "Onion",
+            "nutrition": "Quercetin, Vit C; anti-inflammatory, immunity boost.",
+            "description": "Spicy and nutritious Onion microgreens.",
+            "care": "Soak 3 days. 17.5 days growth time.",
+            "pros": "Excellent flavor and aroma.",
+            "cons": "Long growth cycle.",
+            "tips": "Water consistently, avoid extreme humidity."
+        },
+        "black-cumin": {
+            "name": "Black Cumin",
+            "nutrition": "Thymoquinone, antioxidants; anti-cancer, allergy relief.",
+            "description": "Medicinal Black Cumin microgreens.",
+            "care": "Soak 3 days. 24 days growth time.",
+            "pros": "High medicinal value.",
+            "cons": "Extremely slow grower.",
+            "tips": "Be patient, this takes time."
+        },
+        "sesame": {
+            "name": "Sesame",
+            "nutrition": "Calcium, iron, sesamin; bone health, cholesterol control.",
+            "description": "Nutty and nutritious Sesame microgreens.",
+            "care": "Soak 8 hours. 7 days growth time.",
+            "pros": "Fast growth, high yield.",
+            "cons": "Can become bitter if harvested late.",
+            "tips": "Harvest early for best flavor."
+        },
+        "mustard": {
+            "name": "Mustard",
+            "nutrition": "Glucosinolates, Vit K; detox, cancer prevention.",
+            "description": "Spicy Mustard microgreens.",
+            "care": "No soak. 9 days growth time.",
+            "pros": "Easy to grow, spicy flavor.",
+            "cons": "Avoid high heat.",
+            "tips": "Grows best in cooler conditions."
+        },
+        "radish-purple": {
+            "name": "Radish (Purple)",
+            "nutrition": "Vit C, sulforaphane; liver detox, anti-cancer.",
+            "description": "Beautiful purple-stemmed Radish.",
+            "care": "No soak. 8 days growth time.",
+            "pros": "Very fast growth, stunning color.",
+            "cons": "Monitor closely for harvest.",
+            "tips": "Watch from Day 5."
         },
         "radish": {
             "name": "Radish",
@@ -257,50 +390,381 @@
             "fert": "Liquid seaweed extract on Day 3 for rapid root development.",
             "tips": "Grows aggressively; monitor closely from Day 5. Harvesting early preserves the spicy 'kick'. No soak."
         },
-        "broccoli": {
-            "name": "Broccoli",
-            "nutrition": "Rich in Sulforaphane, which has anti-cancer properties.",
-            "care": "High light intensity required. Harvest at first true leaf.",
-            "pros": "High nutritional value.",
-            "cons": "Requires steady moisture.",
-            "fert": "Balanced ocean-based fertilizer at 25% strength after Day 4.",
-            "tips": "High light intensity required; 16-18 hours of LED light prevents leggy stems. Harvest at first true leaf. No soak."
+        "cabbage": {
+            "name": "Cabbage",
+            "nutrition": "Vit K/C, fiber; gut health, anti-ulcer.",
+            "description": "Mild Cabbage microgreens.",
+            "care": "Soak 8 hours. 7 days growth time.",
+            "pros": "Crowd-pleasing flavor.",
+            "cons": "Needs regular moisture.",
+            "tips": "Mist evenly."
         },
-        "pea-shoots": {
-            "name": "Pea Shoots",
-            "nutrition": "High in protein and Vitamins A, C.",
-            "care": "Soak for 8-12 hours. Use heavy weight for strong roots.",
-            "pros": "Sweet taste, loved by children.",
-            "cons": "Soaking is mandatory.",
-            "fert": "Rich compost tea in the soaking water. Usually self-sufficient after that.",
-            "tips": "SOAK 8-12h. Weight heavily (2-4 kg) for 3-4 days to ensure strong root penetration. Harvest as tendrils appear."
+        "cauliflower": {
+            "name": "Cauliflower",
+            "nutrition": "Sulforaphane, Vit C; brain health, detox.",
+            "description": "Nutritious Cauliflower microgreens.",
+            "care": "Soak 8 hours. 7 days growth time.",
+            "pros": "Low calorie, high nutrient.",
+            "cons": "Sensitive to light during early growth.",
+            "tips": "Avoid direct bright light initially."
         },
-        "sunflower": {
-            "name": "Sunflower",
-            "nutrition": "Rich in healthy fats and protein.",
-            "care": "Soak for 8-12 hours. Use cover to help hulls shed easily.",
-            "pros": "Large leaves, high yield.",
-            "cons": "Seed hulls can be hard to remove.",
-            "fert": "Calcium-Magnesium supplement on Day 4 to assist with seed hull shedding.",
-            "tips": "SOAK 8-12h. Stack trays during blackout to force hulls off. Mist hulls daily to keep them soft for shedding."
+        "palak": {
+            "name": "Palak (Spinach)",
+            "nutrition": "Iron, Vit A/K, folate; anemia, eye health.",
+            "description": "Nutritious Spinach-type greens.",
+            "care": "Soak 2 days. 14 days growth time.",
+            "pros": "Versatile for cooking.",
+            "cons": "Medium growth speed.",
+            "tips": "Spread seeds evenly."
         },
         "beetroot": {
             "name": "Beetroot",
-            "nutrition": "Rich in nitrates that help improve blood flow.",
-            "care": "Soak for 8-12 hours. Sow with space as seeds are clusters.",
-            "pros": "Beautiful red color, great for salads.",
+            "nutrition": "Folate, nitrates; blood pressure and stamina boost.",
+            "description": "Vibrant red Beetroot microgreens.",
+            "care": "Soak 8-12 hours. 7 days growth time.",
+            "pros": "Stunning color, nutritious.",
             "cons": "Longer growth time.",
             "fert": "Boron-enriched water on Day 5 prevents 'black heart' in larger harvests.",
-            "tips": "Seeds are actually multi-germ clusters; sow slightly thinner. Soak 8-12 hours in tepid water."
+            "tips": "Soak seeds in tepid water."
         },
-        "red-amaranthus": {
-            "name": "Red Amaranth",
-            "nutrition": "High iron, vitamin C, antioxidants; anti-anemia, heart health.",
-            "care": "Suggested soaking: No Soak. Sprout time: 2.5 days. Growth time: 12.0 days.",
-            "pros": "Anemia-prone, vegans; boosts energy. Great for garnishing.",
-            "cons": "Oxalates may affect kidney stones if overconsumed.",
-            "fert": "Low nitrogen bio-stimulant on Day 5 to boost betacyanin (pigment) levels.",
-            "tips": "Extremely sensitive to overwatering; use fine mist only. Keep blackout weighted to improve stem strength. Do NOT soak."
+        "fenugreek": {
+            "name": "Fenugreek",
+            "nutrition": "Fiber, iron; sugar control, lactation support.",
+            "description": "Fast-growing Fenugreek greens.",
+            "care": "Soak 8 hours. 11 days growth time.",
+            "pros": "Medicinal benefits.",
+            "cons": "Slightly bitter.",
+            "tips": "Harvest early to reduce bitterness."
+        },
+        "dew-gram": {
+            "name": "Dew Gram",
+            "nutrition": "Protein, Vit B/C; energy, digestion.",
+            "description": "Energy-boosting Dew Gram.",
+            "care": "Soak 8 hours. 6 days growth time.",
+            "pros": "Rapid growth.",
+            "cons": "Needs good airflow to prevent rot.",
+            "tips": "Change water twice daily for soaking."
+        },
+        "sunflower": {
+            "name": "Sunflower",
+            "nutrition": "Vitamin E, selenium, protein; antioxidant powerhouse.",
+            "description": "Large, crunchy leaves.",
+            "care": "Soak 8-12 hours. 6.5 days growth time.",
+            "pros": "High yield, easy harvest.",
+            "cons": "Seed hulls can be stubborn.",
+            "fert": "Calcium-Magnesium supplement on Day 4 to assist with seed hull shedding.",
+            "tips": "Stack trays in blackout to force hulls off."
+        },
+        "wheat": {
+            "name": "Wheatgrass",
+            "nutrition": "B Vitamins, fiber; instant energy shot.",
+            "description": "Classic Wheatgrass for juicing.",
+            "care": "Soak 6-8 hours. 8 days growth time.",
+            "pros": "Best for health shots.",
+            "cons": "Mold prone if humidity is high.",
+            "tips": "Ensure excellent ventilation."
+        },
+        "mixed-grams": {
+            "name": "Mixed Grams",
+            "nutrition": "Balanced proteins and vitamins.",
+            "description": "Healthy blend of various pulses.",
+            "care": "Soak 8 hours. 6 days growth time.",
+            "pros": "Diverse nutrients in one tray.",
+            "cons": "Varying germination rates.",
+            "tips": "Spread evenly."
+        },
+        "cow-pea": {
+            "name": "Cow Pea",
+            "nutrition": "Protein, folate; muscle growth.",
+            "description": "Nutritious Cow Pea microgreens.",
+            "care": "Soak 8-12 hours. 7 days growth time.",
+            "pros": "Fast growth, high protein.",
+            "cons": "Avoid over-saturation.",
+            "tips": "Water carefully."
+        },
+        "pea-shoots": {
+            "name": "Pea Shoots",
+            "nutrition": "Protein, Vit A, C; energy, bone health.",
+            "description": "Tender and sweet Pea Shoots.",
+            "care": "Soak 8-12 hours. 8 days growth time.",
+            "pros": "Child-friendly flavor.",
+            "cons": "Mandatory soaking.",
+            "fert": "Rich compost tea in the soaking water. Usually self-sufficient after that.",
+            "tips": "Weight heavily for root anchoring."
+        },
+        "chickpea": {
+            "name": "Chickpea",
+            "nutrition": "Protein, iron; energy powerhouse.",
+            "description": "Nutritious Chickpea greens.",
+            "care": "Soak 8-12 hours. 8 days growth time.",
+            "pros": "Very nutrient dense.",
+            "cons": "Harvest window is small.",
+            "tips": "Provide light as soon as sprouted."
+        },
+        "groundnut": {
+            "name": "Groundnut",
+            "nutrition": "Healthy fats, niacin; heart and brain health.",
+            "description": "Crunchy Groundnut sprouts.",
+            "care": "Soak 8-12 hours. 8 days growth time.",
+            "pros": "Unique flavor.",
+            "cons": "High rot potential if wet.",
+            "tips": "Ensure perfect drainage."
+        },
+        "velvet-bean": {
+            "name": "Velvet Bean",
+            "nutrition": "L-Dopa, protein; neurological health.",
+            "description": "Medicinal Velvet Bean.",
+            "care": "Soak 8 hours. 6 days growth time.",
+            "pros": "Brain health booster.",
+            "cons": "Harvest needs precision.",
+            "tips": "Harvest at correct maturity."
+        },
+        "coriander": {
+            "name": "Coriander",
+            "nutrition": "Vit K, detox; digestion aid.",
+            "description": "Aromatic Coriander microgreens.",
+            "care": "Soak 3 days. 12 days growth time.",
+            "pros": "Amazing aroma and flavor.",
+            "cons": "Slow to germinate.",
+            "tips": "Cracking the seeds helps speed up growth."
+        },
+        "fennel": {
+            "name": "Fennel",
+            "nutrition": "Gut health; improves digestion.",
+            "description": "Delicate aromatic Fennel greens.",
+            "care": "Soak 8-12 hours. 14 days growth time.",
+            "pros": "Excellent for digestion.",
+            "cons": "Medium growth speed.",
+            "tips": "Keep moisture consistent."
+        },
+        "fennel-seed": {
+            "name": "Fennel",
+            "nutrition": "Gut health; improves digestion.",
+            "description": "Delicate aromatic Fennel greens.",
+            "care": "Soak 8-12 hours. 14 days growth time.",
+            "pros": "Excellent for digestion.",
+            "cons": "Medium growth speed.",
+            "tips": "Keep moisture consistent."
+        },
+        "gongura": {
+            "name": "Gongura",
+            "nutrition": "Vit A, C, iron; eye and bone health.",
+            "description": "Tangy and nutritious Gongura.",
+            "care": "Soak 4-8 hours. 11 days growth time.",
+            "pros": "Unique tangy flavor.",
+            "cons": "Needs attentive early care.",
+            "tips": "Mist moderately."
+        },
+        "dill": {
+            "name": "Dill",
+            "nutrition": "Digestion boost, BP control.",
+            "description": "Wonderful aromatic Dill greens.",
+            "care": "Soak 4-8 hours. 21 days growth time.",
+            "pros": "Adds great flavor to dishes.",
+            "cons": "Long growth cycle.",
+            "tips": "Needs consistent monitoring."
+        },
+        "toor-dal": {
+            "name": "Toor Dal",
+            "nutrition": "Protein, folate; body growth.",
+            "description": "Healthy Toor Dal microgreens.",
+            "care": "Soak 8-12 hours. 14.5 days growth time.",
+            "pros": "Rich in protein.",
+            "cons": "Needs patience for growth.",
+            "tips": "Ensure good drainage."
+        },
+        "sesbania": {
+            "name": "Sesbania",
+            "nutrition": "Protein, calcium; bone and teeth health.",
+            "description": "Medicinally important Sesbania.",
+            "care": "Soak 8 hours. 11 days growth time.",
+            "pros": "Highly medicinal.",
+            "cons": "Can have a bitter edge.",
+            "tips": "Harvest while young."
+        },
+        "carrot": {
+            "name": "Carrot",
+            "nutrition": "Beta-carotene, Vit A; eye health.",
+            "description": "Delicate Carrot microgreens.",
+            "care": "Soak 3 days. 14 days growth time.",
+            "pros": "Sweet flavor, beautiful look.",
+            "cons": "Difficult to germinate.",
+            "tips": "Maintain moisture at all times."
+        },
+        "broccoli": {
+            "name": "Broccoli",
+            "nutrition": "Sulforaphane rich; anti-cancer properties.",
+            "description": "Highly nutritious Broccoli.",
+            "care": "No soak. 10 days growth time.",
+            "pros": "Nutritional powerhouse.",
+            "cons": "Avoid over-heating.",
+            "fert": "Balanced ocean-based fertilizer at 25% strength after Day 4.",
+            "tips": "Keep blackout weighted for strong stems."
+        },
+        "kale": {
+            "name": "Kale",
+            "nutrition": "Vitamins A, C, K; overall health booster.",
+            "description": "Powerful super-food Kale microgreens.",
+            "care": "Soak 6-12 hours. 12 days growth time.",
+            "pros": "High antioxidant levels.",
+            "cons": "Growth can be slightly erratic.",
+            "tips": "Ensure stable temperature."
+        },
+        "purple-basil": {
+            "name": "Purple Basil",
+            "nutrition": "Antioxidants, aromatic; reduces stress.",
+            "description": "Beautiful purple color and aromatic Basil.",
+            "care": "No soak. 14 days growth time.",
+            "pros": "Great for garnish and flavor.",
+            "cons": "Sensitive to excessive humidity.",
+            "tips": "Grow in shaded and moist areas."
         }
+    },
+    "harvest": {
+        "title": "Harvest Success Checklist",
+        "subtitle": "Ensure commercial quality and food safety.",
+        "cut_at_base": "Cut at base with clean scissors/knife",
+        "wash_2_3x": "Wash in cold water (2-3 times)",
+        "dry_thoroughly": "Dry thoroughly (prevents microbial growth)",
+        "refrigerate": "Refrigerate immediately (< 4°C)",
+        "checklist_gate": "Please complete all quality checks before finishing.",
+        "complete_title": "Harvest Complete!",
+        "cycle_complete": "Day Cycle Complete",
+        "predicted": "Predicted",
+        "actual": "Actual",
+        "base": "Base",
+        "yield_comparison": "Yield Comparison",
+        "grams": "Grams",
+        "ai_predicted": "AI Predicted",
+        "actual_harvest": "Actual Harvest",
+        "ai_accuracy": "AI Accuracy",
+        "great_job": "🎉 Great Job! You Beat the AI Prediction!",
+        "learning_opportunity": "Learning Opportunity",
+        "exceeded": "exceeded",
+        "came_close": "came close to",
+        "performance_msg": "You {{result}} the prediction by {{weight}}g ({{percent}}%).",
+        "success_detail": "Your excellent care resulted in optimal conditions! Keep up this standard.",
+        "learning_detail": "The AI is learning from this data to improve future predictions for you.",
+        "your_notes": "Your Notes",
+        "ai_training_title": "🤖 AI Model Training",
+        "ai_training_desc": "Your harvest data has been added to the training dataset. The AI will use this real-world data to improve predictions for future crops. The model automatically retrains every 10 harvests!",
+        "start_new": "Start New Crop",
+        "back_to_atlas": "Back to Atlas",
+        "harvest_time": "Harvest Time! 🌱",
+        "ai_predicted_yield": "AI Predicted Yield",
+        "based_on_conditions": "Based on your {{days}}-day growing conditions",
+        "ready": "Ready",
+        "pending": "Pending",
+        "actual_weight_label": "Actual Harvested Weight (grams)",
+        "enter_weight_placeholder": "Enter weight in grams",
+        "weight_desc": "Weigh your harvested microgreens and enter the total weight",
+        "notes_label": "Notes (Optional)",
+        "notes_placeholder": "Any observations about this harvest? (e.g., 'Great flavor')",
+        "processing": "Processing...",
+        "complete_btn": "Complete Harvest & See Results",
+        "invalid_weight": "Please enter a valid weight",
+        "submit_error": "Failed to submit harvest. Please try again.",
+        "failed_delete": "Failed to delete crop",
+        "back_to_dashboard": "Back to Dashboard"
+    },
+    "auth": {
+        "i_am_a": "I am a...",
+        "home_grower": "Home Grower",
+        "simple_tracking": "Simple tracking",
+        "professional": "Professional",
+        "batch_management": "Batch management",
+        "create_account": "Create Account",
+        "already_have_account": "Already have an account?",
+        "sign_in": "Sign in",
+        "login_to_account": "Login to your account",
+        "dont_have_account": "Don't have an account?",
+        "register_now": "Register now",
+        "debug_login": "Debug: Try logging in with default / secret",
+        "username": "Username",
+        "email": "Email address",
+        "password": "Password",
+        "signing_in": "Signing in...",
+        "sign_in_to_account": "Sign in to your account",
+        "create_new_account": "create a new account",
+        "invalid_credentials": "Invalid username or password",
+        "or": "Or"
+    },
+    "analytics": {
+        "title": "Farm Analytics",
+        "subtitle": "Commercial production performance & profitability",
+        "pro_mode": "Pro Mode Active",
+        "yield_performance": "Yield Performance (Grams)",
+        "profitability_trend": "Profitability Trend ($)",
+        "batch_deep_dive": "Batch Deep-Dive",
+        "net_profit": "Est. Net Profit",
+        "export_csv": "Export CSV",
+        "total_yield": "Total Yield",
+        "across_all_cycles": "Across all cycles",
+        "avg_efficiency": "Avg. Efficiency",
+        "precision_score": "Precision score",
+        "total_profit": "Total Profit",
+        "estimated_profits": "Estimated Profits",
+        "active_crops": "Active Crops",
+        "completed_batches": "Completed batches",
+        "table": {
+            "seed_variety": "Seed Variety",
+            "yield": "Yield",
+            "accuracy": "Accuracy",
+            "roi": "ROI %",
+            "net_profit": "Net Profit"
+        }
+    },
+    "admin": {
+        "console": "Admin Console",
+        "restricted": "Restricted Access Only",
+        "access_denied": "Access Denied",
+        "control_panel": "Super User Control Panel",
+        "back_to_site": "Back to Standard Site",
+        "id": "ID",
+        "name": "Name",
+        "type_slug": "Type (Slug)",
+        "difficulty": "Difficulty",
+        "growth_days": "Growth Days",
+        "actions": "Actions",
+        "role": "Role",
+        "authenticating": "Authenticating...",
+        "enter_system": "Enter System",
+        "access_denied_long": "Access Denied: You are not an administrator.",
+        "catalog": "Catalog",
+        "users": "Users",
+        "system_stats": "System Stats",
+        "seed_catalog": "Seed Catalog ({{count}})",
+        "add_plant": "Add Plant",
+        "registered_users": "Registered Users ({{count}})",
+        "joined": "Joined",
+        "total_crops": "Total Crops Grown",
+        "total_yield_all_time": "Total Yield (All Time)",
+        "avg_accuracy": "Avg. Prediction Accuracy",
+        "tech_info": "Technical Info",
+        "db_type": "Database Type",
+        "active_crops_label": "Active Crops",
+        "new_plant": "New Plant",
+        "edit_plant": "Edit {{name}}",
+        "plant_name": "Plant Name",
+        "latin_name": "Latin Name",
+        "slug": "Slug (Unique ID)",
+        "base_yield": "Base Yield (g)",
+        "description_short": "Description (Short)",
+        "full_care": "Full Care Instructions",
+        "parameters": "Growth Parameters",
+        "ideal_temp": "Ideal Temp (°C)",
+        "ideal_humidity": "Ideal Humidity (%)",
+        "taste": "Taste Profile",
+        "nutrition": "Nutrition",
+        "pros": "Suitable For (Pros)",
+        "cons": "Not Suitable For (Cons)",
+        "fert_tips": "Fertilizer Tips",
+        "growth_tips": "Growth Tips",
+        "save_plant": "Save Plant",
+        "fail_delete": "Failed to delete seed",
+        "fail_save": "Failed to save seed",
+        "required_fields": "Type, Name and Difficulty are required",
+        "delete_q": "Are you sure? This will delete the plant from the catalog.",
+        "growth_days_input": "Growth Days (Harvest)"
     }
 }

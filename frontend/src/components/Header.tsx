@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, LogOut, Home as HomeIcon, Leaf, Globe } from 'lucide-react';
+import { LayoutDashboard, LogOut, Home as HomeIcon, Leaf, Globe, BarChart3 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -68,6 +68,17 @@ export default function Header() {
                         >
                             <Leaf className="w-4 h-4 mr-2" />
                             {t('header.my_plants')}
+                        </Link>
+
+                        <Link
+                            to="/analytics"
+                            className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors ${isActive('/analytics')
+                                ? 'border-green-400 text-gray-900'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                }`}
+                        >
+                            <BarChart3 className="w-4 h-4 mr-2" />
+                            {t('header.analytics')}
                         </Link>
                     </div>
 

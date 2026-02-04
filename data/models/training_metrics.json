@@ -1,13 +1,13 @@
 {
-  "train_mae": 5.461178563501741,
-  "test_mae": 7.69083807059073,
-  "test_rmse": 10.545519322893693,
-  "test_r2": 0.9902251731032712,
-  "accuracy_20g": 91.0,
-  "accuracy_30g": 99.0,
-  "accuracy_50g": 100.0,
+  "train_mae": 4.272593961850304,
+  "test_mae": 6.677409896864402,
+  "test_rmse": 10.29284899994141,
+  "test_r2": 0.9884095434702442,
+  "accuracy_20g": 92.5,
+  "accuracy_30g": 97.5,
+  "accuracy_50g": 99.5,
   "rf_weight": 0.4,
   "nn_weight": 0.6,
   "n_samples": 1000,
-  "n_features": 17
+  "n_features": 19
 }
