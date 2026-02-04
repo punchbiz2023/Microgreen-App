@@ -86,12 +86,12 @@ export default function Atlas() {
 
             <div className="p-6 flex-1 flex flex-col">
               <div className="mb-4">
-                <h3 className="text-2xl font-bold text-gray-900 group-hover:text-green-500 transition-colors">{seed.name}</h3>
+                <h3 className="text-2xl font-bold text-gray-900 group-hover:text-green-500 transition-colors">{t(`seeds.${seed.seed_type}.name`, { defaultValue: seed.name })}</h3>
                 <p className="text-lg text-gray-500 italic">{seed.latin_name}</p>
               </div>
 
               <p className="text-gray-600 text-sm mb-6 line-clamp-2 flex-grow">
-                {seed.description}
+                {t(`seeds.${seed.seed_type}.description`, { defaultValue: seed.description })}
               </p>
 
               {/* Stats Grid */}
@@ -125,7 +125,7 @@ export default function Atlas() {
                   setSelectedSeed(seed);
                 }}
               >
-                {t('atlas.grow')} {seed.name}
+                {t('atlas.grow')} {t(`seeds.${seed.seed_type}.name`, { defaultValue: seed.name })}
               </button>
             </div>
           </div>

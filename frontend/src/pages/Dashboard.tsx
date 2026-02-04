@@ -196,7 +196,7 @@ export default function Dashboard() {
           logsApi.create(rc.id, {
             day_number: currentDay,
             watered: true,
-            notes: `Batch sync from ${crop.seed.name} (Batch Root: ${crop.id})`
+            notes: t('dashboard.batch_sync_notes', { name: t(`seeds.${crop.seed.seed_type}.name`, { defaultValue: crop.seed.name }), id: crop.id })
           })
         ));
 
@@ -205,7 +205,7 @@ export default function Dashboard() {
           await logsApi.create(parseInt(cropId!), {
             day_number: currentDay,
             watered: true,
-            notes: "Batch sync initiated"
+            notes: t('dashboard.batch_sync_initiated')
           });
         }
 
@@ -231,7 +231,7 @@ export default function Dashboard() {
         navigate('/atlas');
       } catch (error) {
         console.error('Failed to delete crop:', error);
-        alert('Failed to delete crop');
+        alert(t('common.failed_delete'));
       }
     }
   };
@@ -251,7 +251,7 @@ export default function Dashboard() {
 
           <div className="text-center">
             <h1 className="text-3xl font-bold text-gray-900">
-              {t('dashboard.crop_title', { name: crop.seed.name })}
+              {t('dashboard.crop_title', { name: t(`seeds.${crop.seed.seed_type}.name`, { defaultValue: crop.seed.name }) })}
             </h1>
             <p className="text-gray-600 mt-1">
               {t('dashboard.started_on')} {format(new Date(crop.start_datetime), 'PPP', { locale: currentLocale })}

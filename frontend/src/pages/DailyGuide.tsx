@@ -55,13 +55,13 @@ export default function DailyGuide() {
         day: 0,
         title: t('daily_guide.prep_sowing'),
         description: crop.seed.soaking_duration_hours && crop.seed.soaking_duration_hours > 0
-            ? `Soak seeds for ${crop.seed.soaking_duration_hours} hours. Prepare your ${crop.tray_size} tray with moist medium and sow evenly.`
-            : `Prepare your ${crop.tray_size} tray with moist medium and sow seeds evenly. No soaking required.`,
+            ? t('daily_guide.descriptions.prep_soak', { hours: crop.seed.soaking_duration_hours, size: crop.tray_size })
+            : t('daily_guide.descriptions.prep_no_soak', { size: crop.tray_size }),
         tasks: [
-            "Measure seeds accurately",
-            crop.seed.soaking_duration_hours ? "Soak seeds in clean water" : "Moisten growing medium",
-            "Spread seeds evenly across the tray",
-            "Mist with water after sowing"
+            t('daily_guide.tasks.measure_seeds'),
+            crop.seed.soaking_duration_hours ? t('daily_guide.tasks.soak_seeds') : t('daily_guide.tasks.moisten_medium'),
+            t('daily_guide.tasks.spread_seeds'),
+            t('daily_guide.tasks.mist_after_sowing')
         ],
         icon: <Droplet className="text-blue-500" />,
         phase: 'prep'
@@ -76,18 +76,18 @@ export default function DailyGuide() {
             day: i,
             title: isHarvest ? t('daily_guide.harvest_day_exclamation') : (isBlackout ? t('daily_guide.blackout_phase_day', { day: i }) : t('daily_guide.light_phase_day', { day: i })),
             description: isHarvest
-                ? "Your microgreens have reached peak nutrition and flavor. Time to harvest!"
-                : (isBlackout ? "Keep seeds in the dark to encourage stretching and strong stem growth." : "Expose to light to activate photosynthesis and develop vibrant green leaves."),
+                ? t('daily_guide.descriptions.harvest')
+                : (isBlackout ? t('daily_guide.descriptions.blackout') : t('daily_guide.descriptions.light')),
             tasks: isHarvest ? [
-                "Verify plant height (standard is 2-3 inches)",
-                "Cut at the base with clean scissors",
-                "Rinse lightly if needed",
-                "Enjoy fresh or store in a ventilated container"
+                t('daily_guide.tasks.verify_height'),
+                t('daily_guide.tasks.cut_base'),
+                t('daily_guide.tasks.rinse_lightly'),
+                t('daily_guide.tasks.store_ventilated')
             ] : [
-                "Check moisture levels in the medium",
-                "Morning Mist: Ensure even coverage",
-                "Evening Mist: Maintain hydration overnight",
-                !isBlackout ? "Check light exposure and rotation" : "Ensure no light leaks"
+                t('daily_guide.tasks.check_moisture'),
+                t('daily_guide.tasks.morning_mist'),
+                t('daily_guide.tasks.evening_mist'),
+                !isBlackout ? t('daily_guide.tasks.check_light') : t('daily_guide.tasks.ensure_no_leaks')
             ],
             icon: isHarvest ? <Scissors className="text-purple-500" /> : (isBlackout ? <Moon className="text-gray-600" /> : <Sun className="text-yellow-500" />),
             phase: isHarvest ? 'harvest' : (isBlackout ? 'blackout' : 'light')
@@ -109,7 +109,7 @@ export default function DailyGuide() {
                     <div>
                         <span className="text-xs font-bold text-green-600 uppercase tracking-widest mb-1 block">{t('daily_guide.step_by_step')}</span>
                         <h1 className="text-4xl font-black text-gray-900 leading-tight">
-                            {t('daily_guide.lifecycle', { name: crop.seed.name })}
+                            {t('daily_guide.lifecycle', { name: t(`seeds.${crop.seed.seed_type}.name`, { defaultValue: crop.seed.name }) })}
                         </h1>
                     </div>
                     <div className="bg-white px-6 py-3 rounded-2xl border border-gray-100 shadow-sm">
@@ -188,7 +188,7 @@ export default function DailyGuide() {
                                         <div className="mt-6 p-4 bg-blue-50 rounded-2xl flex items-center gap-4">
                                             <Zap size={20} className="text-blue-500" />
                                             <p className="text-xs font-bold text-blue-700">
-                                                {t('daily_guide.pro_tip')}: Soaking helps {crop.seed.name} germinate faster and more evenly.
+                                                {t('daily_guide.pro_tip')}: {t('daily_guide.soak_tip', { name: t(`seeds.${crop.seed.seed_type}.name`, { defaultValue: crop.seed.name }) })}
                                             </p>
                                         </div>
                                     )}

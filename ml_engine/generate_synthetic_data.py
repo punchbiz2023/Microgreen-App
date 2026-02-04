@@ -67,7 +67,8 @@ def load_seeds_from_csv(csv_path):
                 'ideal_humidity': 50.0, # Default
                 'temp_tolerance': 2.5,
                 'humidity_tolerance': 10.0,
-                'blackout_days': blackout_days
+                'blackout_days': blackout_days,
+                'target_density': base_yield / 1290.0 # Heuristic density based on 10x20 tray
             }
             
     return seeds
@@ -82,13 +83,14 @@ if not SEED_TYPES:
     'sunflower': {
         'name': 'Sunflower',
         'difficulty': 'Easy',
-        'base_yield': 600,  # grams per 10x20 tray
+        'base_yield': 600,
         'growth_days': 10,
         'ideal_temp': 22.5,
         'ideal_humidity': 50,
         'temp_tolerance': 2.5,
         'humidity_tolerance': 10,
-        'blackout_days': 3
+        'blackout_days': 3,
+        'target_density': 0.085
     },
     'radish': {
         'name': 'Radish',
@@ -99,7 +101,8 @@ if not SEED_TYPES:
         'ideal_humidity': 55,
         'temp_tolerance': 3,
         'humidity_tolerance': 12,
-        'blackout_days': 3
+        'blackout_days': 3,
+        'target_density': 0.050
     },
     'pea': {
         'name': 'Pea Shoots',
@@ -110,7 +113,8 @@ if not SEED_TYPES:
         'ideal_humidity': 50,
         'temp_tolerance': 2,
         'humidity_tolerance': 8,
-        'blackout_days': 4
+        'blackout_days': 4,
+        'target_density': 0.085
     },
     'broccoli': {
         'name': 'Broccoli',
@@ -121,7 +125,8 @@ if not SEED_TYPES:
         'ideal_humidity': 45,
         'temp_tolerance': 2,
         'humidity_tolerance': 10,
-        'blackout_days': 3
+        'blackout_days': 3,
+        'target_density': 0.050
     },
     'mustard': {
         'name': 'Mustard',
@@ -132,7 +137,8 @@ if not SEED_TYPES:
         'ideal_humidity': 50,
         'temp_tolerance': 3,
         'humidity_tolerance': 12,
-        'blackout_days': 2
+        'blackout_days': 2,
+        'target_density': 0.050
     },
     'kale': {
         'name': 'Kale',
@@ -143,7 +149,8 @@ if not SEED_TYPES:
         'ideal_humidity': 45,
         'temp_tolerance': 1.5,
         'humidity_tolerance': 8,
-        'blackout_days': 4
+        'blackout_days': 4,
+        'target_density': 0.050
     },
     'arugula': {
         'name': 'Arugula',
@@ -154,7 +161,8 @@ if not SEED_TYPES:
         'ideal_humidity': 50,
         'temp_tolerance': 2.5,
         'humidity_tolerance': 10,
-        'blackout_days': 3
+        'blackout_days': 3,
+        'target_density': 0.042
     }
 }
 
@@ -253,8 +261,17 @@ def calculate_yield_penalty(seed_config, daily_logs):
         # Progressive penalty (problems compound over time)
         if i > 0 and (temp_dev > seed_config['temp_tolerance'] or not watered):
             cumulative_penalty += i * 0.5
+            
+    # Density penalty/bonus (simulated variation in seeding)
+    actual_density = seed_config['target_density'] * np.random.uniform(0.8, 1.2)
+    density_impact = (actual_density - seed_config['target_density']) / seed_config['target_density']
     
-    # Apply penalty with some randomness
+    # Too much density leads to mold risk
+    if actual_density > seed_config['target_density'] * 1.15:
+        base_yield *= 0.9 # 10% loss due to mold risk
+    else:
+        base_yield *= (1 + density_impact * 0.5) # Some yield gain from more seeds
+    
     final_yield = base_yield - cumulative_penalty
     
     # Add natural variation (±5%)
@@ -263,7 +280,7 @@ def calculate_yield_penalty(seed_config, daily_logs):
     # Minimum yield threshold
     final_yield = max(final_yield, base_yield * 0.3)
     
-    return round(final_yield, 1)
+    return round(final_yield, 1), round(actual_density, 4)
 
 
 def generate_crop_cycle(seed_type, quality_distribution):
@@ -280,12 +297,12 @@ def generate_crop_cycle(seed_type, quality_distribution):
     seed_config = SEED_TYPES[seed_type]
     daily_logs = []
     
+    # First pass: Generate env conditions
     for day in range(1, seed_config['growth_days'] + 1):
         quality = quality_distribution[day - 1]
         temp, humidity, watered = generate_environmental_conditions(
             seed_config, day, quality
         )
-        
         daily_logs.append({
             'day': day,
             'temperature': temp,
@@ -294,7 +311,17 @@ def generate_crop_cycle(seed_type, quality_distribution):
             'phase': 'blackout' if day <= seed_config['blackout_days'] else 'light'
         })
     
-    final_yield = calculate_yield_penalty(seed_config, daily_logs)
+    # Calculate final yield (and actual density) based on env conditions
+    final_yield, actual_density = calculate_yield_penalty(seed_config, daily_logs)
+    
+    # Second pass: Simulate height growth based on final yield
+    for i, log in enumerate(daily_logs):
+        day = log['day']
+        # Max height approx 50-70mm depending on seed
+        max_height = 60 * (final_yield / seed_config['base_yield']) 
+        growth_factor = 1 / (1 + np.exp(-0.5 * (day - seed_config['growth_days']/2)))
+        measured_height = max_height * growth_factor * np.random.uniform(0.9, 1.1)
+        log['measured_height_mm'] = round(measured_height, 2)
     
     return {
         'seed_type': seed_type,
@@ -305,7 +332,8 @@ def generate_crop_cycle(seed_type, quality_distribution):
         'ideal_temp': seed_config['ideal_temp'],
         'ideal_humidity': seed_config['ideal_humidity'],
         'daily_logs': daily_logs,
-        'final_yield': final_yield
+        'final_yield': final_yield,
+        'actual_density': actual_density
     }
 
 
@@ -411,6 +439,8 @@ def generate_dataset(num_samples=1000):
             'min_humidity': min_humidity,
             'final_yield': crop['final_yield'],
             'yield_efficiency': round(crop['final_yield'] / crop['base_yield'], 3),
+            'latest_height_mm': daily_logs[-1]['measured_height_mm'],
+            'seeding_density_g_cm2': crop.get('actual_density', crop['base_yield'] / 1290.0),
             'daily_logs_json': json.dumps(daily_logs)
         }
         

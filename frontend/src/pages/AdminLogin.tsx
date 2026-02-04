@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ShieldCheck, Lock } from 'lucide-react';
 import api from '../services/api';
 
 export default function AdminLogin() {
+    const { t } = useTranslation();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const { login } = useAuth();
@@ -45,7 +47,7 @@ export default function AdminLogin() {
             });
 
             if (userRes.data.role !== 'admin') {
-                setError('Access Denied: You are not an administrator.');
+                setError(t('admin.access_denied_long'));
                 setLoading(false);
                 return;
             }
@@ -57,9 +59,9 @@ export default function AdminLogin() {
         } catch (err: any) {
             console.error(err);
             if (err.response && err.response.status === 401) {
-                setError('Invalid username or password');
+                setError(t('auth.invalid_credentials'));
             } else {
-                setError('Login failed. Server might be unreachable.');
+                setError(t('common.error'));
             }
             setLoading(false);
         }
@@ -73,8 +75,8 @@ export default function AdminLogin() {
                         <div className="bg-blue-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-900/50">
                             <ShieldCheck className="w-8 h-8 text-white" />
                         </div>
-                        <h2 className="text-3xl font-bold text-white">Admin Console</h2>
-                        <p className="text-gray-400 mt-2">Restricted Access Only</p>
+                        <h2 className="text-3xl font-bold text-white">{t('admin.console')}</h2>
+                        <p className="text-gray-400 mt-2">{t('admin.restricted')}</p>
                     </div>
 
                     {error && (
@@ -85,7 +87,7 @@ export default function AdminLogin() {
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
-                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Username</label>
+                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">{t('auth.username')}</label>
                             <input
                                 type="text"
                                 value={username}
@@ -96,7 +98,7 @@ export default function AdminLogin() {
                         </div>
 
                         <div>
-                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Password</label>
+                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">{t('auth.password')}</label>
                             <div className="relative">
                                 <input
                                     type="password"
@@ -113,12 +115,12 @@ export default function AdminLogin() {
                             disabled={loading}
                             className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-lg shadow-lg shadow-blue-900/30 transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {loading ? 'Authenticating...' : 'Enter System'}
+                            {loading ? t('admin.authenticating') : t('admin.enter_system')}
                         </button>
                     </form>
                 </div>
                 <div className="px-8 py-4 bg-gray-900/50 border-t border-gray-700 text-center">
-                    <a href="/" className="text-gray-500 hover:text-white text-sm font-medium transition-colors">← Back to Standard Site</a>
+                    <a href="/" className="text-gray-500 hover:text-white text-sm font-medium transition-colors">{t('admin.back_to_site')}</a>
                 </div>
             </div>
         </div>
