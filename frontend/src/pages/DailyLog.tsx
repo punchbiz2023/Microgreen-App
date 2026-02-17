@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { cropsApi, logsApi, type Crop } from '../services/api';
+import api from '../services/api';
 import { ArrowLeft, Camera, Droplet, Thermometer, CloudRain, Save } from 'lucide-react';
 
 export default function DailyLog() {
@@ -15,6 +16,12 @@ export default function DailyLog() {
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // Plant counting state
+  const [plantCount, setPlantCount] = useState<number | null>(null);
+  const [counting, setCounting] = useState(false);
+  const [countError, setCountError] = useState<string | null>(null);
+  const [annotatedImageUrl, setAnnotatedImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (cropId) {
@@ -46,6 +53,39 @@ export default function DailyLog() {
         setPhotoPreview(reader.result as string);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCountPlants = async () => {
+    if (!photo) return;
+
+    setCounting(true);
+    setCountError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', photo);
+
+      const response = await api.post('/api/count-plants', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        params: {
+          color_type: 'green',
+          min_area: 50,
+          max_area: 5000
+        }
+      });
+
+      setPlantCount(response.data.count);
+      setAnnotatedImageUrl(response.data.annotated_image_url);
+
+      // Append count to notes
+      const countInfo = `\n\n🌱 Plant count: ${response.data.count} (detected using ${response.data.method})`;
+      setNotes(prev => prev.trim() + countInfo);
+    } catch (err: any) {
+      console.error('Count error:', err);
+      setCountError(err.response?.data?.detail || 'Failed to count plants');
+    } finally {
+      setCounting(false);
     }
   };
 
@@ -282,25 +322,68 @@ export default function DailyLog() {
               </label>
 
               {photoPreview ? (
-                <div className="relative">
-                  {/* <img
-                    src={photoPreview}
-                    alt="Preview"
-                    className="w-full rounded-lg shadow-md"
-                  /> */}
-                  <div className="w-full h-48 bg-gray-100 flex items-center justify-center rounded-lg text-gray-500">
-                    Image Selected (Hidden)
+                <div className="space-y-4">
+                  <div className="relative">
+                    {/* <img
+                      src={photoPreview}
+                      alt="Preview"
+                      className="w-full rounded-lg shadow-md"
+                    /> */}
+                    <div className="w-full h-48 bg-gray-100 flex items-center justify-center rounded-lg text-gray-500">
+                      Image Selected (Hidden)
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPhoto(null);
+                        setPhotoPreview(null);
+                        setPlantCount(null);
+                        setCountError(null);
+                        setAnnotatedImageUrl(null);
+                      }}
+                      className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-2 hover:bg-red-700 transition-colors"
+                    >
+                      ✕
+                    </button>
                   </div>
+
+                  {/* Count Plants Button */}
                   <button
                     type="button"
-                    onClick={() => {
-                      setPhoto(null);
-                      setPhotoPreview(null);
-                    }}
-                    className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-2 hover:bg-red-700 transition-colors"
+                    onClick={handleCountPlants}
+                    disabled={counting}
+                    className={`w-full flex items-center justify-center space-x-2 px-4 py-3 rounded-lg font-semibold transition-all ${counting
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-purple-600 hover:bg-purple-700 text-white shadow-md hover:shadow-lg'
+                      }`}
                   >
-                    ✕
+                    <span>{counting ? 'Counting Plants...' : 'Count Plants in Photo'}</span>
                   </button>
+
+                  {/* Count Result with Annotated Image */}
+                  {plantCount !== null && annotatedImageUrl && (
+                    <div className="space-y-3">
+                      <div className="relative rounded-lg overflow-hidden border-2 border-green-200">
+                        <img
+                          src={`${api.defaults.baseURL}${annotatedImageUrl}`}
+                          alt="Detected plants"
+                          className="w-full"
+                        />
+                        <div className="absolute top-3 right-3 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg">
+                          <div className="text-xs font-semibold">Plants Detected</div>
+                          <div className="text-2xl font-bold">{plantCount}</div>
+                        </div>
+                      </div>
+                      <p className="text-xs text-green-700 text-center">Count has been added to your notes below</p>
+                    </div>
+                  )}
+
+                  {/* Count Error */}
+                  {countError && (
+                    <div className="p-4 bg-red-50 border-2 border-red-200 rounded-lg">
+                      <p className="text-sm text-red-800">{countError}</p>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">

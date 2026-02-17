@@ -66,8 +66,8 @@ export default function HistoryPopup({ log, phase, onClose }: HistoryPopupProps)
 
           {/* Watering Status */}
           <div className={`rounded-lg p-4 border-2 ${log.watered
-              ? 'bg-green-50 border-green-200'
-              : 'bg-red-50 border-red-200'
+            ? 'bg-green-50 border-green-200'
+            : 'bg-red-50 border-red-200'
             }`}>
             <div className="flex items-center">
               {log.watered ? (
@@ -95,7 +95,7 @@ export default function HistoryPopup({ log, phase, onClose }: HistoryPopupProps)
               </div>
               {/* Image hidden requested by user */}
               {/* <img
-                src={`http://localhost:8000${log.photo_path}`}
+                src={`http://localhost:8001${log.photo_path}`}
                 alt={`Day ${log.day_number}`}
                 className="w-full rounded-lg shadow-md"
               /> */}

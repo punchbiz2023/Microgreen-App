@@ -10,8 +10,8 @@ if (import.meta.env.VITE_API_URL) {
   // Use explicit environment variable if provided
   API_BASE_URL = import.meta.env.VITE_API_URL;
 } else if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-  // Local development: use localhost:8000
-  API_BASE_URL = 'http://localhost:8000';
+  // Local development: use localhost:8001
+  API_BASE_URL = 'http://localhost:8001';
 } else {
   // Public deployment: construct backend URL from frontend URL
   // Replace port 5174 with 8000 in the hostname

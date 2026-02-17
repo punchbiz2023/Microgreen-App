@@ -8,6 +8,7 @@ import DailyLog from './pages/DailyLog';
 import DailyGuide from './pages/DailyGuide';
 import Harvest from './pages/Harvest';
 import Analytics from './pages/Analytics';
+import PlantCounter from './pages/PlantCounter';
 
 import Header from './components/Header';
 import AIChatBot from './components/AIChatBot';
@@ -50,6 +51,7 @@ function App() {
             <Route path="/log/:cropId/:day" element={<ProtectedRoute><DailyLog /></ProtectedRoute>} />
             <Route path="/harvest/:cropId" element={<ProtectedRoute><Harvest /></ProtectedRoute>} />
             <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+            <Route path="/count-plants" element={<ProtectedRoute><PlantCounter /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
             <Route path="/admin/login" element={<AdminLogin />} />
           </Routes>

@@ -27,27 +27,27 @@ interface DailyLog {
 export default function DashboardSimple() {
   const { cropId } = useParams<{ cropId: string }>();
   const navigate = useNavigate();
-  
+
   const [crop, setCrop] = useState<Crop | null>(null);
   const [logs, setLogs] = useState<DailyLog[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   useEffect(() => {
     if (cropId) {
       loadData();
     }
   }, [cropId]);
-  
+
   const loadData = async () => {
     try {
       const [cropRes, logsRes] = await Promise.all([
-        fetch(`http://localhost:8000/api/crops/${cropId}`),
-        fetch(`http://localhost:8000/api/crops/${cropId}/logs`)
+        fetch(`http://localhost:8001/api/crops/${cropId}`),
+        fetch(`http://localhost:8001/api/crops/${cropId}/logs`)
       ]);
-      
+
       const cropData = await cropRes.json();
       const logsData = await logsRes.json();
-      
+
       setCrop(cropData);
       setLogs(logsData);
     } catch (error) {
@@ -56,7 +56,7 @@ export default function DashboardSimple() {
       setLoading(false);
     }
   };
-  
+
   if (loading || !crop) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -64,17 +64,17 @@ export default function DashboardSimple() {
       </div>
     );
   }
-  
+
   const daysSinceStart = Math.floor((new Date().getTime() - new Date(crop.start_date).getTime()) / (1000 * 60 * 60 * 24)) + 1;
   const currentDay = Math.min(daysSinceStart, crop.seed.growth_days);
   const loggedDays = logs.map(l => l.day_number);
   const latestLog = logs.length > 0 ? logs[logs.length - 1] : null;
-  
+
   const getPhase = (day: number) => {
     if (day <= crop.seed.blackout_days) return 'Blackout Phase';
     return 'Light Phase';
   };
-  
+
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f0fdf4', padding: '20px' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
@@ -94,7 +94,7 @@ export default function DashboardSimple() {
           >
             ← Back to Atlas
           </button>
-          
+
           <div style={{ textAlign: 'center' }}>
             <h1 style={{ fontSize: '36px', fontWeight: 'bold', color: '#1f2937', margin: '0 0 8px 0' }}>
               🌱 {crop.seed.name} Crop
@@ -104,23 +104,23 @@ export default function DashboardSimple() {
             </p>
           </div>
         </div>
-        
+
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px' }}>
           {/* Timeline */}
           <div>
             <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', marginBottom: '20px' }}>
               <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '20px' }}>Growth Timeline</h3>
-              
+
               <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '10px' }}>
                 {Array.from({ length: crop.seed.growth_days }, (_, i) => i + 1).map((day) => {
                   const isLogged = loggedDays.includes(day);
                   const isCurrent = day === currentDay;
                   const isFuture = day > currentDay;
-                  
+
                   let bgColor = '#d1d5db';
                   let textColor = 'white';
                   let border = 'none';
-                  
+
                   if (isLogged) {
                     bgColor = '#22c55e';
                   } else if (isCurrent) {
@@ -129,7 +129,7 @@ export default function DashboardSimple() {
                   } else if (!isFuture && !isLogged) {
                     bgColor = '#ef4444';
                   }
-                  
+
                   return (
                     <div key={day} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                       <div
@@ -157,7 +157,7 @@ export default function DashboardSimple() {
                   );
                 })}
               </div>
-              
+
               <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #e5e7eb', display: 'flex', gap: '16px', fontSize: '14px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <div style={{ width: '16px', height: '16px', borderRadius: '50%', backgroundColor: '#22c55e' }}></div>
@@ -173,7 +173,7 @@ export default function DashboardSimple() {
                 </div>
               </div>
             </div>
-            
+
             {/* Action Button */}
             <div style={{ textAlign: 'center' }}>
               {currentDay >= crop.seed.growth_days ? (
@@ -222,7 +222,7 @@ export default function DashboardSimple() {
               )}
             </div>
           </div>
-          
+
           {/* Status Card */}
           <div>
             <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px' }}>
@@ -242,7 +242,7 @@ export default function DashboardSimple() {
                   {getPhase(currentDay)}
                 </div>
               </div>
-              
+
               {/* Yield Prediction */}
               {latestLog?.predicted_yield ? (
                 <div style={{ textAlign: 'center', marginBottom: '24px' }}>
@@ -270,7 +270,7 @@ export default function DashboardSimple() {
                   </div>
                 </div>
               )}
-              
+
               {/* Stats */}
               <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '20px' }}>
                 <div style={{ fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '12px' }}>

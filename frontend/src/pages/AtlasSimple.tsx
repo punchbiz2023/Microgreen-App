@@ -19,33 +19,33 @@ export default function AtlasSimple() {
   const [error, setError] = useState<string | null>(null);
   const [selectedSeed, setSelectedSeed] = useState<Seed | null>(null);
   const [showModal, setShowModal] = useState(false);
-  
+
   // Customization options
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
   const [wateringFrequency, setWateringFrequency] = useState(2);
   const [traySize, setTraySize] = useState('10x20 inch');
   const [submitting, setSubmitting] = useState(false);
-  
+
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     loadSeeds();
   }, []);
-  
+
   const loadSeeds = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/seeds');
+      const response = await fetch('http://localhost:8001/api/seeds');
       if (!response.ok) throw new Error('Failed to fetch');
       const data = await response.json();
       setSeeds(data);
     } catch (error) {
       console.error('Failed to load seeds:', error);
-      setError('Failed to load seeds. Make sure backend is running on port 8000.');
+      setError('Failed to load seeds. Make sure backend is running on port 8001.');
     } finally {
       setLoading(false);
     }
   };
-  
+
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty.toLowerCase()) {
       case 'easy': return '#22c55e';
@@ -54,13 +54,13 @@ export default function AtlasSimple() {
       default: return '#6b7280';
     }
   };
-  
+
   if (loading) {
     return (
-      <div style={{ 
-        minHeight: '100vh', 
-        display: 'flex', 
-        alignItems: 'center', 
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: '#f0fdf4'
       }}>
@@ -68,20 +68,20 @@ export default function AtlasSimple() {
       </div>
     );
   }
-  
+
   if (error) {
     return (
-      <div style={{ 
-        minHeight: '100vh', 
-        display: 'flex', 
-        alignItems: 'center', 
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: '#fef2f2',
         padding: '20px'
       }}>
-        <div style={{ 
-          backgroundColor: 'white', 
-          padding: '40px', 
+        <div style={{
+          backgroundColor: 'white',
+          padding: '40px',
           borderRadius: '12px',
           maxWidth: '500px',
           textAlign: 'center'
@@ -90,7 +90,7 @@ export default function AtlasSimple() {
           <div style={{ fontSize: '20px', color: '#dc2626', marginBottom: '10px' }}>
             {error}
           </div>
-          <button 
+          <button
             onClick={loadSeeds}
             style={{
               marginTop: '20px',
@@ -109,10 +109,10 @@ export default function AtlasSimple() {
       </div>
     );
   }
-  
+
   return (
-    <div style={{ 
-      minHeight: '100vh', 
+    <div style={{
+      minHeight: '100vh',
       padding: '40px 20px',
       backgroundColor: '#f0fdf4'
     }}>
@@ -120,9 +120,9 @@ export default function AtlasSimple() {
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '50px' }}>
           <div style={{ fontSize: '64px', marginBottom: '20px' }}>🌱</div>
-          <h1 style={{ 
-            fontSize: '48px', 
-            fontWeight: 'bold', 
+          <h1 style={{
+            fontSize: '48px',
+            fontWeight: 'bold',
             color: '#1f2937',
             marginBottom: '12px'
           }}>
@@ -132,10 +132,10 @@ export default function AtlasSimple() {
             Choose your seeds and start growing with AI-powered guidance
           </p>
         </div>
-        
+
         {/* Seeds Grid */}
-        <div style={{ 
-          display: 'grid', 
+        <div style={{
+          display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
           gap: '24px'
         }}>
@@ -170,18 +170,18 @@ export default function AtlasSimple() {
               }}>
                 🌱
               </div>
-              
+
               {/* Content */}
               <div style={{ padding: '24px' }}>
-                <div style={{ 
-                  display: 'flex', 
-                  justifyContent: 'space-between', 
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
                   alignItems: 'flex-start',
                   marginBottom: '12px'
                 }}>
-                  <h3 style={{ 
-                    fontSize: '24px', 
-                    fontWeight: 'bold', 
+                  <h3 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
                     color: '#1f2937',
                     margin: 0
                   }}>
@@ -199,39 +199,39 @@ export default function AtlasSimple() {
                     {seed.difficulty}
                   </span>
                 </div>
-                
-                <p style={{ 
-                  color: '#6b7280', 
+
+                <p style={{
+                  color: '#6b7280',
                   fontSize: '14px',
                   marginBottom: '16px',
                   minHeight: '40px'
                 }}>
                   {seed.description}
                 </p>
-                
+
                 <div style={{ marginBottom: '16px' }}>
-                  <div style={{ 
-                    fontSize: '14px', 
+                  <div style={{
+                    fontSize: '14px',
                     color: '#374151',
                     marginBottom: '8px'
                   }}>
                     📊 <strong>Avg Yield:</strong> {seed.avg_yield_grams}g
                   </div>
-                  <div style={{ 
-                    fontSize: '14px', 
+                  <div style={{
+                    fontSize: '14px',
                     color: '#374151',
                     marginBottom: '8px'
                   }}>
                     📅 <strong>Growth Time:</strong> {seed.growth_days} days
                   </div>
-                  <div style={{ 
-                    fontSize: '14px', 
+                  <div style={{
+                    fontSize: '14px',
                     color: '#374151'
                   }}>
                     🌡️ <strong>Ideal:</strong> {seed.ideal_temp}°C, {seed.ideal_humidity}% humidity
                   </div>
                 </div>
-                
+
                 <button
                   onClick={() => {
                     setSelectedSeed(seed);
@@ -262,11 +262,11 @@ export default function AtlasSimple() {
             </div>
           ))}
         </div>
-        
+
         {seeds.length === 0 && !loading && (
-          <div style={{ 
-            textAlign: 'center', 
-            padding: '60px', 
+          <div style={{
+            textAlign: 'center',
+            padding: '60px',
             color: '#6b7280',
             fontSize: '18px'
           }}>
@@ -274,7 +274,7 @@ export default function AtlasSimple() {
           </div>
         )}
       </div>
-      
+
       {/* Customization Modal */}
       {showModal && selectedSeed && (
         <div style={{
@@ -304,7 +304,7 @@ export default function AtlasSimple() {
             }}>
               Setup Your {selectedSeed.name} Crop
             </h2>
-            
+
             {/* Watering Frequency */}
             <div style={{ marginBottom: '24px' }}>
               <label style={{
@@ -316,7 +316,7 @@ export default function AtlasSimple() {
               }}>
                 Watering Commitment
               </label>
-              
+
               <button
                 onClick={() => setWateringFrequency(1)}
                 style={{
@@ -333,7 +333,7 @@ export default function AtlasSimple() {
                 <div style={{ fontWeight: '600', color: '#1f2937' }}>Once Daily</div>
                 <div style={{ fontSize: '14px', color: '#6b7280' }}>Morning watering</div>
               </button>
-              
+
               <button
                 onClick={() => setWateringFrequency(2)}
                 style={{
@@ -350,7 +350,7 @@ export default function AtlasSimple() {
                 <div style={{ fontSize: '14px', color: '#6b7280' }}>Morning & Evening</div>
               </button>
             </div>
-            
+
             {/* Start Date */}
             <div style={{ marginBottom: '24px' }}>
               <label style={{
@@ -378,7 +378,7 @@ export default function AtlasSimple() {
                 Select today or a past date if you already started
               </p>
             </div>
-            
+
             {/* Tray Size */}
             <div style={{ marginBottom: '32px' }}>
               <label style={{
@@ -404,7 +404,7 @@ export default function AtlasSimple() {
                 }}
               />
             </div>
-            
+
             {/* Buttons */}
             <div style={{ display: 'flex', gap: '12px' }}>
               <button
@@ -427,12 +427,12 @@ export default function AtlasSimple() {
               >
                 Cancel
               </button>
-              
+
               <button
                 onClick={async () => {
                   setSubmitting(true);
                   try {
-                    const response = await fetch('http://localhost:8000/api/crops', {
+                    const response = await fetch('http://localhost:8001/api/crops', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({
@@ -442,9 +442,9 @@ export default function AtlasSimple() {
                         tray_size: traySize
                       })
                     });
-                    
+
                     if (!response.ok) throw new Error('Failed to create crop');
-                    
+
                     const data = await response.json();
                     // Navigate to dashboard
                     navigate(`/dashboard/${data.id}`);
