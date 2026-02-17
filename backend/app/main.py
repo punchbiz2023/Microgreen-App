@@ -878,60 +878,6 @@ async def get_stats(db: Session = Depends(get_db)):
         "avg_prediction_accuracy": round(avg_accuracy, 1),
         "total_yield_grams": round(total_yield, 1)
     }
-
-# --- ADMIN ROUTES ---
-
-@app.get("/api/admin/users", response_model=List[UserResponse])
-async def get_all_users(
-    db: Session = Depends(get_db),
-    admin: User = Depends(get_current_admin_user)
-):
-    return db.query(User).all()
-
-@app.post("/api/seeds", response_model=SeedResponse)
-async def create_seed(
-    seed_data: SeedCreate,
-    db: Session = Depends(get_db),
-    admin: User = Depends(get_current_admin_user)
-):
-    seed = Seed(**seed_data.dict())
-    db.add(seed)
-    db.commit()
-    db.refresh(seed)
-    return seed
-
-@app.put("/api/seeds/{seed_id}", response_model=SeedResponse)
-async def update_seed(
-    seed_id: int,
-    seed_data: SeedUpdate,
-    db: Session = Depends(get_db),
-    admin: User = Depends(get_current_admin_user)
-):
-    seed = db.query(Seed).filter(Seed.id == seed_id).first()
-    if not seed: raise HTTPException(status_code=404, detail="Seed not found")
-    
-    for key, value in seed_data.dict(exclude_unset=True).items():
-        setattr(seed, key, value)
-        
-    db.commit()
-    db.refresh(seed)
-    return seed
-
-@app.delete("/api/crops/{crop_id}")
-async def delete_crop(
-    crop_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
-):
-    crop = db.query(Crop).filter(Crop.id == crop_id).first()
-    if not crop:
-        raise HTTPException(status_code=404, detail="Crop not found")
-    
-    # Check ownership
-    if crop.user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized to delete this crop")
-    
-    db.delete(crop)
     db.commit()
     return {"status": "success", "message": "Crop deleted"}
 
@@ -983,4 +929,134 @@ async def ai_chat(request: ChatRequest, current_user: User = Depends(get_current
         raise HTTPException(status_code=500, detail=result["response"])
     
     return result
+
+
+
+
+
+# --- PLANT COUNTING ROUTES ---
+
+
+
+class CountResponse(BaseModel):
+
+    count: int
+
+    centroids: List[tuple]
+
+    annotated_image_url: Optional[str]
+
+    image_width: int
+
+    image_height: int
+
+    method: str  # Changed from color_type to method
+
+    parameters: Dict[str, Any]  # Changed from Dict[str, int] to allow None and float values
+
+    
+
+    class Config:
+
+        from_attributes = True
+
+
+
+@app.post("/api/count-plants", response_model=CountResponse)
+
+async def count_plants(
+
+    file: UploadFile = File(...),
+
+    color_type: str = 'green',
+
+    min_area: int = 50,
+
+    max_area: int = 5000,
+
+    current_user: User = Depends(get_current_active_user)
+
+):
+
+    """
+
+    Count microgreen plants in uploaded image
+
+    
+
+    Args:
+
+        file: Image file (jpg, png)
+
+        color_type: Microgreen color ('green', 'red', 'purple')
+
+        min_area: Minimum plant area in pixels (default: 50)
+
+        max_area: Maximum plant area in pixels (default: 5000)
+
+    
+
+    Returns:
+
+        Count result with annotated image URL
+
+    """
+
+    # Validate file type
+
+    if not file.content_type.startswith('image/'):
+
+        raise HTTPException(status_code=400, detail="File must be an image")
+
+    
+
+    try:
+
+        # Import count service
+
+        from app.services.count_service import get_count_service
+
+        
+
+        # Read image bytes
+
+        image_bytes = await file.read()
+
+        print(f"📸 Received image: {file.filename} ({len(image_bytes)} bytes)")
+
+        
+
+        # Process image
+
+        count_service = get_count_service()
+
+        result = count_service.count_from_bytes(
+
+            image_bytes=image_bytes,
+
+            color_type=color_type,
+
+            min_area=min_area,
+
+            max_area=max_area,
+
+            save_annotated=True
+
+        )
+
+        
+
+        return result
+
+        
+
+    except Exception as e:
+
+        print(f"❌ Error counting plants: {e}")
+
+        import traceback
+
+        traceback.print_exc()
+
+        raise HTTPException(status_code=500, detail=f"Error processing image: {str(e)}")
 

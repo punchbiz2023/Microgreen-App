@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { cropsApi, type Crop } from '../services/api';
 import {
-    CheckCircle, X, Plus, Droplet, Clock,
+    CheckCircle, Plus, Droplet, Clock,
     ChevronRight, Zap, CalendarDays
 } from 'lucide-react';
 import { differenceInDays, format, addHours, isAfter, formatDistanceToNow } from 'date-fns';
@@ -16,22 +16,8 @@ export default function Home() {
     const currentLocale = i18n.language === 'ta' ? taLocale : enLocale;
     const [activeCrops, setActiveCrops] = useState<Crop[]>([]);
     const [loading, setLoading] = useState(true);
-    const [predictionResult, setPredictionResult] = useState<any | null>(null);
-    const [selectedAction, setSelectedAction] = useState<any | null>(null);
     const navigate = useNavigate();
     const { } = useAuth();
-
-    // Modal State
-    const [temp, setTemp] = useState(22);
-    const [hum, setHum] = useState(50);
-    const [notes, setNotes] = useState('');
-
-    const openLogModal = (action: any) => {
-        setTemp(action.crop.seed.ideal_temp || 22);
-        setHum(action.crop.seed.ideal_humidity || 50);
-        setNotes('');
-        setSelectedAction(action);
-    };
 
     useEffect(() => {
         loadData();
@@ -48,33 +34,7 @@ export default function Home() {
         }
     };
 
-    const handleLogAction = async () => {
-        if (!selectedAction) return;
-        try {
-            const response = await cropsApi.logAction(selectedAction.crop.id, {
-                action_type: selectedAction.type,
-                notes: notes || `Logged via Home at ${new Date().toISOString()}`,
-                temperature: temp,
-                humidity: hum
-            });
 
-            if (response.data.prediction) {
-                setPredictionResult(response.data.prediction);
-            } else {
-                setSelectedAction(null);
-                loadData();
-            }
-        } catch (error) {
-            console.error('Failed to log action', error);
-            alert('Failed to save log. Please try again.');
-        }
-    };
-
-    const closePredictionModal = () => {
-        setPredictionResult(null);
-        setSelectedAction(null);
-        loadData();
-    };
 
     const getCropStatus = (crop: Crop) => {
         const start = new Date(crop.start_datetime);
@@ -242,7 +202,7 @@ export default function Home() {
                                                 </div>
 
                                                 <button
-                                                    onClick={() => openLogModal(action)}
+                                                    onClick={() => navigate(`/daily-log/${action.crop.id}/${action.day_number}`)}
                                                     className={`w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold text-xs shadow-sm transition-all flex items-center justify-center border ${action.day_number < getCropStatus(action.crop).currentDay
                                                         ? 'bg-gray-900 text-white border-gray-900 hover:bg-black'
                                                         : 'bg-white border-gray-200 text-gray-600 hover:border-green-400 hover:text-green-500'
@@ -353,104 +313,6 @@ export default function Home() {
                     </div>
                 </div>
             </main>
-
-            {/* Modals */}
-            {selectedAction && (
-                <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-3xl max-w-sm w-full p-8 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-                        <div className="flex justify-between items-center mb-8">
-                            <div>
-                                <h3 className="text-xl font-bold text-gray-900">{t('home.finalize_action')}</h3>
-                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{t('home.growth_intel')}</p>
-                            </div>
-                            <button onClick={() => setSelectedAction(null)} className="p-2 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600">
-                                <X size={18} />
-                            </button>
-                        </div>
-
-                        <div className="bg-green-50 rounded-2xl p-4 flex items-center space-x-4 mb-8">
-                            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm text-green-500">
-                                {selectedAction.type.includes('water') ? <Droplet size={18} /> : <Zap size={18} />}
-                            </div>
-                            <div>
-                                <h4 className="text-sm font-bold text-gray-900">{selectedAction.title}</h4>
-                                <p className="text-[10px] font-medium text-green-600 uppercase mt-0.5">{selectedAction.crop.seed.name}</p>
-                            </div>
-                        </div>
-
-                        <div className="space-y-6 mb-8">
-                            <div>
-                                <div className="flex justify-between text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-3">
-                                    <span className="flex items-center">{t('home.ambient_temp')}</span>
-                                    <span className="text-green-600 font-extrabold">{temp}°C</span>
-                                </div>
-                                <input
-                                    type="range" min="15" max="35" step="0.5"
-                                    value={temp} onChange={(e) => setTemp(parseFloat(e.target.value))}
-                                    className="w-full h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-green-500"
-                                />
-                            </div>
-                            <div>
-                                <div className="flex justify-between text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-3">
-                                    <span className="flex items-center">{t('home.relative_humidity')}</span>
-                                    <span className="text-blue-500 font-extrabold">{hum}%</span>
-                                </div>
-                                <input
-                                    type="range" min="20" max="90" step="1"
-                                    value={hum} onChange={(e) => setHum(parseFloat(e.target.value))}
-                                    className="w-full h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                                />
-                            </div>
-                        </div>
-
-                        <button
-                            onClick={handleLogAction}
-                            className="w-full py-4 bg-green-500 text-white rounded-2xl font-bold text-sm shadow-lg shadow-green-100 hover:bg-green-600 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center"
-                        >
-                            {t('home.sync_cloud')}
-                            <ChevronRight size={16} className="ml-1" />
-                        </button>
-                    </div>
-                </div>
-            )}
-
-            {predictionResult && (
-                <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-xl z-[60] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-[2.5rem] max-w-sm w-full p-10 shadow-2xl animate-in slide-in-from-bottom-10 duration-500 relative overflow-hidden text-center border-t-8 border-green-500">
-                        <div className="relative z-10">
-                            <div className="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-sm text-3xl">🪴</div>
-                            <h2 className="text-2xl font-extrabold text-gray-900 mb-2">{t('home.growth_insight')}</h2>
-                            <p className="text-sm font-medium text-gray-500 mb-10">{t('home.care_recorded')}</p>
-
-                            <div className="bg-gray-50 rounded-3xl p-6 mb-8 border border-gray-100">
-                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">{t('home.projected_recovery')}</p>
-                                <div className="text-5xl font-extrabold text-gray-900 tracking-tighter">
-                                    {predictionResult.predicted_yield}<span className="text-xl text-green-500 ml-1">g</span>
-                                </div>
-                            </div>
-
-                            <button
-                                onClick={closePredictionModal}
-                                className="w-full py-4 bg-gray-900 text-white rounded-2xl font-bold shadow-xl hover:bg-black transition-all group mb-3"
-                            >
-                                {t('home.continue_cultivation')}
-                                <ChevronRight size={16} className="inline ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
-                            </button>
-
-                            <button
-                                onClick={() => {
-                                    const cropToView = selectedAction ? selectedAction.crop.id : activeCrops[0]?.id;
-                                    closePredictionModal();
-                                    if (cropToView) navigate(`/dashboard/${cropToView}`);
-                                }}
-                                className="w-full py-3 bg-white border border-gray-200 text-gray-600 rounded-2xl font-bold text-xs hover:border-green-500 hover:text-green-500 transition-all"
-                            >
-                                {t('home.go_to_details')}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

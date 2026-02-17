@@ -14,26 +14,26 @@ interface Crop {
 export default function DailyLogSimple() {
   const { cropId, day } = useParams<{ cropId: string; day: string }>();
   const navigate = useNavigate();
-  
+
   const [crop, setCrop] = useState<Crop | null>(null);
   const [watered, setWatered] = useState(true);
   const [temperature, setTemperature] = useState(22);
   const [humidity, setHumidity] = useState(50);
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  
+
   useEffect(() => {
     if (cropId) {
       loadCrop();
     }
   }, [cropId]);
-  
+
   const loadCrop = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/api/crops/${cropId}`);
+      const response = await fetch(`http://localhost:8001/api/crops/${cropId}`);
       const data = await response.json();
       setCrop(data);
-      
+
       // Set defaults based on ideal conditions
       setTemperature(data.seed.ideal_temp);
       setHumidity(data.seed.ideal_humidity);
@@ -41,16 +41,16 @@ export default function DailyLogSimple() {
       console.error('Failed to load crop:', error);
     }
   };
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!cropId || !day) return;
-    
+
     try {
       setSubmitting(true);
-      
-      const response = await fetch(`http://localhost:8000/api/crops/${cropId}/logs`, {
+
+      const response = await fetch(`http://localhost:8001/api/crops/${cropId}/logs`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -61,12 +61,12 @@ export default function DailyLogSimple() {
           notes: notes || undefined
         })
       });
-      
+
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.detail || 'Failed to submit log');
       }
-      
+
       // Navigate back to dashboard
       navigate(`/dashboard/${cropId}`);
     } catch (error: any) {
@@ -76,7 +76,7 @@ export default function DailyLogSimple() {
       setSubmitting(false);
     }
   };
-  
+
   if (!crop) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -84,23 +84,23 @@ export default function DailyLogSimple() {
       </div>
     );
   }
-  
+
   const getTempColor = () => {
     const diff = Math.abs(temperature - crop.seed.ideal_temp);
     if (diff <= 1) return '#22c55e';
     if (diff <= 3) return '#eab308';
     return '#ef4444';
   };
-  
+
   const getHumidityColor = () => {
     const diff = Math.abs(humidity - crop.seed.ideal_humidity);
     if (diff <= 5) return '#22c55e';
     if (diff <= 10) return '#eab308';
     return '#ef4444';
   };
-  
+
   const phase = parseInt(day!) <= crop.seed.blackout_days ? 'Blackout Phase' : 'Light Phase';
-  
+
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f0fdf4', padding: '20px' }}>
       <div style={{ maxWidth: '600px', margin: '0 auto' }}>
@@ -118,7 +118,7 @@ export default function DailyLogSimple() {
         >
           ← Back to Dashboard
         </button>
-        
+
         <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '32px' }}>
           <div style={{ textAlign: 'center', marginBottom: '32px' }}>
             <h1 style={{ fontSize: '32px', fontWeight: 'bold', color: '#1f2937', marginBottom: '8px' }}>
@@ -128,7 +128,7 @@ export default function DailyLogSimple() {
               {crop.seed.name} - {phase}
             </p>
           </div>
-          
+
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
             {/* Watering */}
             <div>
@@ -170,7 +170,7 @@ export default function DailyLogSimple() {
                 </button>
               </div>
             </div>
-            
+
             {/* Temperature */}
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
@@ -181,7 +181,7 @@ export default function DailyLogSimple() {
                   {temperature}°C
                 </span>
               </div>
-              
+
               <input
                 type="range"
                 min="15"
@@ -191,13 +191,13 @@ export default function DailyLogSimple() {
                 onChange={(e) => setTemperature(parseFloat(e.target.value))}
                 style={{ width: '100%', height: '8px', cursor: 'pointer' }}
               />
-              
+
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#6b7280', marginTop: '8px' }}>
                 <span>15°C</span>
                 <span style={{ fontWeight: '600' }}>Ideal: {crop.seed.ideal_temp}°C</span>
                 <span>35°C</span>
               </div>
-              
+
               {Math.abs(temperature - crop.seed.ideal_temp) > 3 && (
                 <div style={{ marginTop: '12px', padding: '12px', backgroundColor: '#fef3c7', border: '1px solid #fbbf24', borderRadius: '8px' }}>
                   <p style={{ fontSize: '14px', color: '#92400e', margin: 0 }}>
@@ -206,7 +206,7 @@ export default function DailyLogSimple() {
                 </div>
               )}
             </div>
-            
+
             {/* Humidity */}
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
@@ -217,7 +217,7 @@ export default function DailyLogSimple() {
                   {humidity}%
                 </span>
               </div>
-              
+
               <input
                 type="range"
                 min="25"
@@ -227,13 +227,13 @@ export default function DailyLogSimple() {
                 onChange={(e) => setHumidity(parseInt(e.target.value))}
                 style={{ width: '100%', height: '8px', cursor: 'pointer' }}
               />
-              
+
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#6b7280', marginTop: '8px' }}>
                 <span>25%</span>
                 <span style={{ fontWeight: '600' }}>Ideal: {crop.seed.ideal_humidity}%</span>
                 <span>85%</span>
               </div>
-              
+
               {Math.abs(humidity - crop.seed.ideal_humidity) > 15 && (
                 <div style={{ marginTop: '12px', padding: '12px', backgroundColor: '#fef3c7', border: '1px solid #fbbf24', borderRadius: '8px' }}>
                   <p style={{ fontSize: '14px', color: '#92400e', margin: 0 }}>
@@ -242,7 +242,7 @@ export default function DailyLogSimple() {
                 </div>
               )}
             </div>
-            
+
             {/* Notes */}
             <div>
               <label style={{ display: 'block', fontSize: '16px', fontWeight: '600', color: '#1f2937', marginBottom: '8px' }}>
@@ -264,7 +264,7 @@ export default function DailyLogSimple() {
                 }}
               />
             </div>
-            
+
             {/* Submit Button */}
             <button
               type="submit"
