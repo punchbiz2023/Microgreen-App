@@ -41,8 +41,8 @@ export default function DashboardSimple() {
   const loadData = async () => {
     try {
       const [cropRes, logsRes] = await Promise.all([
-        fetch(`http://localhost:8001/api/crops/${cropId}`),
-        fetch(`http://localhost:8001/api/crops/${cropId}/logs`)
+        fetch(`http://localhost:8000/api/crops/${cropId}`),
+        fetch(`http://localhost:8000/api/crops/${cropId}/logs`)
       ]);
 
       const cropData = await cropRes.json();

@@ -100,31 +100,26 @@ class MicrogreenCounter:
     def draw_detections(self, image: np.ndarray, labels: np.ndarray, 
                        centroids: list, count: int) -> np.ndarray:
         """
-        Draw detection results on image
+        Draw detection results on image with professional styling
         """
         output = image.copy()
         
         # Create colored overlay for detected regions
+        # Using Yellow/Cyan mix to match YOLO style
         mask_colored = np.zeros_like(image)
-        mask_colored[labels > 0] = [0, 255, 0]  # Green overlay
+        mask_colored[labels > 0] = [0, 255, 255]  # Yellow/Cyan mix
         
-        # Blend with original image
-        output = cv2.addWeighted(output, 0.7, mask_colored, 0.3, 0)
+        # Blend with original image - reduced opacity for subtlety
+        output = cv2.addWeighted(output, 0.85, mask_colored, 0.15, 0)
         
         # Draw centroids
         for centroid in centroids:
             x, y = int(centroid[0]), int(centroid[1])
-            cv2.circle(output, (x, y), 5, (0, 0, 255), -1)  # Red dot
-            cv2.circle(output, (x, y), 8, (255, 255, 255), 2)  # White circle
+            # Small red dot (1px radius to match YOLO style)
+            cv2.circle(output, (x, y), 1, (0, 0, 255), -1)
         
-        # Add count text
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        text = f"Plants Detected: {count}"
-        
-        # Add background rectangle for text
-        (text_width, text_height), _ = cv2.getTextSize(text, font, 1.2, 2)
-        cv2.rectangle(output, (10, 10), (20 + text_width, 50 + text_height), (0, 0, 0), -1)
-        cv2.putText(output, text, (15, 45), font, 1.2, (0, 255, 0), 2)
+        # REMOVED: "Plants Detected" text and large badges
+        # The UI handles the count display
         
         return output
     

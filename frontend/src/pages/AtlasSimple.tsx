@@ -34,13 +34,13 @@ export default function AtlasSimple() {
 
   const loadSeeds = async () => {
     try {
-      const response = await fetch('http://localhost:8001/api/seeds');
+      const response = await fetch('http://localhost:8000/api/seeds');
       if (!response.ok) throw new Error('Failed to fetch');
       const data = await response.json();
       setSeeds(data);
     } catch (error) {
       console.error('Failed to load seeds:', error);
-      setError('Failed to load seeds. Make sure backend is running on port 8001.');
+      setError('Failed to load seeds. Make sure backend is running on port 8000.');
     } finally {
       setLoading(false);
     }
@@ -432,7 +432,7 @@ export default function AtlasSimple() {
                 onClick={async () => {
                   setSubmitting(true);
                   try {
-                    const response = await fetch('http://localhost:8001/api/crops', {
+                    const response = await fetch('http://localhost:8000/api/crops', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({

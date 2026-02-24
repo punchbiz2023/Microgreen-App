@@ -67,43 +67,32 @@ class MicrogreenYOLOCounter:
     
     def draw_detections(self, image: np.ndarray, boxes: list, count: int) -> np.ndarray:
         """
-        Draw detection results on image
-        
-        Args:
-            image: Input image
-            boxes: List of detection boxes
-            count: Total count
-            
-        Returns:
-            Annotated image
+        Draw detection results on image with professional styling
         """
         output = image.copy()
+        
+        # Professional color scheme (BGR format)
+        # Using a bright but thin color for visibility without clutter
+        box_color = (0, 255, 255)       # Yellow/Cyan mix for high contrast
+        center_color = (0, 0, 255)      # Red for center points
         
         # Draw each detection
         for box in boxes:
             x1, y1, x2, y2, conf = box
             x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
             
-            # Draw bounding box
-            cv2.rectangle(output, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            # Draw bounding box - THIN line (1px)
+            cv2.rectangle(output, (x1, y1), (x2, y2), box_color, 1)
             
-            # Draw confidence score
-            label = f'{conf:.2f}'
-            cv2.putText(output, label, (x1, y1 - 5), 
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.3, (0, 255, 0), 1)
-            
-            # Draw center point
+            # Draw center point - SMALL dot (1px radius)
             cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
-            cv2.circle(output, (cx, cy), 3, (0, 0, 255), -1)
+            cv2.circle(output, (cx, cy), 1, center_color, -1)
+            
+            # REMOVED: Confidence labels and backgrounds to reduce clutter
+            # For microgreens with 50+ items, text is too messy
         
-        # Add count text
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        text = f"Plants Detected: {count}"
-        
-        # Add background rectangle for text
-        (text_width, text_height), _ = cv2.getTextSize(text, font, 0.7, 2)
-        cv2.rectangle(output, (10, 10), (20 + text_width, 40 + text_height), (0, 0, 0), -1)
-        cv2.putText(output, text, (15, 35), font, 0.7, (0, 255, 0), 2)
+        # REMOVED: Large "Plants Detected" badge on the image
+        # The UI already displays the count clearly
         
         return output
     
