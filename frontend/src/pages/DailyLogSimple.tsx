@@ -30,7 +30,7 @@ export default function DailyLogSimple() {
 
   const loadCrop = async () => {
     try {
-      const response = await fetch(`http://localhost:8001/api/crops/${cropId}`);
+      const response = await fetch(`http://localhost:8000/api/crops/${cropId}`);
       const data = await response.json();
       setCrop(data);
 
@@ -50,7 +50,7 @@ export default function DailyLogSimple() {
     try {
       setSubmitting(true);
 
-      const response = await fetch(`http://localhost:8001/api/crops/${cropId}/logs`, {
+      const response = await fetch(`http://localhost:8000/api/crops/${cropId}/logs`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

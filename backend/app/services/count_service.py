@@ -13,13 +13,8 @@ import uuid
 ml_engine_path = Path(__file__).parent.parent.parent / 'ml_engine'
 sys.path.insert(0, str(ml_engine_path))
 
-try:
-    from count_yolo import MicrogreenYOLOCounter
-    USE_YOLO = True
-except ImportError:
-    print("Warning: YOLO model not available, falling back to HSV segmentation")
-    from count_microgreens import MicrogreenCounter
-    USE_YOLO = False
+# Enforce YOLO usage
+from count_yolo import MicrogreenYOLOCounter
 
 
 class CountService:
@@ -31,27 +26,17 @@ class CountService:
         self.upload_dir = Path(upload_dir)
         self.upload_dir.mkdir(parents=True, exist_ok=True)
         
-        # Initialize counter (YOLO if available, otherwise HSV)
-        if USE_YOLO:
-            try:
-                print("🔍 Attempting to load YOLO model...")
-                self.counter = MicrogreenYOLOCounter()
-                self.method = "YOLO"
-                print("✅ Successfully loaded YOLO model for counting")
-            except FileNotFoundError as e:
-                print(f"⚠️  YOLO model not found: {e}")
-                print("📊 Falling back to HSV color segmentation method")
-                self.counter = MicrogreenCounter()
-                self.method = "HSV"
-            except Exception as e:
-                print(f"⚠️  Failed to load YOLO model: {e}")
-                print("📊 Falling back to HSV color segmentation method")
-                self.counter = MicrogreenCounter()
-                self.method = "HSV"
-        else:
-            print("📊 Using HSV color segmentation method (YOLO not available)")
-            self.counter = MicrogreenCounter()
-            self.method = "HSV"
+        # Initialize YOLO counter ONLY
+        print("🔍 Attempting to load YOLO model...")
+        try:
+            self.counter = MicrogreenYOLOCounter()
+            self.method = "YOLO"
+            print("✅ Successfully loaded YOLO model for counting")
+        except Exception as e:
+            print(f"❌ Failed to load YOLO model: {e}")
+            import traceback
+            traceback.print_exc()
+            raise RuntimeError(f"YOLO Model failed to load: {e}")
     
     def count_from_bytes(self, image_bytes: bytes, 
                         color_type: str = 'green',

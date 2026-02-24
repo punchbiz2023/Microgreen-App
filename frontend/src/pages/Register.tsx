@@ -23,7 +23,7 @@ export default function Register() {
 
         try {
             // 1. Register
-            await axios.post('http://localhost:8001/api/auth/register', {
+            await axios.post('http://localhost:8000/api/auth/register', {
                 username,
                 email,
                 password,
@@ -35,7 +35,7 @@ export default function Register() {
             formData.append('username', username);
             formData.append('password', password);
 
-            const loginResponse = await axios.post('http://localhost:8001/api/auth/token', formData, {
+            const loginResponse = await axios.post('http://localhost:8000/api/auth/token', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 

@@ -52,6 +52,9 @@ UPLOAD_DIR = Path("./static/photos")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+# Initialize ML Service
+ml_service = MLService()
+
 
 # --- AUTH SCHEMAS ---
 class UserCreate(BaseModel):
@@ -878,8 +881,6 @@ async def get_stats(db: Session = Depends(get_db)):
         "avg_prediction_accuracy": round(avg_accuracy, 1),
         "total_yield_grams": round(total_yield, 1)
     }
-    db.commit()
-    return {"status": "success", "message": "Crop deleted"}
 
 @app.delete("/api/seeds/{seed_id}")
 async def delete_seed(

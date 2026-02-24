@@ -363,18 +363,18 @@ export default function DailyLog() {
                   {/* Count Result with Annotated Image */}
                   {plantCount !== null && annotatedImageUrl && (
                     <div className="space-y-3">
-                      <div className="relative rounded-lg overflow-hidden border-2 border-green-200">
+                      <div className="relative rounded-lg overflow-hidden border-2 border-green-200 bg-gray-900">
                         <img
                           src={`${api.defaults.baseURL}${annotatedImageUrl}`}
                           alt="Detected plants"
-                          className="w-full"
+                          className="w-full h-64 object-contain"
                         />
-                        <div className="absolute top-3 right-3 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg">
-                          <div className="text-xs font-semibold">Plants Detected</div>
-                          <div className="text-2xl font-bold">{plantCount}</div>
+                        <div className="absolute top-3 right-3 bg-green-600/90 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg shadow-lg border border-green-400">
+                          <div className="text-[10px] font-bold uppercase tracking-wider">Count</div>
+                          <div className="text-xl font-bold leading-none">{plantCount}</div>
                         </div>
                       </div>
-                      <p className="text-xs text-green-700 text-center">Count has been added to your notes below</p>
+                      <p className="text-xs text-green-700 text-center">Count added to notes</p>
                     </div>
                   )}
 
