@@ -1,9 +1,0 @@
-# Microgreens Dataset Configuration
-path: c:\Users\hrith\OneDrive\Desktop\Urban sims\ml_engine\yolo_dataset  # dataset root dir
-train: images  # train images (relative to 'path')
-val: images    # val images (using same as train for small dataset)
-
-# Classes
-names:
-  0: plant
-  1: Micro_greens
