@@ -74,6 +74,12 @@ logs/
 # Static files
 backend/static/photos/**
 !backend/static/photos/.gitkeep
+backend/static/count_results/**
+!backend/static/count_results/.gitkeep
+
+# ML Engine
+ml_engine/runs/
+ml_engine/yolo_dataset/
 
 # Docker
 .dockerignore
