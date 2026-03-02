@@ -49,6 +49,18 @@ class MicrogreensYieldPredictor:
         if fit_encoders:
             df['seed_encoded'] = self.seed_encoder.fit_transform(df['seed_type'])
         else:
+            known_classes = set(self.seed_encoder.classes_)
+            def safe_encode(val):
+                if val in known_classes:
+                    return val
+                if str(val).replace('---', '-/-') in known_classes:
+                    return str(val).replace('---', '-/-')
+                if str(val).replace('-/-', '---') in known_classes:
+                    return str(val).replace('-/-', '---')
+                print(f"Warning: Unknown seed type '{val}', falling back to '{self.seed_encoder.classes_[0]}'")
+                return self.seed_encoder.classes_[0]
+            
+            df['seed_type'] = df['seed_type'].apply(safe_encode)
             df['seed_encoded'] = self.seed_encoder.transform(df['seed_type'])
         
         # Select features for model
@@ -326,6 +338,7 @@ if __name__ == '__main__':
     # Sanitize seed_type to match backend slugs (remove commas)
     if 'seed_type' in df.columns:
         df['seed_type'] = df['seed_type'].astype(str).str.replace(',', '', regex=False)
+        df['seed_type'] = df['seed_type'].str.replace('-/-', '---', regex=False)
         
     print(f"Loaded {len(df)} samples\n")
     

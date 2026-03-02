@@ -70,6 +70,8 @@ class YieldPredictionService:
         missed_watering_days = sum([1 for log in daily_logs if not log['watered']])
         
         # Max/Min values
+        max_temp = max([log['temperature'] for log in daily_logs])
+        min_temp = min([log['temperature'] for log in daily_logs])
         max_humidity = max([log['humidity'] for log in daily_logs])
         min_humidity = min([log['humidity'] for log in daily_logs])
         
