@@ -945,6 +945,7 @@ class CountResponse(BaseModel):
 @app.post("/api/count-plants", response_model=CountResponse)
 async def count_plants(
     file: UploadFile = File(...),
+    model_type: str = 'deepforest',
     color_type: str = 'green',
     min_area: int = 50,
     max_area: int = 5000,
@@ -978,6 +979,7 @@ async def count_plants(
         count_service = get_count_service()
         result = count_service.count_from_bytes(
             image_bytes=image_bytes,
+            model_type=model_type,
             color_type=color_type,
             min_area=min_area,
             max_area=max_area,

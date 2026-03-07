@@ -8,6 +8,7 @@ import cv2
 import numpy as np
 from typing import Tuple, Dict, Optional
 from pathlib import Path
+from sklearn.cluster import DBSCAN
 
 
 class MicrogreenYOLOCounter:
@@ -53,17 +54,62 @@ class MicrogreenYOLOCounter:
         # Run inference
         results = self.model(image, conf=conf_threshold, verbose=False)
         
-        # Extract detections
-        boxes = []
+        # Extract detections (leaf level)
+        leaf_boxes = []
         for r in results:
             if r.boxes is not None and len(r.boxes) > 0:
                 for box in r.boxes:
                     x1, y1, x2, y2 = box.xyxy[0].cpu().numpy()
                     conf = float(box.conf[0])
-                    boxes.append([x1, y1, x2, y2, conf])
+                    leaf_boxes.append([x1, y1, x2, y2, conf])
         
-        count = len(boxes)
-        return count, boxes
+        if not leaf_boxes:
+            return 0, []
+            
+        # Extract centers for clustering
+        centers = []
+        for box in leaf_boxes:
+            cx = (box[0] + box[2]) / 2.0
+            cy = (box[1] + box[3]) / 2.0
+            centers.append([cx, cy])
+            
+        centers = np.array(centers)
+        
+        # Perform DBSCAN clustering
+        # eps is the maximum distance between two leaves to be considered part of the same plant
+        # min_samples=1 so isolated leaves form their own plant (cluster)
+        eps = 40.0  # Adjust as necessary based on image scale
+        clustering = DBSCAN(eps=eps, min_samples=1).fit(centers)
+        labels = clustering.labels_
+        
+        num_clusters = len(set(labels)) - (1 if -1 in labels else 0)
+        
+        # Merge bounding boxes by cluster
+        plant_boxes = []
+        for cluster_id in set(labels):
+            if cluster_id == -1:
+                # Treat noise points as individual plants, or ignore them. We'll treat as individual.
+                noise_indices = np.where(labels == -1)[0]
+                for idx in noise_indices:
+                    plant_boxes.append(leaf_boxes[idx])
+                continue
+                
+            cluster_indices = np.where(labels == cluster_id)[0]
+            cluster_leaf_boxes = [leaf_boxes[i] for i in cluster_indices]
+            
+            # Find the bounding box that encompasses all leaves in the cluster
+            min_x = min([b[0] for b in cluster_leaf_boxes])
+            min_y = min([b[1] for b in cluster_leaf_boxes])
+            max_x = max([b[2] for b in cluster_leaf_boxes])
+            max_y = max([b[3] for b in cluster_leaf_boxes])
+            
+            # Average confidence
+            avg_conf = np.mean([b[4] for b in cluster_leaf_boxes])
+            
+            plant_boxes.append([min_x, min_y, max_x, max_y, avg_conf])
+            
+        count = len(plant_boxes)
+        return count, plant_boxes
     
     def draw_detections(self, image: np.ndarray, boxes: list, count: int) -> np.ndarray:
         """
