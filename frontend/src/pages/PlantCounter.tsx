@@ -24,6 +24,7 @@ export default function PlantCounter() {
     const [result, setResult] = useState<CountResult | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [colorType, setColorType] = useState<string>('green');
+    const [modelType, setModelType] = useState<string>('yolo');
 
     const navigate = useNavigate();
 
@@ -58,6 +59,7 @@ export default function PlantCounter() {
                         'Content-Type': 'multipart/form-data',
                     },
                     params: {
+                        model_type: modelType,
                         color_type: colorType,
                         min_area: 50,
                         max_area: 5000,
@@ -144,6 +146,44 @@ export default function PlantCounter() {
                                     }}
                                 >
                                     {type}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Model Type Selector */}
+                    <div style={{ marginBottom: '30px' }}>
+                        <label style={{
+                            display: 'block',
+                            fontSize: '16px',
+                            fontWeight: '600',
+                            color: '#374151',
+                            marginBottom: '12px',
+                        }}>
+                            Detection Model
+                        </label>
+                        <div style={{ display: 'flex', gap: '12px' }}>
+                            {[
+                                { id: 'yolo', label: 'YOLO (Plant Count)' },
+                                { id: 'deepforest', label: 'DeepForest (Leaf Count)' }
+                            ].map((model) => (
+                                <button
+                                    key={model.id}
+                                    onClick={() => setModelType(model.id)}
+                                    style={{
+                                        flex: 1,
+                                        padding: '12px',
+                                        border: modelType === model.id ? '2px solid #3b82f6' : '2px solid #d1d5db',
+                                        backgroundColor: modelType === model.id ? '#eff6ff' : 'white',
+                                        borderRadius: '8px',
+                                        fontSize: '16px',
+                                        fontWeight: '600',
+                                        color: modelType === model.id ? '#3b82f6' : '#6b7280',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s',
+                                    }}
+                                >
+                                    {model.label}
                                 </button>
                             ))}
                         </div>

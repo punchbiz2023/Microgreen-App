@@ -22,6 +22,7 @@ export default function DailyLog() {
   const [counting, setCounting] = useState(false);
   const [countError, setCountError] = useState<string | null>(null);
   const [annotatedImageUrl, setAnnotatedImageUrl] = useState<string | null>(null);
+  const [modelType, setModelType] = useState<string>('yolo');
 
   useEffect(() => {
     if (cropId) {
@@ -69,6 +70,7 @@ export default function DailyLog() {
       const response = await api.post('/api/count-plants', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         params: {
+          model_type: modelType,
           color_type: 'green',
           min_area: 50,
           max_area: 5000
@@ -324,14 +326,11 @@ export default function DailyLog() {
               {photoPreview ? (
                 <div className="space-y-4">
                   <div className="relative">
-                    {/* <img
+                    <img
                       src={photoPreview}
                       alt="Preview"
-                      className="w-full rounded-lg shadow-md"
-                    /> */}
-                    <div className="w-full h-48 bg-gray-100 flex items-center justify-center rounded-lg text-gray-500">
-                      Image Selected (Hidden)
-                    </div>
+                      className="w-full rounded-lg shadow-md max-h-64 object-contain bg-gray-50"
+                    />
                     <button
                       type="button"
                       onClick={() => {
@@ -345,6 +344,31 @@ export default function DailyLog() {
                     >
                       ✕
                     </button>
+                  </div>
+
+                  {/* Model Type Selector */}
+                  <div className="mb-4">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Detection Model
+                    </label>
+                    <div className="flex space-x-2">
+                      {[
+                        { id: 'yolo', label: 'YOLO (Plant Count)' },
+                        { id: 'deepforest', label: 'DeepForest (Leaf Count)' }
+                      ].map((model) => (
+                        <button
+                          key={model.id}
+                          type="button"
+                          onClick={() => setModelType(model.id)}
+                          className={`flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-all border-2 ${modelType === model.id
+                              ? 'border-purple-600 bg-purple-50 text-purple-700'
+                              : 'border-gray-200 text-gray-600 hover:border-purple-300'
+                            }`}
+                        >
+                          {model.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
                   {/* Count Plants Button */}
