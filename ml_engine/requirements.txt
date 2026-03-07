@@ -5,4 +5,9 @@ tensorflow>=2.16.0
 joblib>=1.3.2
 matplotlib>=3.8.0
 seaborn>=0.13.0
+deepforest
+pytorch-lightning
+torch
+torchvision
+opencv-python-headless
 

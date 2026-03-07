@@ -80,6 +80,8 @@ backend/static/count_results/**
 # ML Engine
 ml_engine/runs/
 ml_engine/yolo_dataset/
+ml_engine/models/*.pt
+*.pt
 
 # Docker
 .dockerignore
