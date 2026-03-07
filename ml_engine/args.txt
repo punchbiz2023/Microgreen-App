@@ -1,0 +1,1 @@
+['path', 'image', 'patch_size', 'patch_overlap', 'iou_threshold', 'dataloader_strategy', 'crop_model']

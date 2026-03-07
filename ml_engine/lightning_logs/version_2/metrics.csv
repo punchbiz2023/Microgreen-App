@@ -1,0 +1,4 @@
+epoch,lr-SGD,step,train_bbox_regression_epoch,train_classification_epoch,train_loss_epoch,val_bbox_regression,val_classification,val_loss
+,0.0001,0,,,,,,
+0,,34,,,,0.4598310887813568,0.6147648692131042,1.0745959281921387
+0,,34,0.41679447889328003,0.47943511605262756,0.8962296843528748,,,

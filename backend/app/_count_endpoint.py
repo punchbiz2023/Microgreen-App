@@ -5,11 +5,12 @@
 class CountResponse(BaseModel):
     count: int
     centroids: List[tuple]
+    detections: Optional[List[dict]] = []
     annotated_image_url: Optional[str]
     image_width: int
     image_height: int
     color_type: str
-    parameters: Dict[str, int]
+    parameters: Dict[str, Any]
     
     class Config:
         from_attributes = True
@@ -23,7 +24,7 @@ async def count_plants(
     current_user: User = Depends(get_current_active_user)
 ):
     """
-    Count microgreen plants in uploaded image
+    Count microgreen plants in uploaded image using DeepForest model.
     
     Args:
         file: Image file (jpg, png)
@@ -32,7 +33,8 @@ async def count_plants(
         max_area: Maximum plant area in pixels (default: 5000)
     
     Returns:
-        Count result with annotated image URL
+        JSON with plant_count, detections [{xmin, ymin, xmax, ymax, score}],
+        and annotated image URL
     """
     # Validate file type
     if not file.content_type.startswith('image/'):
