@@ -28,6 +28,8 @@ env/
 *.pkl
 *.h5
 *.hdf5
+*.pl
+*.onnx
 data/models/*.pkl
 data/models/*.h5
 data/real_crops.csv
@@ -81,6 +83,7 @@ backend/static/count_results/**
 ml_engine/runs/
 ml_engine/yolo_dataset/
 ml_engine/models/*.pt
+runs/
 *.pt
 
 # Docker

@@ -56,6 +56,9 @@ docker-compose up -d
 
 #### 1. ML Model Training
 
+> [!IMPORTANT]
+> The pre-trained ML model weight files (`*.pt`, `*.h5`, `*.pl`) are not included in this repository due to their large size. You **must** generate the training data and train the models locally before starting the backend server.
+
 ```bash
 cd ml_engine
 
