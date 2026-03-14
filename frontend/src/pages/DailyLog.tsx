@@ -165,12 +165,12 @@ export default function DailyLog() {
           Back to Dashboard
         </button>
 
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        <div className="glass-panel rounded-3xl shadow-2xl p-8 border border-white/50">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-extrabold text-gray-900 mb-2 tracking-tight">
               {isBackLogging ? `Back-log: Day ${day}` : `Log Day ${day}`}
             </h1>
-            <p className="text-gray-600">
+            <p className="text-gray-600 font-medium">
               {crop.seed.name} - {parseInt(day!) <= blackoutDays ? 'Blackout Phase' : 'Light Phase'}
             </p>
           </div>
@@ -204,9 +204,9 @@ export default function DailyLog() {
                 <button
                   type="button"
                   onClick={() => setWatered(true)}
-                  className={`flex-1 p-4 rounded-lg border-2 font-semibold transition-all ${watered
-                    ? 'border-green-500 bg-green-50 text-green-900 shadow-sm'
-                    : 'border-gray-300 text-gray-700 hover:border-green-300'
+                  className={`flex-1 p-4 rounded-xl border-2 font-semibold transition-all ${watered
+                    ? 'border-emerald-400 bg-gradient-to-br from-emerald-50 to-teal-100 text-emerald-900 shadow-md transform -translate-y-1'
+                    : 'border-white/60 bg-white/40 text-gray-600 hover:bg-white/60 hover:border-emerald-300 backdrop-blur-sm'
                     }`}
                 >
                   ✓ Yes, I watered
@@ -214,9 +214,9 @@ export default function DailyLog() {
                 <button
                   type="button"
                   onClick={() => setWatered(false)}
-                  className={`flex-1 p-4 rounded-lg border-2 font-semibold transition-all ${!watered
-                    ? 'border-red-600 bg-red-50 text-red-900'
-                    : 'border-gray-300 text-gray-700 hover:border-red-400'
+                  className={`flex-1 p-4 rounded-xl border-2 font-semibold transition-all ${!watered
+                    ? 'border-red-400 bg-gradient-to-br from-red-50 to-orange-50 text-red-900 shadow-md transform -translate-y-1'
+                    : 'border-white/60 bg-white/40 text-gray-600 hover:bg-white/60 hover:border-red-300 backdrop-blur-sm'
                     }`}
                 >
                   ✗ No, I didn't
@@ -377,9 +377,9 @@ export default function DailyLog() {
                     type="button"
                     onClick={handleCountPlants}
                     disabled={counting}
-                    className={`w-full flex items-center justify-center space-x-2 px-4 py-3 rounded-lg font-semibold transition-all ${counting
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-purple-600 hover:bg-purple-700 text-white shadow-md hover:shadow-lg'
+                    className={`w-full flex items-center justify-center space-x-2 px-4 py-3 rounded-xl font-bold transition-all ${counting
+                      ? 'bg-gray-400 cursor-not-allowed text-white'
+                      : 'bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-white shadow-lg shadow-purple-500/30 hover:-translate-y-0.5 border border-purple-400/50'
                       }`}
                   >
                     <span>{counting ? 'Counting Plants...' : 'Count Plants in Photo'}</span>
@@ -450,8 +450,8 @@ export default function DailyLog() {
               type="submit"
               disabled={submitting}
               className={`w-full flex items-center justify-center space-x-3 px-8 py-4 font-bold text-lg rounded-xl shadow-lg transition-all ${submitting
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-green-500 hover:bg-green-600 text-white hover:shadow-xl transform hover:scale-105 shadow-green-100'
+                ? 'bg-gray-400 cursor-not-allowed text-white'
+                : 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white shadow-emerald-500/30 hover:-translate-y-1 border border-emerald-400/50'
                 }`}
             >
               <Save className="w-6 h-6" />

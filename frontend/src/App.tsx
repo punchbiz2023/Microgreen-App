@@ -37,24 +37,26 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="min-h-screen bg-gray-50 pb-12">
-          <Header />
-          <Routes>
-            <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/atlas" element={<ProtectedRoute><Atlas /></ProtectedRoute>} />
-            <Route path="/atlas/:id" element={<ProtectedRoute><SeedDetail /></ProtectedRoute>} />
-            <Route path="/my-plants" element={<ProtectedRoute><MyPlants /></ProtectedRoute>} />
-            <Route path="/dashboard/:cropId" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/guide/:cropId" element={<ProtectedRoute><DailyGuide /></ProtectedRoute>} />
-            <Route path="/log/:cropId/:day" element={<ProtectedRoute><DailyLog /></ProtectedRoute>} />
-            <Route path="/harvest/:cropId" element={<ProtectedRoute><Harvest /></ProtectedRoute>} />
-            <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
-            <Route path="/count-plants" element={<ProtectedRoute><PlantCounter /></ProtectedRoute>} />
-            <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-            <Route path="/admin/login" element={<AdminLogin />} />
-          </Routes>
+        <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-100 pb-12 transition-colors duration-500">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+            <Header />
+            <Routes>
+              <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/atlas" element={<ProtectedRoute><Atlas /></ProtectedRoute>} />
+              <Route path="/atlas/:id" element={<ProtectedRoute><SeedDetail /></ProtectedRoute>} />
+              <Route path="/my-plants" element={<ProtectedRoute><MyPlants /></ProtectedRoute>} />
+              <Route path="/dashboard/:cropId" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/guide/:cropId" element={<ProtectedRoute><DailyGuide /></ProtectedRoute>} />
+              <Route path="/log/:cropId/:day" element={<ProtectedRoute><DailyLog /></ProtectedRoute>} />
+              <Route path="/harvest/:cropId" element={<ProtectedRoute><Harvest /></ProtectedRoute>} />
+              <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+              <Route path="/count-plants" element={<ProtectedRoute><PlantCounter /></ProtectedRoute>} />
+              <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+              <Route path="/admin/login" element={<AdminLogin />} />
+            </Routes>
+          </div>
           <AIChatBot />
         </div>
       </Router>

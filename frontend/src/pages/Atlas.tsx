@@ -60,7 +60,7 @@ export default function Atlas() {
         {seeds.map((seed) => (
           <div
             key={seed.id}
-            className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer border border-gray-100 flex flex-col"
+            className="group glass-panel rounded-2xl shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 overflow-hidden cursor-pointer flex flex-col border border-emerald-100/50"
             onClick={() => navigate(`/atlas/${seed.id}`)}
           >
             {/* Image Section */}
@@ -69,9 +69,9 @@ export default function Atlas() {
 
               {/* Badges Stack */}
               <div className="absolute top-4 right-4 flex flex-col items-end gap-2">
-                <span className={`px-3 py-1.5 text-xs font-bold rounded-full backdrop-blur-md shadow-sm ${seed.difficulty === 'Easy'
-                  ? 'bg-green-400 text-white'
-                  : 'bg-yellow-500/90 text-white'
+                <span className={`px-3 py-1.5 text-xs font-bold rounded-full backdrop-blur-md shadow-sm border border-white/20 ${seed.difficulty === 'Easy'
+                  ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white'
+                  : 'bg-gradient-to-r from-yellow-400 to-amber-500 text-white'
                   }`}>
                   {seed.difficulty}
                 </span>
@@ -119,7 +119,7 @@ export default function Atlas() {
               </div>
 
               <button
-                className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center mt-auto shadow-md hover:shadow-lg shadow-green-100"
+                className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center mt-auto shadow-lg shadow-emerald-500/30 border border-emerald-400/50 hover:-translate-y-0.5"
                 onClick={(e) => {
                   e.stopPropagation();
                   setSelectedSeed(seed);

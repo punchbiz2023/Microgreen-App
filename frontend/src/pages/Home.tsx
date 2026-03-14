@@ -138,7 +138,7 @@ export default function Home() {
     const timelineActions = getTimelineActions();
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col font-poppins pb-20">
+        <div className="flex flex-col font-poppins pb-20 bg-transparent">
             <main className="flex-1 p-6 lg:p-10">
                 <div className="max-w-3xl mx-auto">
                     {/* Header: Professional & Integrated */}
@@ -156,7 +156,7 @@ export default function Home() {
                             <p className="text-sm font-medium text-gray-500 mb-3">{format(new Date(), 'EEEE, MMMM do', { locale: currentLocale })}</p>
                             <button
                                 onClick={() => navigate('/atlas')}
-                                className="bg-green-500 hover:bg-green-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md transition-all hover:shadow-lg flex items-center group"
+                                className="bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-500 hover:to-teal-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-emerald-500/30 transition-all hover:-translate-y-0.5 flex items-center group border border-emerald-300/50"
                             >
                                 <Plus size={14} className="mr-2 group-hover:rotate-90 transition-transform" />
                                 {t('common.new_crop')}
@@ -175,7 +175,7 @@ export default function Home() {
                                     return (
                                         <div
                                             key={action.id}
-                                            className={`group relative bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all border-l-4 ${action.day_number < getCropStatus(action.crop).currentDay ? 'border-l-red-500' : 'border-l-green-400'}`}
+                                            className={`group relative glass-panel rounded-2xl p-5 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-l-4 ${action.day_number < getCropStatus(action.crop).currentDay ? 'border-l-red-500' : 'border-l-emerald-400'}`}
                                         >
                                             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                                                 <div className="flex items-center space-x-5">
@@ -203,9 +203,9 @@ export default function Home() {
 
                                                 <button
                                                     onClick={() => navigate(`/daily-log/${action.crop.id}/${action.day_number}`)}
-                                                    className={`w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold text-xs shadow-sm transition-all flex items-center justify-center border ${action.day_number < getCropStatus(action.crop).currentDay
-                                                        ? 'bg-gray-900 text-white border-gray-900 hover:bg-black'
-                                                        : 'bg-white border-gray-200 text-gray-600 hover:border-green-400 hover:text-green-500'
+                                                    className={`w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold text-xs shadow-sm shadow-emerald-500/10 transition-all flex items-center justify-center border ${action.day_number < getCropStatus(action.crop).currentDay
+                                                        ? 'bg-gradient-to-r from-gray-900 to-gray-800 text-white border-gray-700 hover:from-black hover:to-gray-900 shadow-gray-900/20'
+                                                        : 'bg-white/50 backdrop-blur-sm border-gray-200 text-gray-700 hover:border-emerald-400 hover:text-emerald-600 hover:bg-white/80'
                                                         }`}
                                                 >
                                                     {t('common.complete_action')}
@@ -216,8 +216,8 @@ export default function Home() {
                                     );
                                 })
                             ) : (
-                                <div className="bg-white border-2 border-dashed border-gray-100 rounded-3xl p-16 text-center">
-                                    <div className="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center mx-auto mb-6 transform rotate-3">
+                                <div className="glass-panel border-2 border-dashed border-emerald-200/60 rounded-3xl p-16 text-center hover:bg-white/40 transition-colors">
+                                    <div className="w-16 h-16 bg-gradient-to-br from-emerald-50 to-teal-100 rounded-2xl flex items-center justify-center mx-auto mb-6 transform rotate-3 shadow-inner">
                                         <CheckCircle size={28} className="text-green-500" />
                                     </div>
                                     <h4 className="text-xl font-bold text-gray-900 mb-2">{t('home.max_efficiency')}</h4>
@@ -253,10 +253,10 @@ export default function Home() {
                                         <div
                                             key={crop.id}
                                             onClick={() => navigate(`/dashboard/${crop.id}`)}
-                                            className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer group"
+                                            className="glass-panel rounded-2xl p-4 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
                                         >
                                             <div className="flex items-center space-x-4">
-                                                <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                                                <div className="w-12 h-12 bg-gradient-to-br from-emerald-50 to-teal-100 shadow-inner rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 group-hover:rotate-3 transition-transform">
                                                     🪴
                                                 </div>
                                                 <div className="flex-1 min-w-0">
@@ -287,8 +287,8 @@ export default function Home() {
                                 })}
                             </div>
                         ) : (
-                            <div className="bg-white border border-gray-100 rounded-3xl p-10 text-center">
-                                <p className="text-sm text-gray-400 font-medium">{t('home.no_active_crops')}</p>
+                            <div className="glass-panel rounded-3xl p-10 text-center">
+                                <p className="text-sm text-gray-500 font-medium">{t('home.no_active_crops')}</p>
                             </div>
                         )}
                     </div>
@@ -297,10 +297,10 @@ export default function Home() {
                     <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div
                             onClick={() => navigate('/my-plants')}
-                            className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md cursor-pointer transition-all flex items-center justify-between group"
+                            className="glass-panel p-5 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 cursor-pointer transition-all duration-300 flex items-center justify-between group"
                         >
                             <div className="flex items-center space-x-4">
-                                <div className="w-10 h-10 bg-emerald-50 text-emerald-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <div className="w-10 h-10 bg-gradient-to-br from-emerald-50 to-teal-100 shadow-inner text-emerald-600 rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-[-5deg] transition-transform">
                                     <CalendarDays size={18} />
                                 </div>
                                 <div className="min-w-0">

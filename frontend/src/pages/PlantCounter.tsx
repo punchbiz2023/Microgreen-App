@@ -87,8 +87,6 @@ export default function PlantCounter() {
 
     return (
         <div style={{
-            minHeight: '100vh',
-            background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
             padding: '40px 20px',
         }}>
             <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
@@ -109,12 +107,12 @@ export default function PlantCounter() {
                 </div>
 
                 {/* Main Card */}
-                <div style={{
-                    backgroundColor: 'white',
-                    borderRadius: '16px',
-                    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
-                    padding: '40px',
-                }}>
+                <div
+                    className="glass-panel"
+                    style={{
+                        borderRadius: '24px',
+                        padding: '40px',
+                    }}>
                     {/* Color Type Selector */}
                     <div style={{ marginBottom: '30px' }}>
                         <label style={{

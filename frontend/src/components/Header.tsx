@@ -25,8 +25,8 @@ export default function Header() {
     ];
 
     return (
-        <header className="bg-white shadow-sm sticky top-0 z-50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <header className="glass-header rounded-2xl shadow-lg sticky top-4 z-50 mb-8 border border-white/50 bg-white/70 backdrop-blur-xl">
+            <div className="w-full mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between h-16">
                     {/* Logo / Brand */}
                     <div className="flex">
