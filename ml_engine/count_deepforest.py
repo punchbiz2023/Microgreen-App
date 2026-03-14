@@ -34,7 +34,7 @@ from config_deepforest import (
     IOU_THRESHOLD,
     BOX_COLOR,
     BOX_THICKNESS,
-    FONT_SCALE,
+    CENTER_COLOR,
 )
 
 
@@ -72,14 +72,23 @@ class MicrogreenDeepForestCounter:
         # Initialize model architecture (v2.x auto-loads pretrained weights)
         self.model = deepforest()
         
+        # Determine optimal device
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        
         # Load fine-tuned weights
         state_dict = torch.load(
-            str(self.model_path), map_location="cpu", weights_only=True
+            str(self.model_path), map_location=device, weights_only=True
         )
         self.model.model.load_state_dict(state_dict)
+        
+        if device == "cuda":
+            self.model.to(device)
+            # PyTorch Lightning uses these internally in deepforest
+            self.model.config["gpus"] = 1
+        
         self.model.model.eval()
         
-        print(f"✅ DeepForest model loaded from: {self.model_path}")
+        print(f"✅ DeepForest model loaded on {device.upper()} from: {self.model_path}")
     
     def process_image_bytes(
         self,
@@ -235,37 +244,19 @@ class MicrogreenDeepForestCounter:
     def _draw_annotations(
         self, image: np.ndarray, predictions: pd.DataFrame
     ) -> np.ndarray:
-        """Draw bounding boxes and count on the image."""
+        """Draw bounding boxes without large overlay labels."""
         annotated = image.copy()
         
         for _, row in predictions.iterrows():
             xmin, ymin = int(row["xmin"]), int(row["ymin"])
             xmax, ymax = int(row["xmax"]), int(row["ymax"])
-            score = row["score"]
             
             # Draw box
             cv2.rectangle(annotated, (xmin, ymin), (xmax, ymax), BOX_COLOR, BOX_THICKNESS)
             
-            # Draw score label
-            label = f"{score:.2f}"
-            (tw, th), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, FONT_SCALE, 1)
-            cv2.rectangle(
-                annotated,
-                (xmin, ymin - th - 6),
-                (xmin + tw + 4, ymin),
-                BOX_COLOR, -1,
-            )
-            cv2.putText(
-                annotated, label, (xmin + 2, ymin - 4),
-                cv2.FONT_HERSHEY_SIMPLEX, FONT_SCALE, (0, 0, 0), 1,
-            )
-        
-        # Plant count overlay
-        count_text = f"Plants: {len(predictions)}"
-        cv2.putText(
-            annotated, count_text, (10, 30),
-            cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2,
-        )
+            # Draw center point - SMALL dot (1px radius)
+            cx, cy = (xmin + xmax) // 2, (ymin + ymax) // 2
+            cv2.circle(annotated, (cx, cy), 1, CENTER_COLOR, -1)
         
         return annotated
     

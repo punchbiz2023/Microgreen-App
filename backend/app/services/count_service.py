@@ -13,11 +13,11 @@ import uuid
 ml_engine_path = Path(__file__).parent.parent.parent / 'ml_engine'
 sys.path.insert(0, str(ml_engine_path))
 
-# Use DeepForest model for plant detection
-from count_deepforest import MicrogreenDeepForestCounter
-
 # Use YOLO model for plant detection
 from count_yolo import MicrogreenYOLOCounter
+
+# Use Sprout model for plant detection
+from count_sprout import MicrogreenSproutCounter
 
 
 class CountService:
@@ -30,15 +30,6 @@ class CountService:
         self.upload_dir = Path(upload_dir)
         self.upload_dir.mkdir(parents=True, exist_ok=True)
         
-        # Initialize DeepForest counter
-        print("🔍 Attempting to load DeepForest model...")
-        self.df_counter = None
-        try:
-            self.df_counter = MicrogreenDeepForestCounter()
-            print("✅ Successfully loaded DeepForest model for counting")
-        except Exception as e:
-            print(f"❌ Failed to load DeepForest model: {e}")
-            
         # Initialize YOLO counter
         print("🔍 Attempting to load YOLO model...")
         self.yolo_counter = None
@@ -48,7 +39,16 @@ class CountService:
         except Exception as e:
             print(f"❌ Failed to load YOLO model: {e}")
             
-        if not self.df_counter and not self.yolo_counter:
+        # Initialize Sprout counter
+        print("🔍 Attempting to load Sprout model...")
+        self.sprout_counter = None
+        try:
+            self.sprout_counter = MicrogreenSproutCounter()
+            print("✅ Successfully loaded Sprout model for counting")
+        except Exception as e:
+            print(f"❌ Failed to load Sprout model: {e}")
+            
+        if not self.yolo_counter and not self.sprout_counter:
             raise RuntimeError("Failed to load any plant counting models.")
     
     def count_from_bytes(self, image_bytes: bytes, 
@@ -83,15 +83,22 @@ class CountService:
                     image_bytes=image_bytes,
                     conf_threshold=conf_threshold,
                 )
-            else:
-                if not self.df_counter:
-                    raise RuntimeError("DeepForest model is not available")
-                print(f"🌱 Processing image with DeepForest (conf={conf_threshold})")
-                self.method = "DeepForest"
-                result = self.df_counter.process_image_bytes(
+            elif model_type == 'sprout':
+                if not self.sprout_counter:
+                    raise RuntimeError("Sprout model is not available")
+                print(f"🌱 Processing image with Sprout model (conf={conf_threshold})")
+                self.method = "Sprout"
+                # If we want to override conf_threshold for sprout to default 0.55 unless explicitly specified differently:
+                sprout_conf = conf_threshold if conf_threshold != 0.3 else 0.55
+                result = self.sprout_counter.process_image_bytes(
                     image_bytes=image_bytes,
-                    conf_threshold=conf_threshold,
+                    conf_threshold=sprout_conf,
+                    patch_size=500,
+                    patch_overlap=0.1,
+                    iou_threshold=0.2
                 )
+            else:
+                raise ValueError(f"Unknown model type: {model_type}")
             
             # Save annotated image if requested
             annotated_path = None

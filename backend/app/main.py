@@ -945,7 +945,7 @@ class CountResponse(BaseModel):
 @app.post("/api/count-plants", response_model=CountResponse)
 async def count_plants(
     file: UploadFile = File(...),
-    model_type: str = 'deepforest',
+    model_type: str = 'sprout',
     color_type: str = 'green',
     min_area: int = 50,
     max_area: int = 5000,

@@ -62,7 +62,7 @@ PATCH_SIZE = 400
 PATCH_OVERLAP = 0.3
 
 # Confidence threshold: lower catches more plants but increases false positives
-SCORE_THRESHOLD = 0.3
+SCORE_THRESHOLD = 0.15
 
 # IoU threshold for Non-Maximum Suppression
 # Lower = more aggressive duplicate removal
@@ -73,10 +73,9 @@ IOU_THRESHOLD = 0.3
 # =============================================================================
 
 # Bounding box drawing settings
-BOX_COLOR = (0, 255, 0)  # Green boxes (BGR)
-BOX_THICKNESS = 2
-FONT_SCALE = 0.5
-FONT_COLOR = (0, 255, 0)  # Green text (BGR)
+BOX_COLOR = (0, 255, 255)  # Yellow boxes (BGR)
+BOX_THICKNESS = 1
+CENTER_COLOR = (0, 0, 255) # Red center dot
 
 # =============================================================================
 # DEVICE CONFIGURATION

@@ -22,7 +22,7 @@ export default function DailyLog() {
   const [counting, setCounting] = useState(false);
   const [countError, setCountError] = useState<string | null>(null);
   const [annotatedImageUrl, setAnnotatedImageUrl] = useState<string | null>(null);
-  const [modelType, setModelType] = useState<string>('yolo');
+  const [modelType, setModelType] = useState<string>('sprout');
 
   useEffect(() => {
     if (cropId) {
@@ -354,15 +354,16 @@ export default function DailyLog() {
                     <div className="flex space-x-2">
                       {[
                         { id: 'yolo', label: 'YOLO (Plant Count)' },
-                        { id: 'deepforest', label: 'DeepForest (Leaf Count)' }
+                        { id: 'deepforest', label: 'DeepForest (Leaf Count)' },
+                        { id: 'sprout', label: 'Sprout Detection' }
                       ].map((model) => (
                         <button
                           key={model.id}
                           type="button"
                           onClick={() => setModelType(model.id)}
                           className={`flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-all border-2 ${modelType === model.id
-                              ? 'border-purple-600 bg-purple-50 text-purple-700'
-                              : 'border-gray-200 text-gray-600 hover:border-purple-300'
+                            ? 'border-purple-600 bg-purple-50 text-purple-700'
+                            : 'border-gray-200 text-gray-600 hover:border-purple-300'
                             }`}
                         >
                           {model.label}

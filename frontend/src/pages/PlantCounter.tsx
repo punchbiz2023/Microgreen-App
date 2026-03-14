@@ -24,7 +24,7 @@ export default function PlantCounter() {
     const [result, setResult] = useState<CountResult | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [colorType, setColorType] = useState<string>('green');
-    const [modelType, setModelType] = useState<string>('yolo');
+    const [modelType, setModelType] = useState<string>('sprout');
 
     const navigate = useNavigate();
 
@@ -164,8 +164,8 @@ export default function PlantCounter() {
                         </label>
                         <div style={{ display: 'flex', gap: '12px' }}>
                             {[
-                                { id: 'yolo', label: 'YOLO (Plant Count)' },
-                                { id: 'deepforest', label: 'DeepForest (Leaf Count)' }
+                                { id: 'sprout', label: 'Plant Count (Sprout)' },
+                                { id: 'yolo', label: 'Leaf Count (YOLO)' }
                             ].map((model) => (
                                 <button
                                     key={model.id}
