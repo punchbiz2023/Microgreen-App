@@ -95,11 +95,11 @@ export default function DailyGuide() {
     }
 
     return (
-        <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 bg-gray-50">
+        <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 bg-transparent">
             <div className="max-w-4xl mx-auto">
                 <button
                     onClick={() => navigate(`/dashboard/${cropId}`)}
-                    className="flex items-center text-gray-600 hover:text-gray-900 transition-colors mb-8 group"
+                    className="flex items-center text-gray-500 dark:text-gray-400 hover:text-emerald-500 dark:hover:text-white transition-colors mb-8 group font-bold tracking-widest uppercase text-sm"
                 >
                     <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
                     {t('daily_guide.back_to_dashboard')}
@@ -107,24 +107,24 @@ export default function DailyGuide() {
 
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
                     <div>
-                        <span className="text-xs font-bold text-green-600 uppercase tracking-widest mb-1 block">{t('daily_guide.step_by_step')}</span>
-                        <h1 className="text-4xl font-black text-gray-900 leading-tight">
+                        <span className="text-xs font-bold text-emerald-500 uppercase tracking-widest mb-1 block">{t('daily_guide.step_by_step')}</span>
+                        <h1 className="text-4xl font-black text-gray-900 dark:text-white leading-tight">
                             {t('daily_guide.lifecycle', { name: t(`seeds.${crop.seed.seed_type}.name`, { defaultValue: crop.seed.name }) })}
                         </h1>
                     </div>
-                    <div className="bg-white px-6 py-3 rounded-2xl border border-gray-100 shadow-sm">
+                    <div className="bg-white dark:bg-[#1A1D27] px-6 py-3 rounded-2xl border border-gray-100 dark:border-white/5 shadow-lg">
                         <span className="text-[10px] font-bold text-gray-400 uppercase block mb-1">{t('daily_guide.current_progress')}</span>
                         <div className="flex items-center gap-3">
-                            <span className="text-2xl font-black text-gray-900">{t('common.day')} {currentDay}</span>
-                            <span className="text-gray-300">/</span>
-                            <span className="text-xl font-bold text-gray-500">{totalDays}</span>
+                            <span className="text-2xl font-black text-gray-900 dark:text-white">{t('common.day')} {currentDay}</span>
+                            <span className="text-gray-300 dark:text-gray-500">/</span>
+                            <span className="text-xl font-bold text-gray-400 dark:text-gray-500">{totalDays}</span>
                         </div>
                     </div>
                 </div>
 
                 <div className="space-y-8 relative">
                     {/* Vertical Line */}
-                    <div className="absolute left-8 md:left-10 top-10 bottom-10 w-1 bg-gray-200 rounded-full hidden sm:block"></div>
+                    <div className="absolute left-8 md:left-10 top-10 bottom-10 w-1 bg-gray-100 dark:bg-white/5 rounded-full hidden sm:block"></div>
 
                     {schedule.map((day) => {
                         const isToday = day.day === currentDay;
@@ -138,9 +138,9 @@ export default function DailyGuide() {
                                 id={`day-${day.day}`}
                             >
                                 {/* Marker */}
-                                <div className={`z-10 w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-3xl flex items-center justify-center border-4 transition-all duration-500 shadow-lg ${isToday ? 'bg-green-500 border-green-100 scale-110 rotate-3' :
-                                    isPast ? 'bg-white border-green-400 text-green-500' :
-                                        'bg-white border-gray-100 text-gray-300'
+                                <div className={`z-10 w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-3xl flex items-center justify-center border-2 transition-all duration-500 shadow-lg ${isToday ? 'bg-emerald-500 border-emerald-400 scale-110 rotate-3 text-white' :
+                                    isPast ? 'bg-white dark:bg-[#1A1D27] border-emerald-500/50 text-emerald-600 dark:text-emerald-400' :
+                                        'bg-white dark:bg-[#1A1D27] border-gray-100 dark:border-white/5 text-gray-400 dark:text-gray-500'
                                     }`}>
                                     <div className={`flex flex-col items-center leading-none ${isToday ? 'text-white' : ''}`}>
                                         <span className="text-[10px] font-black uppercase tracking-tighter mb-1 opacity-70">{t('common.day')}</span>
@@ -149,14 +149,14 @@ export default function DailyGuide() {
                                 </div>
 
                                 {/* Content Card */}
-                                <div className={`flex-1 bg-white rounded-[2rem] p-6 md:p-8 border shadow-sm transition-all duration-500 ${isToday ? 'border-green-500 shadow-xl shadow-green-100 ring-4 ring-green-50' :
-                                    'border-gray-100'
+                                <div className={`flex-1 bg-white dark:bg-[#1A1D27] rounded-[2rem] p-6 md:p-8 border shadow-lg transition-all duration-500 ${isToday ? 'border-emerald-500/50 shadow-emerald-500/10 ring-2 ring-emerald-500/10' :
+                                    'border-gray-100 dark:border-white/5'
                                     }`}>
                                     <div className="flex items-center gap-3 mb-4">
-                                        <div className="p-2 bg-gray-50 rounded-lg">
+                                        <div className="p-2 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 rounded-lg">
                                             {day.icon}
                                         </div>
-                                        <h3 className="text-xl font-extrabold text-gray-900">{day.title}</h3>
+                                        <h3 className="text-xl font-extrabold text-gray-900 dark:text-white">{day.title}</h3>
                                         {isToday && (
                                             <span className="ml-auto bg-green-500 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">
                                                 {t('daily_guide.active_now')}
@@ -164,20 +164,20 @@ export default function DailyGuide() {
                                         )}
                                     </div>
 
-                                    <p className="text-gray-600 text-sm mb-6 leading-relaxed">
+                                    <p className="text-gray-400 text-sm mb-6 leading-relaxed">
                                         {day.description}
                                     </p>
 
                                     <div className="space-y-3">
-                                        <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('daily_guide.checklist')}</h4>
+                                        <h4 className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{t('daily_guide.checklist')}</h4>
                                         {day.tasks.map((task, idx) => (
-                                            <div key={idx} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors group">
+                                            <div key={idx} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-white/5 rounded-xl hover:bg-gray-100 dark:hover:bg-white/10 transition-colors group border border-gray-100 dark:border-white/5">
                                                 {isPast ? (
-                                                    <CheckCircle2 size={18} className="text-green-500 shrink-0" />
+                                                    <CheckCircle2 size={18} className="text-emerald-500 shrink-0" />
                                                 ) : (
-                                                    <Circle size={18} className="text-gray-300 shrink-0 group-hover:text-green-400" />
+                                                    <Circle size={18} className="text-gray-500 shrink-0 group-hover:text-emerald-400" />
                                                 )}
-                                                <span className={`text-sm ${isPast ? 'text-gray-400 line-through' : 'font-medium text-gray-700'}`}>
+                                                <span className={`text-sm ${isPast ? 'text-gray-400 dark:text-gray-500 line-through' : 'font-medium text-gray-700 dark:text-gray-300'}`}>
                                                     {task}
                                                 </span>
                                             </div>
@@ -185,9 +185,9 @@ export default function DailyGuide() {
                                     </div>
 
                                     {day.day === 0 && (crop.seed.soaking_duration_hours || 0) > 0 && (
-                                        <div className="mt-6 p-4 bg-blue-50 rounded-2xl flex items-center gap-4">
-                                            <Zap size={20} className="text-blue-500" />
-                                            <p className="text-xs font-bold text-blue-700">
+                                        <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl flex items-center gap-4">
+                                            <Zap size={20} className="text-blue-400" />
+                                            <p className="text-xs font-bold text-blue-300 uppercase tracking-widest leading-relaxed">
                                                 {t('daily_guide.pro_tip')}: {t('daily_guide.soak_tip', { name: t(`seeds.${crop.seed.seed_type}.name`, { defaultValue: crop.seed.name }) })}
                                             </p>
                                         </div>

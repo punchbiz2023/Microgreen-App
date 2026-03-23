@@ -7,7 +7,7 @@ import StatusCard from '../components/StatusCard';
 import HistoryDetails from '../components/HistoryDetails';
 import GrowthSchedule from '../components/GrowthSchedule';
 import CultivationCards from '../components/CultivationCards';
-import { ArrowLeft, Plus, Sprout, Zap, BarChart3 } from 'lucide-react';
+import { ArrowLeft, Plus, Sprout, Zap } from 'lucide-react';
 import { differenceInDays, format } from 'date-fns';
 import { ta as taLocale, enUS as enLocale } from 'date-fns/locale';
 
@@ -22,7 +22,6 @@ export default function Dashboard() {
   const [prediction, setPrediction] = useState<Prediction | null>(null);
   const [selectedLog, setSelectedLog] = useState<DailyLog | null>(null);
   const [loading, setLoading] = useState(true);
-  const [relatedCrops, setRelatedCrops] = useState<Crop[]>([]);
 
   useEffect(() => {
     if (cropId) {
@@ -108,22 +107,14 @@ export default function Dashboard() {
       console.error('Failed to load data:', error);
       alert(t('dashboard.load_error'));
     } finally {
-      // Find related active crops of same variety for batch actions
-      try {
-        const allResponse = await cropsApi.getAll('active');
-        const sameVariety = allResponse.data.filter(c => c.seed_id === crop?.seed_id && c.id !== crop?.id);
-        setRelatedCrops(sameVariety);
-      } catch (err) {
-        console.warn("Could not fetch related crops", err);
-      }
       setLoading(false);
     }
   };
 
   if (loading || !crop) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-500"></div>
+      <div className={`min-h-screen bg-gray-50 dark:bg-[#0E1015] flex items-center justify-center transition-colors duration-300`}>
+        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-emerald-500"></div>
       </div>
     );
   }
@@ -148,17 +139,7 @@ export default function Dashboard() {
   const completedDays = allDaysSoFar.filter(day => loggedDays.includes(day));
   const missedDays = allDaysSoFar.filter(day => !loggedDays.includes(day) && day < currentDay);
 
-  // Pro Metrics
-  const ppfdValue = crop.ppfd_level || 0;
-  const hoursValue = crop.light_hours_per_day || 16;
-  const dliValue = (ppfdValue * hoursValue * 3600) / 1000000;
 
-  // Basic ROI: (Yield * $0.05) - (Costs)
-  // Logic: Seed + Soil + (kWh * Hours * Days * 0.1W)
-  const estimatedCosts = (crop.seed_cost || 0) + (crop.soil_cost || 0) +
-    ((crop.energy_cost_per_kwh || 0.12) * hoursValue * growthDays * 0.1);
-  const estimatedRevenue = (crop.harvest?.actual_weight || 0) * 0.05;
-  const roiValue = estimatedRevenue - estimatedCosts;
 
   // Determine phase
   const getPhase = () => {
@@ -176,7 +157,7 @@ export default function Dashboard() {
     if (log) {
       setSelectedLog(log);
     } else if (day < currentDay) {
-      navigate(`/log/${cropId}/${day}`);
+      navigate(`/daily-log/${cropId}/${day}`);
     }
   };
 
@@ -185,39 +166,7 @@ export default function Dashboard() {
       alert(t('dashboard.day_logged', { day: currentDay }));
       return;
     }
-    navigate(`/log/${cropId}/${currentDay}`);
-  };
-
-  const handleBatchSync = async () => {
-    if (confirm(t('dashboard.batch_sync_confirm', { count: relatedCrops.length }))) {
-      setLoading(true);
-      try {
-        await Promise.all(relatedCrops.map(rc =>
-          logsApi.create(rc.id, {
-            day_number: currentDay,
-            watered: true,
-            notes: t('dashboard.batch_sync_notes', { name: t(`seeds.${crop.seed.seed_type}.name`, { defaultValue: crop.seed.name }), id: crop.id })
-          })
-        ));
-
-        // Log for current if not already logged
-        if (!loggedDays.includes(currentDay)) {
-          await logsApi.create(parseInt(cropId!), {
-            day_number: currentDay,
-            watered: true,
-            notes: t('dashboard.batch_sync_initiated')
-          });
-        }
-
-        await loadData();
-        alert(t('dashboard.batch_sync_success'));
-      } catch (err) {
-        console.error("Batch sync failed", err);
-        alert(t('dashboard.batch_sync_error'));
-      } finally {
-        setLoading(false);
-      }
-    }
+    navigate(`/daily-log/${cropId}/${currentDay}`);
   };
 
   const handleHarvest = () => {
@@ -240,32 +189,30 @@ export default function Dashboard() {
     <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row items-center justify-between mb-12 gap-6">
           <button
             onClick={() => navigate('/atlas')}
-            className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+            className="flex items-center text-xs font-black uppercase tracking-widest text-gray-500 hover:text-emerald-500 transition-colors group"
           >
-            <ArrowLeft className="w-5 h-5 mr-2" />
+            <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
             {t('dashboard.back_to_atlas')}
           </button>
 
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tighter uppercase">
               {t('dashboard.crop_title', { name: t(`seeds.${crop.seed.seed_type}.name`, { defaultValue: crop.seed.name }) })}
             </h1>
-            <p className="text-gray-600 mt-1">
+            <p className="text-xs font-bold text-emerald-600 dark:text-emerald-500/60 uppercase tracking-[0.3em] mt-2">
               {t('dashboard.started_on')} {format(new Date(crop.start_datetime), 'PPP', { locale: currentLocale })}
             </p>
           </div>
 
-          <div className="w-24 text-right">
-            <button
-              onClick={handleDelete}
-              className="text-red-500 hover:text-red-700 text-sm font-semibold hover:underline"
-            >
-              {t('common.delete')}
-            </button>
-          </div>
+          <button
+            onClick={handleDelete}
+            className="px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-red-500/50 hover:text-red-500 hover:bg-red-500/5 rounded-lg transition-all"
+          >
+            {t('common.delete')}
+          </button>
         </div>
 
         {/* Main Content Grid */}
@@ -337,42 +284,7 @@ export default function Dashboard() {
               )}
             </div>
 
-            {/* BATCHED ACTIONS (Pro Feature) */}
-            {relatedCrops.length > 0 && (
-              <div className="mt-12 bg-purple-50 rounded-[2.5rem] p-8 border border-purple-100 shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center space-x-3">
-                    <div className="bg-purple-600 p-2.5 rounded-2xl text-white shadow-lg shadow-purple-200">
-                      <Zap size={20} />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-black text-purple-900 leading-none">{t('dashboard.batch_control')}</h3>
-                      <p className="text-xs text-purple-600 font-bold uppercase tracking-wider mt-1">{t('dashboard.batch_found', { count: relatedCrops.length })}</p>
-                    </div>
-                  </div>
-                </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <button
-                    onClick={handleBatchSync}
-                    className="flex items-center justify-center space-x-3 p-4 bg-white border-2 border-purple-200 rounded-2xl hover:border-purple-600 transition-all group"
-                  >
-                    <div className="bg-purple-100 p-2 rounded-xl group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                      <Plus size={16} />
-                    </div>
-                    <span className="font-bold text-purple-900 italic">{t('dashboard.sync_logs')}</span>
-                  </button>
-
-                  <button
-                    onClick={() => navigate('/analytics')}
-                    className="flex items-center justify-center space-x-3 p-4 bg-purple-600 text-white rounded-2xl hover:bg-purple-700 transition-all shadow-md"
-                  >
-                    <BarChart3 size={18} />
-                    <span className="font-bold tracking-tight">{t('dashboard.compare_batch')}</span>
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Right Column - Status & Schedule */}
@@ -382,12 +294,9 @@ export default function Dashboard() {
               totalDays={growthDays}
               phase={getPhase()}
               prediction={prediction}
-              dli={dliValue}
-              roi={roiValue}
-              isPro={ppfdValue > 0 || crop.seed_cost > 0}
             />
 
-            <div className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm">
+            <div className="bg-white dark:bg-[#1A1D27] rounded-[2.5rem] p-8 border border-gray-100 dark:border-white/5 shadow-sm">
               <GrowthSchedule
                 seed={crop.seed}
                 currentDay={currentDay}

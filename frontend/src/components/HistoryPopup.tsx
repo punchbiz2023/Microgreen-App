@@ -10,8 +10,8 @@ interface HistoryPopupProps {
 
 export default function HistoryPopup({ log, phase, onClose }: HistoryPopupProps) {
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-white dark:bg-[#1A1D27] rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto border border-white/5">
         {/* Header */}
         <div className="sticky top-0 bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-4 flex justify-between items-center">
           <div>
@@ -32,42 +32,42 @@ export default function HistoryPopup({ log, phase, onClose }: HistoryPopupProps)
 
         <div className="p-6 space-y-6">
           {/* Time Logged */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <div className="text-sm text-gray-600 font-medium mb-1">
+          <div className="bg-gray-50 dark:bg-white/5 rounded-lg p-4 transition-colors">
+            <div className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-1">
               Logged At
             </div>
-            <div className="text-lg font-semibold text-gray-900">
+            <div className="text-lg font-semibold text-gray-900 dark:text-white">
               {format(new Date(log.logged_at), 'MMM dd, yyyy hh:mm a')}
             </div>
           </div>
 
           {/* Environmental Data */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-orange-50 rounded-lg p-4 border-2 border-orange-200">
+            <div className="bg-orange-50 dark:bg-orange-500/10 rounded-lg p-4 border-2 border-orange-200 dark:border-orange-500/20 transition-colors">
               <div className="flex items-center mb-2">
-                <Thermometer className="w-5 h-5 text-orange-600 mr-2" />
-                <span className="text-sm font-medium text-gray-700">Temperature</span>
+                <Thermometer className="w-5 h-5 text-orange-600 dark:text-orange-400 mr-2" />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Temperature</span>
               </div>
-              <div className="text-3xl font-bold text-orange-900">
+              <div className="text-3xl font-bold text-orange-900 dark:text-orange-100">
                 {log.temperature}°C
               </div>
             </div>
 
-            <div className="bg-blue-50 rounded-lg p-4 border-2 border-blue-200">
+            <div className="bg-blue-50 dark:bg-blue-500/10 rounded-lg p-4 border-2 border-blue-200 dark:border-blue-500/20 transition-colors">
               <div className="flex items-center mb-2">
-                <CloudRain className="w-5 h-5 text-blue-600 mr-2" />
-                <span className="text-sm font-medium text-gray-700">Humidity</span>
+                <CloudRain className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2" />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Humidity</span>
               </div>
-              <div className="text-3xl font-bold text-blue-900">
+              <div className="text-3xl font-bold text-blue-900 dark:text-blue-100">
                 {log.humidity}%
               </div>
             </div>
           </div>
 
           {/* Watering Status */}
-          <div className={`rounded-lg p-4 border-2 ${log.watered
-            ? 'bg-green-50 border-green-200'
-            : 'bg-red-50 border-red-200'
+          <div className={`rounded-lg p-4 border-2 transition-colors ${log.watered
+            ? 'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/20'
+            : 'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20'
             }`}>
             <div className="flex items-center">
               {log.watered ? (
@@ -76,10 +76,10 @@ export default function HistoryPopup({ log, phase, onClose }: HistoryPopupProps)
                 <XCircle className="w-6 h-6 text-red-600 mr-3" />
               )}
               <div>
-                <div className="font-semibold text-gray-900">
+                <div className="font-semibold text-gray-900 dark:text-white">
                   {log.watered ? 'Plant Watered' : 'Watering Missed'}
                 </div>
-                <div className={`text-sm ${log.watered ? 'text-green-700' : 'text-red-700'
+                <div className={`text-sm ${log.watered ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'
                   }`}>
                   {log.watered ? 'Good job!' : 'This may affect yield'}
                 </div>
@@ -108,10 +108,10 @@ export default function HistoryPopup({ log, phase, onClose }: HistoryPopupProps)
           {/* Notes */}
           {log.notes && (
             <div>
-              <div className="text-sm font-medium text-gray-700 mb-2">
+              <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Notes
               </div>
-              <div className="bg-gray-50 rounded-lg p-4 text-gray-900">
+              <div className="bg-gray-50 dark:bg-white/5 rounded-lg p-4 text-gray-900 dark:text-gray-200 italic transition-colors">
                 {log.notes}
               </div>
             </div>
@@ -119,32 +119,32 @@ export default function HistoryPopup({ log, phase, onClose }: HistoryPopupProps)
 
           {/* Predicted Yield */}
           {log.predicted_yield && (
-            <div className="bg-purple-50 rounded-lg p-4 border-2 border-purple-200">
-              <div className="text-sm text-purple-700 font-medium mb-1">
+            <div className="bg-purple-50 dark:bg-purple-500/10 rounded-lg p-4 border-2 border-purple-200 dark:border-purple-500/20 transition-colors">
+              <div className="text-sm text-purple-700 dark:text-purple-400 font-medium mb-1">
                 Predicted Yield (at this point)
               </div>
-              <div className="text-3xl font-bold text-purple-900">
+              <div className="text-3xl font-bold text-purple-900 dark:text-purple-100">
                 {log.predicted_yield.toFixed(0)}g
               </div>
             </div>
           )}
 
           {/* AI Assessment */}
-          <div className="bg-blue-50 rounded-lg p-4 border-2 border-blue-200">
-            <div className="font-semibold text-blue-900 mb-2">
+          <div className="bg-blue-50 dark:bg-blue-500/10 rounded-lg p-4 border-2 border-blue-200 dark:border-blue-500/20 transition-colors">
+            <div className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
               AI Assessment
             </div>
-            <div className="text-sm text-blue-800">
+            <div className="text-sm text-blue-800 dark:text-blue-300">
               {getAssessment(log)}
             </div>
           </div>
         </div>
 
         {/* Close Button */}
-        <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4">
+        <div className="sticky bottom-0 bg-white dark:bg-[#1A1D27] border-t border-gray-200 dark:border-white/5 px-6 py-4">
           <button
             onClick={onClose}
-            className="w-full px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg transition-colors"
+            className="w-full px-6 py-3 bg-gray-600 dark:bg-gray-700 hover:bg-gray-700 dark:hover:bg-gray-600 text-white font-semibold rounded-lg transition-colors"
           >
             Close
           </button>

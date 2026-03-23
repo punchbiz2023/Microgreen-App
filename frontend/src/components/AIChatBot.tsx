@@ -80,7 +80,7 @@ const AIChatBot: React.FC = () => {
     }
 
     return (
-        <div className={`fixed bottom-8 right-8 z-50 flex flex-col transition-all duration-300 ${isMinimized ? 'h-16' : 'h-[550px]'} w-[380px] max-w-[90vw] bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100`}>
+        <div className={`fixed bottom-8 right-8 z-50 flex flex-col transition-all duration-300 ${isMinimized ? 'h-16' : 'h-[550px]'} w-[380px] max-w-[90vw] bg-white dark:bg-[#1A1D27] rounded-3xl shadow-2xl overflow-hidden border border-gray-100 dark:border-white/5`}>
             {/* Header */}
             <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-5 text-white flex items-center justify-between shrink-0 relative">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-12 -mt-12 blur-xl"></div>
@@ -121,13 +121,13 @@ const AIChatBot: React.FC = () => {
                         {messages.map((m: ChatMessage, idx: number) => (
                             <div key={idx} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                 <div className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm ${m.role === 'user'
-                                    ? 'bg-green-500 text-white rounded-tr-none shadow-md shadow-green-100'
-                                    : 'bg-gray-100 text-gray-800 rounded-tl-none border border-gray-200'
+                                    ? 'bg-green-500 text-white rounded-tr-none shadow-md shadow-green-100/50'
+                                    : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-tl-none border border-gray-200 dark:border-white/5'
                                     }`}>
                                     {m.role === 'user' ? (
                                         <p className="leading-relaxed">{m.parts[0]}</p>
                                     ) : (
-                                        <div className="prose prose-sm max-w-none text-gray-800 leading-relaxed markdown-container">
+                                        <div className="prose prose-sm max-w-none text-gray-800 dark:text-gray-200 leading-relaxed markdown-container">
                                             <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                                 {m.parts[0]}
                                             </ReactMarkdown>
@@ -138,7 +138,7 @@ const AIChatBot: React.FC = () => {
                         ))}
                         {isLoading && (
                             <div className="flex justify-start">
-                                <div className="bg-gray-100 px-4 py-3 rounded-2xl rounded-tl-none border border-gray-200 flex space-x-1">
+                                <div className="bg-gray-100 dark:bg-gray-800 px-4 py-3 rounded-2xl rounded-tl-none border border-gray-200 dark:border-white/5 flex space-x-1">
                                     <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></div>
                                     <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:-.3s]"></div>
                                     <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:-.5s]"></div>
@@ -149,20 +149,20 @@ const AIChatBot: React.FC = () => {
                     </div>
 
                     {/* Input Area */}
-                    <div className="p-4 bg-gray-50 border-t border-gray-100">
-                        <div className="flex items-center bg-white rounded-xl border border-gray-200 px-3 py-1 focus-within:border-green-500 focus-within:ring-4 focus-within:ring-green-50 transition-all">
+                    <div className="p-4 bg-gray-50 dark:bg-[#0E1015] border-t border-gray-100 dark:border-white/5">
+                        <div className="flex items-center bg-white dark:bg-[#1A1D27] rounded-xl border border-gray-200 dark:border-white/10 px-3 py-1 focus-within:border-green-500 focus-within:ring-4 focus-within:ring-green-50 dark:focus-within:ring-green-500/10 transition-all">
                             <input
                                 type="text"
                                 placeholder={t('chat.placeholder')}
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                                className="flex-1 py-3 bg-transparent outline-none text-gray-700 text-sm font-medium"
+                                className="flex-1 py-3 bg-transparent outline-none text-gray-700 dark:text-gray-200 text-sm font-medium"
                             />
                             <button
                                 onClick={handleSend}
                                 disabled={!inputValue.trim() || isLoading}
-                                className={`p-2 rounded-lg transition-all ${inputValue.trim() ? 'bg-green-500 text-white' : 'text-gray-300'}`}
+                                className={`p-2 rounded-lg transition-all ${inputValue.trim() ? 'bg-green-500 text-white' : 'text-gray-300 dark:text-gray-600'}`}
                             >
                                 <Send size={18} />
                             </button>

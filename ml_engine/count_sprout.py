@@ -16,6 +16,7 @@ if str(ML_ENGINE_DIR) not in sys.path:
 
 # Using same color settings as DeepForest config
 from config_deepforest import BOX_COLOR, BOX_THICKNESS, CENTER_COLOR
+from config_sprout import SCORE_THRESHOLD, PATCH_SIZE, PATCH_OVERLAP, IOU_THRESHOLD, MAX_BOX_SIZE
 
 class MicrogreenSproutCounter:
     def __init__(self, model_path: str = None):
@@ -43,10 +44,10 @@ class MicrogreenSproutCounter:
     def process_image_bytes(
         self,
         image_bytes: bytes,
-        conf_threshold: float = 0.55,
-        patch_size: int = 500,
-        patch_overlap: float = 0.1,
-        iou_threshold: float = 0.2,
+        conf_threshold: float = SCORE_THRESHOLD,
+        patch_size: int = PATCH_SIZE,
+        patch_overlap: float = PATCH_OVERLAP,
+        iou_threshold: float = IOU_THRESHOLD,
         **kwargs
     ) -> Dict:
         """
@@ -107,7 +108,34 @@ class MicrogreenSproutCounter:
         if predictions is None or len(predictions) == 0:
             return pd.DataFrame(columns=["xmin", "ymin", "xmax", "ymax", "label", "score"])
         
+        # Filter outliers (remove huge boxes that are clearly artifacts)
+        predictions = self._filter_outliers(predictions)
+        
         return predictions.reset_index(drop=True)
+
+    def _filter_outliers(self, predictions: pd.DataFrame) -> pd.DataFrame:
+        """
+        Remove bounding boxes that are too large to be a microgreen sprout.
+        These are usually tiling artifacts or false positives from background features.
+        """
+        if len(predictions) == 0:
+            return predictions
+            
+        # Add width and height columns for filtering
+        predictions = predictions.copy()
+        predictions["width"] = predictions["xmax"] - predictions["xmin"]
+        predictions["height"] = predictions["ymax"] - predictions["ymin"]
+        
+        # Filter by MAX_BOX_SIZE from config
+        filtered = predictions[
+            (predictions["width"] <= MAX_BOX_SIZE) & 
+            (predictions["height"] <= MAX_BOX_SIZE)
+        ]
+        
+        # Optional: could also filter by very small boxes if needed, 
+        # but microgreens can be very small.
+        
+        return filtered.drop(columns=["width", "height"])
     
     def _get_centroids(self, predictions: pd.DataFrame) -> List[Tuple[int, int]]:
         centroids = []

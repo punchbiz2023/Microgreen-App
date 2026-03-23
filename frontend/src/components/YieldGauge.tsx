@@ -8,30 +8,31 @@ interface YieldGaugeProps {
 
 export default function YieldGauge({ predicted, base, status }: YieldGaugeProps) {
   const efficiency = (predicted / base) * 100;
-  
+
   // Create data for semi-circle gauge
   const data = [
     { value: efficiency, fill: getStatusColor(status) },
-    { value: 100 - efficiency, fill: '#e5e7eb' }
+    { value: 100 - efficiency, fill: 'currentColor', className: 'text-gray-200 dark:text-[#2D303E]' }
   ];
-  
+
   function getStatusColor(status: string) {
     switch (status) {
       case 'excellent':
-        return '#22c55e'; // green-500
+        return '#10b981'; // emerald-500
       case 'good':
-        return '#84cc16'; // lime-500
+        return '#34d399'; // emerald-400
       case 'fair':
-        return '#eab308'; // yellow-500
+        return '#fbbf24'; // amber-400
       case 'poor':
         return '#ef4444'; // red-500
       default:
         return '#6b7280'; // gray-500
     }
   }
-  
-  function getStatusLabel(status: string) {
-    switch (status) {
+
+  function getStatusLabel(status: string | undefined) {
+    if (!status) return 'In Progress';
+    switch (status.toLowerCase()) {
       case 'excellent':
         return 'Excellent!';
       case 'good':
@@ -41,10 +42,10 @@ export default function YieldGauge({ predicted, base, status }: YieldGaugeProps)
       case 'poor':
         return 'Needs Attention';
       default:
-        return 'Unknown';
+        return 'Stable';
     }
   }
-  
+
   return (
     <div className="flex flex-col items-center">
       <div className="relative w-full max-w-xs">
@@ -67,34 +68,29 @@ export default function YieldGauge({ predicted, base, status }: YieldGaugeProps)
             </Pie>
           </PieChart>
         </ResponsiveContainer>
-        
+
         {/* Center text */}
         <div className="absolute top-24 left-1/2 transform -translate-x-1/2 text-center">
-          <div className="text-4xl font-bold text-gray-900">
+          <div className="text-4xl font-black text-gray-900 dark:text-white">
             {predicted.toFixed(0)}g
           </div>
-          <div className="text-sm text-gray-600 mt-1">
+          <div className="text-sm font-bold tracking-widest uppercase text-gray-500 dark:text-gray-400 mt-1">
             of {base}g
           </div>
         </div>
       </div>
-      
+
       {/* Status badge */}
-      <div className={`
-        mt-4 px-6 py-2 rounded-full font-semibold text-lg
-        ${status === 'excellent' && 'bg-green-100 text-green-800'}
-        ${status === 'good' && 'bg-lime-100 text-lime-800'}
-        ${status === 'fair' && 'bg-yellow-100 text-yellow-800'}
-        ${status === 'poor' && 'bg-red-100 text-red-800'}
-      `}>
-        {getStatusLabel(status)}
-      </div>
-      
-      <div className="text-center mt-2">
-        <div className="text-2xl font-bold text-gray-900">
+      {(status === 'excellent' || !status) && <div className="mt-4 px-6 py-2 rounded-full font-bold text-sm tracking-widest uppercase bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">{getStatusLabel(status)}</div>}
+      {status === 'good' && <div className="mt-4 px-6 py-2 rounded-full font-bold text-sm tracking-widest uppercase bg-emerald-400/10 text-emerald-600 dark:text-emerald-300 border border-emerald-400/20">{getStatusLabel(status)}</div>}
+      {status === 'fair' && <div className="mt-4 px-6 py-2 rounded-full font-bold text-sm tracking-widest uppercase bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">{getStatusLabel(status)}</div>}
+      {status === 'poor' && <div className="mt-4 px-6 py-2 rounded-full font-bold text-sm tracking-widest uppercase bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20">{getStatusLabel(status)}</div>}
+
+      <div className="text-center mt-4">
+        <div className="text-2xl font-black text-gray-900 dark:text-white">
           {efficiency.toFixed(1)}%
         </div>
-        <div className="text-sm text-gray-600">
+        <div className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1">
           Yield Efficiency
         </div>
       </div>

@@ -25,7 +25,7 @@ export default function Header() {
     ];
 
     return (
-        <header className="glass-header rounded-2xl shadow-lg sticky top-4 z-50 mb-8 border border-white/50 bg-white/70 backdrop-blur-xl">
+        <header className="glass-header rounded-2xl shadow-lg sticky top-4 z-50 mb-8 border border-white/50 dark:border-white/5 bg-white/70 dark:bg-[#1A1D27]/80 backdrop-blur-xl">
             <div className="w-full mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between h-16">
                     {/* Logo / Brand */}
@@ -36,10 +36,10 @@ export default function Header() {
                             </div>
                             <div className="ml-3 flex flex-col justify-center">
                                 <div className="flex items-center">
-                                    <span className="text-xl font-extrabold text-gray-900 tracking-tight leading-none">Urban</span>
-                                    <span className="text-xl font-light text-green-400 tracking-tight leading-none ml-0.5">Sims</span>
+                                    <span className="text-xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-none">Urban</span>
+                                    <span className="text-xl font-light text-green-500 tracking-tight leading-none ml-0.5">Sims</span>
                                 </div>
-                                <span className="text-[9px] text-gray-400 font-bold uppercase tracking-[0.2em] leading-none mt-1.5 overflow-hidden whitespace-nowrap">{t('header.slogan')}</span>
+                                <span className="text-[9px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-[0.2em] leading-none mt-1.5 overflow-hidden whitespace-nowrap">{t('header.slogan')}</span>
                             </div>
                         </Link>
                     </div>
@@ -51,8 +51,8 @@ export default function Header() {
                                 key={link.path}
                                 to={link.path}
                                 className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors ${isActive(link.path)
-                                    ? 'border-green-400 text-gray-900'
-                                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                    ? 'border-green-500 text-gray-900 dark:text-white'
+                                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300'
                                     }`}
                             >
                                 <link.icon className="w-4 h-4 mr-2" />
@@ -66,7 +66,7 @@ export default function Header() {
                         {/* Language Switcher - Hidden on very small screens to fit, or kept if space allows */}
                         <button
                             onClick={toggleLanguage}
-                            className="flex items-center space-x-2 px-2 sm:px-3 py-1.5 rounded-full bg-gray-50 hover:bg-green-50 text-gray-600 hover:text-green-600 border border-gray-200 hover:border-green-200 transition-all duration-300"
+                            className="flex items-center space-x-2 px-2 sm:px-3 py-1.5 rounded-full bg-gray-50 dark:bg-white/5 hover:bg-green-50 dark:hover:bg-green-500/10 text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 border border-gray-200 dark:border-white/10 hover:border-green-200 dark:hover:border-green-400/30 transition-all duration-300"
                             title="Switch Language"
                         >
                             <Globe className="w-4 h-4" />
@@ -77,12 +77,12 @@ export default function Header() {
 
                         {isAuthenticated ? (
                             <div className="hidden sm:flex items-center space-x-4">
-                                <span className="text-sm font-medium text-gray-700">
+                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                     {t('header.welcome', { name: user?.username })}
                                 </span>
                                 <button
                                     onClick={logout}
-                                    className="flex items-center text-sm font-medium text-gray-500 hover:text-red-600 transition-colors"
+                                    className="flex items-center text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                                 >
                                     <LogOut className="w-4 h-4 mr-1" />
                                     {t('header.logout')}
@@ -103,7 +103,7 @@ export default function Header() {
                         <div className="flex items-center sm:hidden">
                             <button
                                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                                className="inline-flex items-center justify-center p-2 rounded-xl text-gray-500 hover:text-gray-900 hover:bg-gray-100 focus:outline-none transition-colors"
+                                className="inline-flex items-center justify-center p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5 focus:outline-none transition-colors"
                             >
                                 {isMenuOpen ? (
                                     <X className="block h-6 w-6" aria-hidden="true" />
@@ -118,7 +118,7 @@ export default function Header() {
 
             {/* Mobile Menu */}
             {isMenuOpen && (
-                <div className="sm:hidden bg-white border-t border-gray-100 animate-in slide-in-from-top duration-200">
+                <div className="sm:hidden bg-white dark:bg-[#1A1D27] border-t border-gray-100 dark:border-white/5 animate-in slide-in-from-top duration-200">
                     <div className="pt-2 pb-3 space-y-1 px-4">
                         {navLinks.map((link) => (
                             <Link
@@ -126,8 +126,8 @@ export default function Header() {
                                 to={link.path}
                                 onClick={() => setIsMenuOpen(false)}
                                 className={`flex items-center px-4 py-3 rounded-xl text-base font-medium transition-all ${isActive(link.path)
-                                    ? 'bg-green-50 text-green-600'
-                                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+                                    ? 'bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400'
+                                    : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'
                                     }`}
                             >
                                 <link.icon className="w-5 h-5 mr-4" />
@@ -135,10 +135,10 @@ export default function Header() {
                             </Link>
                         ))}
                     </div>
-                    <div className="pt-4 pb-3 border-t border-gray-100 px-4">
+                    <div className="pt-4 pb-3 border-t border-gray-100 dark:border-white/5 px-4">
                         {isAuthenticated ? (
                             <div className="space-y-1">
-                                <div className="px-4 py-2 text-xs font-bold text-gray-400 uppercase tracking-widest">
+                                <div className="px-4 py-2 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
                                     {t('header.welcome', { name: user?.username })}
                                 </div>
                                 <button
@@ -146,7 +146,7 @@ export default function Header() {
                                         logout();
                                         setIsMenuOpen(false);
                                     }}
-                                    className="w-full flex items-center px-4 py-3 rounded-xl text-base font-medium text-red-500 hover:bg-red-50 transition-all"
+                                    className="w-full flex items-center px-4 py-3 rounded-xl text-base font-medium text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all"
                                 >
                                     <LogOut className="w-5 h-5 mr-4" />
                                     {t('header.logout')}

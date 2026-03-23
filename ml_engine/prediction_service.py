@@ -7,13 +7,16 @@ import pandas as pd
 import numpy as np
 from train_model import MicrogreensYieldPredictor
 import json
+import os
 
 
 class YieldPredictionService:
     """Service for making real-time yield predictions"""
     
-    def __init__(self, model_dir='../data/models'):
+    def __init__(self, model_dir=None):
         """Load trained models"""
+        if model_dir is None:
+            model_dir = os.path.join(os.path.dirname(__file__), '../data/models')
         self.predictor = MicrogreensYieldPredictor()
         self.predictor.load_models(model_dir)
         print("Prediction service initialized")

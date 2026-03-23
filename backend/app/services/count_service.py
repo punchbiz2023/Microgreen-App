@@ -13,11 +13,9 @@ import uuid
 ml_engine_path = Path(__file__).parent.parent.parent / 'ml_engine'
 sys.path.insert(0, str(ml_engine_path))
 
-# Use YOLO model for plant detection
-from count_yolo import MicrogreenYOLOCounter
-
 # Use Sprout model for plant detection
 from count_sprout import MicrogreenSproutCounter
+import config_sprout
 
 
 class CountService:
@@ -30,15 +28,6 @@ class CountService:
         self.upload_dir = Path(upload_dir)
         self.upload_dir.mkdir(parents=True, exist_ok=True)
         
-        # Initialize YOLO counter
-        print("🔍 Attempting to load YOLO model...")
-        self.yolo_counter = None
-        try:
-            self.yolo_counter = MicrogreenYOLOCounter()
-            print("✅ Successfully loaded YOLO model for counting")
-        except Exception as e:
-            print(f"❌ Failed to load YOLO model: {e}")
-            
         # Initialize Sprout counter
         print("🔍 Attempting to load Sprout model...")
         self.sprout_counter = None
@@ -48,8 +37,8 @@ class CountService:
         except Exception as e:
             print(f"❌ Failed to load Sprout model: {e}")
             
-        if not self.yolo_counter and not self.sprout_counter:
-            raise RuntimeError("Failed to load any plant counting models.")
+        if not self.sprout_counter:
+            raise RuntimeError("Failed to load Sprout counting model.")
     
     def count_from_bytes(self, image_bytes: bytes, 
                         model_type: str = 'deepforest',
@@ -73,32 +62,20 @@ class CountService:
             Dictionary with count, detections, and annotated image path
         """
         try:
-            model_type = model_type.lower()
-            if model_type == 'yolo':
-                if not self.yolo_counter:
-                    raise RuntimeError("YOLO model is not available")
-                print(f"🌱 Processing image with YOLO (conf={conf_threshold})")
-                self.method = "YOLO"
-                result = self.yolo_counter.process_image_bytes(
-                    image_bytes=image_bytes,
-                    conf_threshold=conf_threshold,
-                )
-            elif model_type == 'sprout':
-                if not self.sprout_counter:
-                    raise RuntimeError("Sprout model is not available")
-                print(f"🌱 Processing image with Sprout model (conf={conf_threshold})")
-                self.method = "Sprout"
-                # If we want to override conf_threshold for sprout to default 0.55 unless explicitly specified differently:
-                sprout_conf = conf_threshold if conf_threshold != 0.3 else 0.55
-                result = self.sprout_counter.process_image_bytes(
-                    image_bytes=image_bytes,
-                    conf_threshold=sprout_conf,
-                    patch_size=500,
-                    patch_overlap=0.1,
-                    iou_threshold=0.2
-                )
-            else:
-                raise ValueError(f"Unknown model type: {model_type}")
+            if not self.sprout_counter:
+                raise RuntimeError("Sprout model is not available")
+            
+            print(f"🌱 Processing image with Sprout model (conf={conf_threshold})")
+            self.method = "Sprout"
+            
+            # Use config values instead of hardcoded/inconsistent mapping
+            result = self.sprout_counter.process_image_bytes(
+                image_bytes=image_bytes,
+                conf_threshold=config_sprout.SCORE_THRESHOLD,
+                patch_size=config_sprout.PATCH_SIZE,
+                patch_overlap=config_sprout.PATCH_OVERLAP,
+                iou_threshold=config_sprout.IOU_THRESHOLD
+            )
             
             # Save annotated image if requested
             annotated_path = None

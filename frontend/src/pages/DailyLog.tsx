@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { cropsApi, logsApi, type Crop } from '../services/api';
 import api from '../services/api';
 import { ArrowLeft, Camera, Droplet, Thermometer, CloudRain, Save } from 'lucide-react';
@@ -7,6 +7,10 @@ import { ArrowLeft, Camera, Droplet, Thermometer, CloudRain, Save } from 'lucide
 export default function DailyLog() {
   const { cropId, day } = useParams<{ cropId: string; day: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const queryParams = new URLSearchParams(location.search);
+  const actionType = queryParams.get('actionType');
 
   const [crop, setCrop] = useState<Crop | null>(null);
   const [watered, setWatered] = useState(true);
@@ -22,7 +26,6 @@ export default function DailyLog() {
   const [counting, setCounting] = useState(false);
   const [countError, setCountError] = useState<string | null>(null);
   const [annotatedImageUrl, setAnnotatedImageUrl] = useState<string | null>(null);
-  const [modelType, setModelType] = useState<string>('sprout');
 
   useEffect(() => {
     if (cropId) {
@@ -70,7 +73,7 @@ export default function DailyLog() {
       const response = await api.post('/api/count-plants', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         params: {
-          model_type: modelType,
+          model_type: 'sprout',
           color_type: 'green',
           min_area: 50,
           max_area: 5000
@@ -106,6 +109,7 @@ export default function DailyLog() {
         temperature,
         humidity,
         notes: notes || undefined,
+        actions_recorded: actionType ? [actionType] : []
       });
 
       // Upload photo if provided
@@ -125,8 +129,8 @@ export default function DailyLog() {
 
   if (!crop) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-500"></div>
+      <div className="flex justify-center items-center h-64 bg-gray-50 dark:bg-[#0E1015] transition-colors duration-300">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
       </div>
     );
   }
@@ -154,38 +158,41 @@ export default function DailyLog() {
   };
 
   return (
-    <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+    <div className="py-8">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <button
           onClick={() => navigate(`/dashboard/${cropId}`)}
-          className="flex items-center text-gray-600 hover:text-gray-900 transition-colors mb-6"
+          className="flex items-center text-xs font-black uppercase tracking-widest text-gray-500 hover:text-emerald-500 mb-8 transition-colors group"
         >
-          <ArrowLeft className="w-5 h-5 mr-2" />
+          <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
           Back to Dashboard
         </button>
 
-        <div className="glass-panel rounded-3xl shadow-2xl p-8 border border-white/50">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-extrabold text-gray-900 mb-2 tracking-tight">
+        <div className="bg-white dark:bg-[#1A1D27] rounded-[2.5rem] shadow-xl p-8 sm:p-12 border border-gray-100 dark:border-white/5 relative overflow-hidden">
+          {/* Subtle background glow */}
+          <div className="absolute -top-40 -right-40 w-96 h-96 bg-emerald-500/10 blur-3xl rounded-full"></div>
+
+          <div className="text-center mb-12 relative z-10">
+            <h1 className="text-4xl font-black text-gray-900 dark:text-white mb-3 tracking-tighter uppercase">
               {isBackLogging ? `Back-log: Day ${day}` : `Log Day ${day}`}
             </h1>
-            <p className="text-gray-600 font-medium">
-              {crop.seed.name} - {parseInt(day!) <= blackoutDays ? 'Blackout Phase' : 'Light Phase'}
+            <p className="text-emerald-600 dark:text-emerald-500 font-black uppercase tracking-[0.3em] text-[10px]">
+              {crop.seed.name} • {parseInt(day!) <= blackoutDays ? 'Blackout Phase' : 'Light Phase'}
             </p>
           </div>
 
           {isBackLogging && (
-            <div className="mb-8 p-4 bg-amber-50 border-l-4 border-amber-400 rounded-r-lg">
+            <div className="mb-8 p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl relative z-10">
               <div className="flex">
                 <div className="flex-shrink-0">
                   <Save className="h-5 w-5 text-amber-400" />
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm text-amber-700 font-medium">
+                  <p className="text-sm text-amber-400 font-bold">
                     You are logging data for a past day.
                   </p>
-                  <p className="text-xs text-amber-600 mt-1">
+                  <p className="text-xs text-amber-500/80 mt-1 font-medium">
                     This will update the historical record and re-calculate yield predictions for this crop.
                   </p>
                 </div>
@@ -193,20 +200,20 @@ export default function DailyLog() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <form onSubmit={handleSubmit} className="space-y-8 relative z-10">
             {/* Watering */}
             <div>
-              <label className="flex items-center text-lg font-semibold text-gray-900 mb-4">
-                <Droplet className="w-6 h-6 mr-2 text-blue-600" />
+              <label className="flex items-center text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4">
+                <Droplet className="w-5 h-5 mr-2 text-blue-500 dark:text-blue-400" />
                 Did you water the plants today?
               </label>
-              <div className="flex space-x-4 mb-6">
+              <div className="flex flex-col sm:flex-row gap-4 mb-6">
                 <button
                   type="button"
                   onClick={() => setWatered(true)}
-                  className={`flex-1 p-4 rounded-xl border-2 font-semibold transition-all ${watered
-                    ? 'border-emerald-400 bg-gradient-to-br from-emerald-50 to-teal-100 text-emerald-900 shadow-md transform -translate-y-1'
-                    : 'border-white/60 bg-white/40 text-gray-600 hover:bg-white/60 hover:border-emerald-300 backdrop-blur-sm'
+                  className={`flex-1 p-5 rounded-2xl border-2 font-black text-xs uppercase tracking-widest transition-all ${watered
+                    ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shadow-lg shadow-emerald-500/10 transform -translate-y-1'
+                    : 'border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-[#0E1015] text-gray-400 dark:text-gray-500 hover:border-gray-200 dark:hover:border-white/10'
                     }`}
                 >
                   ✓ Yes, I watered
@@ -214,9 +221,9 @@ export default function DailyLog() {
                 <button
                   type="button"
                   onClick={() => setWatered(false)}
-                  className={`flex-1 p-4 rounded-xl border-2 font-semibold transition-all ${!watered
-                    ? 'border-red-400 bg-gradient-to-br from-red-50 to-orange-50 text-red-900 shadow-md transform -translate-y-1'
-                    : 'border-white/60 bg-white/40 text-gray-600 hover:bg-white/60 hover:border-red-300 backdrop-blur-sm'
+                  className={`flex-1 p-5 rounded-2xl border-2 font-black text-xs uppercase tracking-widest transition-all ${!watered
+                    ? 'border-red-500 bg-red-500/10 text-red-600 dark:text-red-400 shadow-lg shadow-red-500/10 transform -translate-y-1'
+                    : 'border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-[#0E1015] text-gray-400 dark:text-gray-500 hover:border-gray-200 dark:hover:border-white/10'
                     }`}
                 >
                   ✗ No, I didn't
@@ -224,27 +231,27 @@ export default function DailyLog() {
               </div>
 
               {!watered && (
-                <div className="p-3 bg-yellow-50 text-yellow-800 rounded-lg text-sm mb-6">
+                <div className="p-3 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-lg text-sm font-medium">
                   Note: Consistent watering is key to yield. Only skip if soil is still moist.
                 </div>
               )}
             </div>
 
             {/* Conditional Temp/Hum Display */}
-            <div className={`transition-all duration-500 ${watered ? 'opacity-100' : 'opacity-80'}`}>
+            <div className={`transition-all duration-500 ${watered ? 'opacity-100' : 'opacity-50 grayscale'}`}>
               {watered && (
-                <div className="mb-4 text-sm font-semibold text-blue-800 bg-blue-50 p-2 rounded animate-pulse">
+                <div className="mb-6 text-sm font-bold text-blue-400 bg-blue-500/10 border border-blue-500/20 p-3 rounded-lg animate-pulse-slow">
                   💧 Since you watered, please log the current conditions for accurate AI prediction!
                 </div>
               )}
               {/* Temperature */}
-              <div>
-                <label className="flex items-center justify-between text-lg font-semibold text-gray-900 mb-3">
+              <div className="mb-8">
+                <label className="flex items-center justify-between text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">
                   <span className="flex items-center">
-                    <Thermometer className="w-6 h-6 mr-2 text-orange-600" />
+                    <Thermometer className="w-5 h-5 mr-2 text-orange-500 dark:text-orange-400" />
                     Temperature
                   </span>
-                  <span className={`text-3xl font-bold ${getTempColor()}`}>
+                  <span className={`text-2xl font-black ${getTempColor()}`}>
                     {temperature}°C
                   </span>
                 </label>
@@ -256,80 +263,80 @@ export default function DailyLog() {
                   step="0.5"
                   value={temperature}
                   onChange={(e) => setTemperature(parseFloat(e.target.value))}
-                  className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  className="w-full h-2 bg-gray-200 dark:bg-gray-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
                 />
 
-                <div className="flex justify-between text-xs text-gray-600 mt-2">
+                <div className="flex justify-between text-xs text-gray-500 mt-2 font-bold font-mono">
                   <span>15°C</span>
-                  <span className="font-medium">
+                  <span className="text-emerald-500/70">
                     Ideal: {crop.seed.ideal_temp ?? '--'}°C
                   </span>
                   <span>35°C</span>
                 </div>
 
                 {crop.seed.ideal_temp && Math.abs(temperature - crop.seed.ideal_temp) > 3 && (
-                  <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                    <p className="text-sm text-yellow-800">
+                  <div className="mt-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                    <p className="text-sm font-medium text-amber-400">
                       ⚠️ Temperature is outside the ideal range. This may affect yield.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Humidity */}
+              <div className="mb-8">
+                <label className="flex items-center justify-between text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">
+                  <span className="flex items-center">
+                    <CloudRain className="w-5 h-5 mr-2 text-blue-500 dark:text-blue-400" />
+                    Humidity
+                  </span>
+                  <span className={`text-2xl font-black ${getHumidityColor()}`}>
+                    {humidity}%
+                  </span>
+                </label>
+
+                <input
+                  type="range"
+                  min="25"
+                  max="85"
+                  step="1"
+                  value={humidity}
+                  onChange={(e) => setHumidity(parseInt(e.target.value))}
+                  className="w-full h-2 bg-gray-200 dark:bg-gray-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                />
+
+                <div className="flex justify-between text-xs text-gray-500 mt-2 font-bold font-mono">
+                  <span>25%</span>
+                  <span className="text-blue-500/70">
+                    Ideal: {crop.seed.ideal_humidity ?? '--'}%
+                  </span>
+                  <span>85%</span>
+                </div>
+
+                {crop.seed.ideal_humidity && Math.abs(humidity - crop.seed.ideal_humidity) > 15 && (
+                  <div className="mt-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                    <p className="text-sm font-medium text-amber-400">
+                      ⚠️ Humidity is outside the ideal range. Adjust ventilation or misting.
                     </p>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Humidity */}
-            <div>
-              <label className="flex items-center justify-between text-lg font-semibold text-gray-900 mb-3">
-                <span className="flex items-center">
-                  <CloudRain className="w-6 h-6 mr-2 text-blue-600" />
-                  Humidity
-                </span>
-                <span className={`text-3xl font-bold ${getHumidityColor()}`}>
-                  {humidity}%
-                </span>
-              </label>
-
-              <input
-                type="range"
-                min="25"
-                max="85"
-                step="1"
-                value={humidity}
-                onChange={(e) => setHumidity(parseInt(e.target.value))}
-                className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              />
-
-              <div className="flex justify-between text-xs text-gray-600 mt-2">
-                <span>25%</span>
-                <span className="font-medium">
-                  Ideal: {crop.seed.ideal_humidity ?? '--'}%
-                </span>
-                <span>85%</span>
-              </div>
-
-              {crop.seed.ideal_humidity && Math.abs(humidity - crop.seed.ideal_humidity) > 15 && (
-                <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <p className="text-sm text-yellow-800">
-                    ⚠️ Humidity is outside the ideal range. Adjust ventilation or misting.
-                  </p>
-                </div>
-              )}
-            </div>
-
             {/* Photo Upload */}
             <div>
-              <label className="flex items-center text-lg font-semibold text-gray-900 mb-3">
-                <Camera className="w-6 h-6 mr-2 text-purple-600" />
+              <label className="flex items-center text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">
+                <Camera className="w-5 h-5 mr-2 text-purple-600 dark:text-purple-400" />
                 Photo (Optional)
               </label>
 
               {photoPreview ? (
-                <div className="space-y-4">
+                <div className="space-y-4 animate-fade-in-up">
                   <div className="relative">
                     <img
                       src={photoPreview}
                       alt="Preview"
-                      className="w-full rounded-lg shadow-md max-h-64 object-contain bg-gray-50"
+                      className="w-full rounded-2xl shadow-lg border border-gray-100 dark:border-white/5 max-h-64 object-contain bg-gray-50 dark:bg-[#0E1015]"
                     />
                     <button
                       type="button"
@@ -340,36 +347,17 @@ export default function DailyLog() {
                         setCountError(null);
                         setAnnotatedImageUrl(null);
                       }}
-                      className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-2 hover:bg-red-700 transition-colors"
+                      className="absolute top-2 right-2 bg-red-500/80 text-white rounded-full p-2 hover:bg-red-500 transition-colors backdrop-blur-sm shadow-lg"
                     >
                       ✕
                     </button>
                   </div>
 
-                  {/* Model Type Selector */}
+                  {/* Detection Model - Fixed to Sprout */}
                   <div className="mb-4">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Detection Model
-                    </label>
-                    <div className="flex space-x-2">
-                      {[
-                        { id: 'yolo', label: 'YOLO (Plant Count)' },
-                        { id: 'deepforest', label: 'DeepForest (Leaf Count)' },
-                        { id: 'sprout', label: 'Sprout Detection' }
-                      ].map((model) => (
-                        <button
-                          key={model.id}
-                          type="button"
-                          onClick={() => setModelType(model.id)}
-                          className={`flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-all border-2 ${modelType === model.id
-                            ? 'border-purple-600 bg-purple-50 text-purple-700'
-                            : 'border-gray-200 text-gray-600 hover:border-purple-300'
-                            }`}
-                        >
-                          {model.label}
-                        </button>
-                      ))}
-                    </div>
+                    <p className="text-[10px] font-bold text-emerald-500/50 uppercase tracking-widest mb-1">
+                      Using Sprout Detection AI
+                    </p>
                   </div>
 
                   {/* Count Plants Button */}
@@ -377,9 +365,9 @@ export default function DailyLog() {
                     type="button"
                     onClick={handleCountPlants}
                     disabled={counting}
-                    className={`w-full flex items-center justify-center space-x-2 px-4 py-3 rounded-xl font-bold transition-all ${counting
-                      ? 'bg-gray-400 cursor-not-allowed text-white'
-                      : 'bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-white shadow-lg shadow-purple-500/30 hover:-translate-y-0.5 border border-purple-400/50'
+                    className={`w-full flex items-center justify-center space-x-2 px-4 py-3.5 rounded-xl font-bold transition-all border shadow-lg ${counting
+                      ? 'bg-gray-800 border-gray-700 cursor-not-allowed text-gray-500'
+                      : 'bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border-purple-500/30'
                       }`}
                   >
                     <span>{counting ? 'Counting Plants...' : 'Count Plants in Photo'}</span>
@@ -387,37 +375,39 @@ export default function DailyLog() {
 
                   {/* Count Result with Annotated Image */}
                   {plantCount !== null && annotatedImageUrl && (
-                    <div className="space-y-3">
-                      <div className="relative rounded-lg overflow-hidden border-2 border-green-200 bg-gray-900">
+                    <div className="space-y-3 animate-fade-in">
+                      <div className="relative rounded-xl overflow-hidden border border-emerald-500/20 bg-[#0E1015]">
                         <img
                           src={`${api.defaults.baseURL}${annotatedImageUrl}`}
                           alt="Detected plants"
                           className="w-full h-64 object-contain"
                         />
-                        <div className="absolute top-3 right-3 bg-green-600/90 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg shadow-lg border border-green-400">
-                          <div className="text-[10px] font-bold uppercase tracking-wider">Count</div>
-                          <div className="text-xl font-bold leading-none">{plantCount}</div>
+                        <div className="absolute top-3 right-3 bg-emerald-500/10 backdrop-blur-md text-emerald-400 px-4 py-2 rounded-xl shadow-[0_0_15px_rgba(52,211,153,0.1)] border border-emerald-500/30 flex flex-col items-center">
+                          <div className="text-[10px] font-black uppercase tracking-wider mb-1">Count</div>
+                          <div className="text-2xl font-black leading-none">{plantCount}</div>
                         </div>
                       </div>
-                      <p className="text-xs text-green-700 text-center">Count added to notes</p>
+                      <p className="text-xs font-bold text-emerald-500/50 uppercase tracking-widest text-center">Count added to notes</p>
                     </div>
                   )}
 
                   {/* Count Error */}
                   {countError && (
-                    <div className="p-4 bg-red-50 border-2 border-red-200 rounded-lg">
-                      <p className="text-sm text-red-800">{countError}</p>
+                    <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
+                      <p className="text-sm font-medium text-red-400 flex items-center">
+                        <span className="mr-2">⚠️</span> {countError}
+                      </p>
                     </div>
                   )}
                 </div>
               ) : (
-                <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
+                <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-white/10 border-dashed rounded-2xl cursor-pointer bg-white/[0.02] hover:bg-white/[0.04] hover:border-emerald-500/30 transition-all group">
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <Camera className="w-12 h-12 text-gray-400 mb-3" />
-                    <p className="text-sm text-gray-600 font-medium">
+                    <Camera className="w-12 h-12 text-gray-500 group-hover:text-emerald-400 group-hover:scale-110 transition-all mb-3" />
+                    <p className="text-sm font-bold text-gray-400 group-hover:text-gray-300">
                       Click to upload or drag and drop
                     </p>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs font-medium text-gray-500 mt-2 uppercase tracking-widest">
                       PNG, JPG or WEBP (MAX. 10MB)
                     </p>
                   </div>
@@ -433,15 +423,15 @@ export default function DailyLog() {
 
             {/* Notes */}
             <div>
-              <label className="block text-lg font-semibold text-gray-900 mb-3">
+              <label className="block text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">
                 Notes (Optional)
               </label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                rows={3}
+                rows={4}
                 placeholder="Any observations? (e.g., 'Leaves looking vibrant', 'Noticed some yellowing')"
-                className="w-full p-4 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none resize-none"
+                className="w-full p-5 border border-gray-100 dark:border-white/10 rounded-2xl bg-gray-50 dark:bg-[#0E1015] text-gray-900 dark:text-white focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 focus:outline-none resize-none font-medium placeholder-gray-400 dark:placeholder-gray-600 transition-all"
               />
             </div>
 
@@ -449,13 +439,13 @@ export default function DailyLog() {
             <button
               type="submit"
               disabled={submitting}
-              className={`w-full flex items-center justify-center space-x-3 px-8 py-4 font-bold text-lg rounded-xl shadow-lg transition-all ${submitting
-                ? 'bg-gray-400 cursor-not-allowed text-white'
-                : 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white shadow-emerald-500/30 hover:-translate-y-1 border border-emerald-400/50'
+              className={`w-full flex items-center justify-center space-x-3 px-8 py-5 font-black text-lg uppercase tracking-widest rounded-xl transition-all shadow-lg ${submitting
+                ? 'bg-gray-800 cursor-not-allowed text-gray-500 border border-gray-700'
+                : 'bg-emerald-500 hover:bg-emerald-400 text-white shadow-emerald-500/20 hover:shadow-emerald-500/40 hover:-translate-y-1'
                 }`}
             >
-              <Save className="w-6 h-6" />
-              <span>{submitting ? 'Submitting...' : 'Submit Log & Get Prediction'}</span>
+              <Save className="w-5 h-5" />
+              <span>{submitting ? 'Submitting...' : 'Submit Log'}</span>
             </button>
           </form>
         </div>

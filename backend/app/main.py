@@ -632,28 +632,48 @@ async def create_daily_log(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
-    """Manual full log entry"""
+    """Manual full log entry (Upsert supported)"""
     crop = db.query(Crop).filter(Crop.id == crop_id).first()
     if not crop: raise HTTPException(status_code=404, detail="Crop not found")
     
-    # Ensure no duplicates per day if strictly enforced, but here we update if exists
+    # Check for existing log to satisfy multi-step logging (Morning/Evening Mist)
     existing = db.query(DailyLog).filter(DailyLog.crop_id == crop_id, DailyLog.day_number == log_data.day_number).first()
     
     if existing:
-        raise HTTPException(status_code=400, detail="Log for this day already exists. Use action logging to update.")
-
-    daily_log = DailyLog(
-        crop_id=crop_id,
-        day_number=log_data.day_number,
-        watered=log_data.watered,
-        temperature=log_data.temperature,
-        humidity=log_data.humidity,
-        notes=log_data.notes,
-        actions_recorded=log_data.actions_recorded,
-        logged_at=datetime.now(timezone.utc)
-    )
+        # UPDATE EXISTNG LOG (UPSERT)
+        # Merge values
+        if log_data.watered is not None:
+            existing.watered = log_data.watered or existing.watered
+        if log_data.temperature is not None:
+            existing.temperature = log_data.temperature
+        if log_data.humidity is not None:
+            existing.humidity = log_data.humidity
+        if log_data.notes:
+            existing.notes = (existing.notes or "") + "\n" + log_data.notes
+        
+        # Merge actions_recorded
+        if log_data.actions_recorded:
+            current_actions = set(existing.actions_recorded or [])
+            for action in log_data.actions_recorded:
+                current_actions.add(action)
+            existing.actions_recorded = list(current_actions)
+        
+        daily_log = existing
+    else:
+        # CREATE NEW LOG
+        daily_log = DailyLog(
+            crop_id=crop_id,
+            day_number=log_data.day_number,
+            watered=log_data.watered,
+            temperature=log_data.temperature,
+            humidity=log_data.humidity,
+            notes=log_data.notes,
+            actions_recorded=log_data.actions_recorded,
+            logged_at=datetime.now(timezone.utc)
+        )
+        db.add(daily_log)
     
-    # Prediction logic (simplified for now)
+    # Prediction logic (Recalculate for current state)
     seed = crop.seed
     seed_config = {
         'seed_type': seed.seed_type,
@@ -666,10 +686,12 @@ async def create_daily_log(
     }
     
     # Prepare logs for prediction
+    # If we just updated 'existing', we should commit or refresh to reflect in query, 
+    # but we can also just use the objects in session.
+    db.flush() # Ensure ID and values are flushed for query consistency
+    
     existing_logs = db.query(DailyLog).filter(DailyLog.crop_id == crop_id).order_by(DailyLog.day_number).all()
     logs_by_day = {log.day_number: log for log in existing_logs}
-    # Add current log to the temp map
-    logs_by_day[daily_log.day_number] = daily_log
     
     logs_data = []
     # Fill gaps up to the current day being logged
@@ -699,10 +721,8 @@ async def create_daily_log(
             
         daily_log.predicted_yield = prediction['predicted_yield']
     except Exception as e:
-        print(f"Prediction failed: {e}")
-        # Don't fail the log creation if prediction fails
+        print(f"Prediction failed in manual log: {e}")
     
-    db.add(daily_log)
     db.commit()
     db.refresh(daily_log)
     return daily_log

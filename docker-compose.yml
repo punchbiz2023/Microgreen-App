@@ -33,7 +33,7 @@ services:
       - ./backend:/app
       - ./ml_engine:/app/ml_engine
       - ./data:/app/data
-      - ./33_microgreens_full-1.csv:/33_microgreens_full-1.csv
+      - ./data/33_microgreens_full-1.csv:/app/data/33_microgreens_full-1.csv
       - backend_static:/app/static
     ports:
       - "8000:8000"

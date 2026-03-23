@@ -8,15 +8,15 @@ interface TimelineProps {
   onDayClick: (day: number) => void;
 }
 
-export default function Timeline({ 
-  totalDays, 
-  currentDay, 
-  completedDays, 
+export default function Timeline({
+  totalDays,
+  currentDay,
+  completedDays,
   missedDays,
-  onDayClick 
+  onDayClick
 }: TimelineProps) {
   const days = Array.from({ length: totalDays }, (_, i) => i + 1);
-  
+
   const getDayStatus = (day: number) => {
     if (day > currentDay) return 'future';
     if (completedDays.includes(day)) return 'completed';
@@ -24,7 +24,7 @@ export default function Timeline({
     if (day === currentDay) return 'current';
     return 'pending';
   };
-  
+
   const getDayStyle = (status: string) => {
     switch (status) {
       case 'completed':
@@ -34,22 +34,22 @@ export default function Timeline({
       case 'current':
         return 'bg-blue-500 text-white border-blue-600 animate-pulse-slow ring-4 ring-blue-300';
       case 'future':
-        return 'bg-gray-200 text-gray-400 border-gray-300 cursor-not-allowed';
+        return 'bg-gray-200 dark:bg-gray-800 text-gray-400 dark:text-gray-600 border-gray-300 dark:border-white/5 cursor-not-allowed';
       default:
         return 'bg-yellow-400 text-white border-yellow-500';
     }
   };
-  
+
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Growth Timeline</h3>
-      
+    <div className="bg-white dark:bg-[#1A1D27] rounded-[2rem] border border-gray-100 dark:border-white/5 shadow-sm p-8">
+      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Growth Timeline</h3>
+
       <div className="overflow-x-auto pb-4">
         <div className="flex space-x-4 min-w-max">
           {days.map((day) => {
             const status = getDayStatus(day);
             const isClickable = status === 'completed' || status === 'missed';
-            
+
             return (
               <div key={day} className="flex flex-col items-center">
                 <button
@@ -68,8 +68,8 @@ export default function Timeline({
                   {status === 'future' && <Lock className="w-5 h-5" />}
                   {(status === 'current' || status === 'pending') && day}
                 </button>
-                
-                <span className="text-xs text-gray-600 mt-2 font-medium">
+
+                <span className="text-xs text-gray-400 mt-2 font-bold">
                   Day {day}
                 </span>
               </div>
@@ -77,24 +77,24 @@ export default function Timeline({
           })}
         </div>
       </div>
-      
+
       {/* Legend */}
-      <div className="flex flex-wrap gap-4 mt-6 pt-4 border-t border-gray-200">
+      <div className="flex flex-wrap gap-4 mt-6 pt-4 border-t border-gray-100 dark:border-white/5">
         <div className="flex items-center space-x-2">
           <div className="w-4 h-4 rounded-full bg-green-500 border-2 border-green-600"></div>
-          <span className="text-sm text-gray-700">Logged</span>
+          <span className="text-sm font-bold text-gray-400">Logged</span>
         </div>
         <div className="flex items-center space-x-2">
           <div className="w-4 h-4 rounded-full bg-red-500 border-2 border-red-600"></div>
-          <span className="text-sm text-gray-700">Missed</span>
+          <span className="text-sm font-bold text-gray-400">Missed</span>
         </div>
         <div className="flex items-center space-x-2">
           <div className="w-4 h-4 rounded-full bg-blue-500 border-2 border-blue-600"></div>
-          <span className="text-sm text-gray-700">Current Day</span>
+          <span className="text-sm font-bold text-gray-400">Current Day</span>
         </div>
         <div className="flex items-center space-x-2">
-          <div className="w-4 h-4 rounded-full bg-gray-200 border-2 border-gray-300"></div>
-          <span className="text-sm text-gray-700">Future</span>
+          <div className="w-4 h-4 rounded-full bg-gray-600 border-2 border-gray-500"></div>
+          <span className="text-sm font-bold text-gray-400">Future</span>
         </div>
       </div>
     </div>

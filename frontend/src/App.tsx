@@ -1,7 +1,7 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
 import Atlas from './pages/Atlas';
-import SeedDetail from './pages/SeedDetail'; // New
+import SeedDetail from './pages/SeedDetail';
 import MyPlants from './pages/MyPlants';
 import Dashboard from './pages/Dashboard';
 import DailyLog from './pages/DailyLog';
@@ -10,21 +10,19 @@ import Harvest from './pages/Harvest';
 import Analytics from './pages/Analytics';
 import PlantCounter from './pages/PlantCounter';
 
-import Header from './components/Header';
+import DashboardLayout from './components/DashboardLayout';
 import AIChatBot from './components/AIChatBot';
 
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Login from './pages/Login';
-import Register from './pages/Register'; // We'll create this next
+import Register from './pages/Register';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminLogin from './pages/AdminLogin';
 
-import { useAuth } from './contexts/AuthContext';
-import { Navigate } from 'react-router-dom';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
-  // We check for token existence as well for immediate protection
   const token = localStorage.getItem('token');
 
   if (!isAuthenticated && !token) {
@@ -33,35 +31,49 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-function App() {
+function AppContent() {
   return (
-    <AuthProvider>
-      <Router>
-        <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-100 pb-12 transition-colors duration-500">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-            <Header />
-            <Routes>
-              <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/atlas" element={<ProtectedRoute><Atlas /></ProtectedRoute>} />
-              <Route path="/atlas/:id" element={<ProtectedRoute><SeedDetail /></ProtectedRoute>} />
-              <Route path="/my-plants" element={<ProtectedRoute><MyPlants /></ProtectedRoute>} />
-              <Route path="/dashboard/:cropId" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-              <Route path="/guide/:cropId" element={<ProtectedRoute><DailyGuide /></ProtectedRoute>} />
-              <Route path="/log/:cropId/:day" element={<ProtectedRoute><DailyLog /></ProtectedRoute>} />
-              <Route path="/harvest/:cropId" element={<ProtectedRoute><Harvest /></ProtectedRoute>} />
-              <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
-              <Route path="/count-plants" element={<ProtectedRoute><PlantCounter /></ProtectedRoute>} />
-              <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-              <Route path="/admin/login" element={<AdminLogin />} />
-            </Routes>
-          </div>
-          <AIChatBot />
-        </div>
-      </Router>
-    </AuthProvider>
+    <Router>
+      <AuthProvider>
+        <Routes>
+          {/* Public Routes (No Layout) */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+
+          {/* Protected Dashboard Routes */}
+          <Route path="/*" element={
+            <ProtectedRoute>
+              <div className="min-h-screen bg-gray-50 dark:bg-[#0E1015] transition-colors duration-300">
+                <DashboardLayout>
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/atlas" element={<Atlas />} />
+                    <Route path="/atlas/:id" element={<SeedDetail />} />
+                    <Route path="/my-plants" element={<MyPlants />} />
+                    <Route path="/dashboard/:cropId" element={<Dashboard />} />
+                    <Route path="/guide/:cropId" element={<DailyGuide />} />
+                    <Route path="/daily-log/:cropId/:day" element={<DailyLog />} />
+                    <Route path="/harvest/:cropId" element={<Harvest />} />
+                    <Route path="/analytics" element={<Analytics />} />
+                    <Route path="/count-plants" element={<PlantCounter />} />
+                    <Route path="/admin" element={<AdminDashboard />} />
+                  </Routes>
+                </DashboardLayout>
+              </div>
+            </ProtectedRoute>
+          } />
+        </Routes>
+        <AIChatBot />
+      </AuthProvider>
+    </Router>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
+  );
+}

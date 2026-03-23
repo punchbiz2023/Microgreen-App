@@ -51,8 +51,8 @@ const GrowthRoadmap: React.FC<GrowthRoadmapProps> = ({ soakingHours, blackoutDay
 
     return (
         <div className="mb-10">
-            <h3 className="text-xl font-extrabold text-gray-900 mb-6 flex items-center">
-                <span className="w-8 h-8 bg-green-500 text-white rounded-lg flex items-center justify-center mr-3 text-sm font-bold">
+            <h3 className="text-xl font-extrabold text-gray-900 dark:text-white mb-6 flex items-center">
+                <span className="w-8 h-8 bg-green-500 text-white rounded-lg flex items-center justify-center mr-3 text-sm font-bold shadow-[0_0_10px_rgba(34,197,94,0.3)]">
                     🚀
                 </span>
                 {t('cultivation.roadmap_title')}
@@ -60,17 +60,17 @@ const GrowthRoadmap: React.FC<GrowthRoadmapProps> = ({ soakingHours, blackoutDay
 
             <div className="relative">
                 {/* Vertical Line */}
-                <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-100 -z-10"></div>
+                <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-100 dark:bg-white/5 -z-10"></div>
 
                 <div className="space-y-6">
                     {steps.map((step, index) => (
                         <div key={index} className="flex items-start gap-4">
-                            <div className={`w-12 h-12 ${step.color} text-white rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-gray-100`}>
+                            <div className={`w-12 h-12 ${step.color} text-white rounded-2xl flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(0,0,0,0.3)]`}>
                                 {step.icon}
                             </div>
                             <div className="flex-1 pt-1">
-                                <h4 className="font-bold text-gray-900">{step.title}</h4>
-                                <p className="text-sm text-gray-500">{step.desc}</p>
+                                <h4 className="font-bold text-gray-900 dark:text-white">{step.title}</h4>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">{step.desc}</p>
                             </div>
                         </div>
                     ))}

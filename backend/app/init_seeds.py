@@ -10,9 +10,8 @@ from sqlalchemy import text
 from app.models import Seed, User, Crop, DailyLog, Harvest, TrainingData
 from app.database import SessionLocal, init_db
 
-# Path to the CSV file - adjust relative path as needed
-# Assuming script is run from backend/ directory or root
-CSV_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), '33_microgreens_full-1.csv')
+# Path to the CSV file
+CSV_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'data', '33_microgreens_full-1.csv')
 
 def parse_range_avg(value_str):
     """Parse '3-4' to 3.5, or '10' to 10.0"""

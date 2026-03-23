@@ -1,33 +1,21 @@
-import { Circle, Sprout } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import React from 'react';
 
-export default function GrowingLoader() {
-    const { t } = useTranslation();
+const GrowingLoader: React.FC = () => {
     return (
-        <div className="min-h-[50vh] flex flex-col items-center justify-center">
-            <div className="relative w-24 h-24 flex items-end justify-center">
-                {/* Soil */}
-                <div className="absolute bottom-2 w-16 h-1 bg-amber-900/20 rounded-full blur-[1px]"></div>
-
-                {/* Seed Phase (0-33%) */}
-                <div className="absolute bottom-2 animate-seed-phase opacity-0">
-                    <Circle className="w-4 h-4 text-amber-700 fill-amber-700" />
-                </div>
-
-                {/* Sprout Phase (33-66%) */}
-                <div className="absolute bottom-2 animate-sprout-phase opacity-0 origin-bottom">
-                    <div className="w-1 h-6 bg-green-400 rounded-full"></div>
-                    <div className="w-3 h-3 bg-green-400 rounded-full -mt-1 -ml-1"></div>
-                </div>
-
-                {/* Plant Phase (66-100%) */}
-                <div className="absolute bottom-2 animate-plant-phase opacity-0 origin-bottom">
-                    <Sprout className="w-12 h-12 text-green-500 stroke-[1.5]" />
+        <div className="flex flex-col items-center justify-center min-h-[400px] w-full bg-white dark:bg-[#0E1015] rounded-[2.5rem] p-12 transition-colors duration-300">
+            <div className="relative w-24 h-24 mb-6">
+                <div className="absolute inset-0 border-4 border-emerald-500/20 rounded-full"></div>
+                <div className="absolute inset-0 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                <div className="absolute inset-4 bg-emerald-500/10 rounded-full flex items-center justify-center">
+                    <div className="w-8 h-8 bg-emerald-500 rounded-lg animate-pulse"></div>
                 </div>
             </div>
-            <p className="mt-4 text-sm font-medium text-green-800/60 animate-pulse tracking-widest uppercase text-[10px]">
-                {t('dashboard.germinating')}
-            </p>
+            <div className="text-center space-y-2">
+                <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Preparing Seeds...</h3>
+                <p className="text-gray-500 dark:text-emerald-500/60 font-black uppercase text-[10px] tracking-[0.3em]">Microgreen Engine v2.0</p>
+            </div>
         </div>
     );
-}
+};
+
+export default GrowingLoader;

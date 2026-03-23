@@ -10,6 +10,7 @@ An AI-powered Progressive Web App for tracking microgreens cultivation with real
 - **🤖 Smart Suggestions**: Real-time recommendations based on environmental conditions
 - **📸 Photo Logging**: Daily photo uploads to track visual progress
 - **🎯 Harvest Analysis**: Detailed comparison of predicted vs actual yields
+- **📸 Smart Plant Counting**: Automatic detection and counting of microgreen sprouts using DeepForest AI
 - **🔄 Continuous Learning**: Model automatically retrains with each harvest for improved accuracy
 - **📱 PWA Support**: Install on mobile devices, works offline
 
@@ -29,6 +30,11 @@ An AI-powered Progressive Web App for tracking microgreens cultivation with real
 - Pydantic validation
 
 ### ML Engine
+- **🤖 Plant Counting (Computer Vision)**:
+  - DeepForest (RetinaNet architecture)
+  - PyTorch Lightning
+  - OpenCV for image processing
+  - Custom fine-tuned models for microgreens
 - scikit-learn (Random Forest)
 - TensorFlow/Keras (Neural Network)
 - pandas + numpy
@@ -57,7 +63,7 @@ docker-compose up -d
 #### 1. ML Model Training
 
 > [!IMPORTANT]
-> The pre-trained ML model weight files (`*.pt`, `*.h5`, `*.pl`) are not included in this repository due to their large size. You **must** generate the training data and train the models locally before starting the backend server.
+> The pre-trained ML model weight files (`*.pt`, `*.h5`, `*.pl`) are included in this repository. Due to their large size, it is recommended to use **Git LFS** if you encounter issues pushing to a remote repository.
 
 ```bash
 cd ml_engine
@@ -65,11 +71,9 @@ cd ml_engine
 # Install dependencies
 pip install -r requirements.txt
 
-# Generate synthetic training data
-python generate_synthetic_data.py
-
-# Train models (takes ~2-3 minutes)
-python train_model.py
+# (Optional) Generate synthetic training data or train models
+# python generate_synthetic_data.py
+# python train_model.py
 ```
 
 #### 2. Backend Setup
@@ -80,7 +84,7 @@ cd backend
 # Install dependencies
 pip install -r requirements.txt
 
-# Initialize database and seed catalog
+# Initialize database (seeds from data/33_microgreens_full-1.csv)
 python -m app.init_seeds
 
 # Start API server
@@ -167,6 +171,8 @@ Urban sims/
 │   ├── generate_synthetic_data.py
 │   ├── train_model.py
 │   ├── prediction_service.py
+│   ├── count_deepforest.py    # AI plant counting engine
+│   ├── DEEPFOREST_EXPLAINED.md # Beginner's guide to the AI
 │   └── retrain.py
 └── data/                 # Data storage
     ├── models/           # Trained ML models

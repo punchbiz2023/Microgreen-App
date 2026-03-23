@@ -58,15 +58,15 @@ TRAIN_SPLIT = 0.8
 # Patch-based prediction for dense, small-object detection
 # Smaller patch_size = better detection of small plants but slower
 # Higher patch_overlap = fewer missed plants at patch boundaries
-PATCH_SIZE = 400
-PATCH_OVERLAP = 0.3
+PATCH_SIZE = 300
+PATCH_OVERLAP = 0.5
 
 # Confidence threshold: lower catches more plants but increases false positives
-SCORE_THRESHOLD = 0.15
+SCORE_THRESHOLD = 0.10
 
 # IoU threshold for Non-Maximum Suppression
 # Lower = more aggressive duplicate removal
-IOU_THRESHOLD = 0.3
+IOU_THRESHOLD = 0.4
 
 # =============================================================================
 # VISUALIZATION

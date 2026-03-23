@@ -6,7 +6,7 @@ import { cropsApi, type Crop } from '../services/api';
 import PlantImage from '../components/PlantImage';
 import { format, differenceInDays } from 'date-fns';
 import { ta as taLocale, enUS as enLocale } from 'date-fns/locale';
-import { Loader2, Trash2 } from 'lucide-react';
+import { Loader2, Trash2, Leaf } from 'lucide-react';
 
 export default function MyPlants() {
     const { t, i18n } = useTranslation();
@@ -69,31 +69,31 @@ export default function MyPlants() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+        <div className="py-8">
+            <div>
+                <div className="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-b border-gray-200 dark:border-white/10 pb-6">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">{t('my_plants.title')}</h1>
-                        <p className="text-gray-600 mt-2">{t('my_plants.subtitle')}</p>
+                        <h1 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">{t('my_plants.title', { defaultValue: 'My Plants' })}</h1>
+                        <p className="text-sm font-bold text-emerald-500/60 uppercase tracking-[0.3em] mt-2">{t('my_plants.subtitle', { defaultValue: 'Manage your active crops' })}</p>
                     </div>
                 </div>
 
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {activeCrops.map((crop) => {
                         const { currentDay, progress } = getCropStatus(crop);
                         return (
                             <div
                                 key={crop.id}
                                 onClick={() => navigate(`/dashboard/${crop.id}`)}
-                                className="bg-white rounded-2xl shadow-sm cursor-pointer border border-gray-100 hover:shadow-md transition-all group overflow-hidden relative"
+                                className="bg-white dark:bg-[#1A1D27] border border-gray-100 dark:border-white/5 rounded-3xl shadow-sm cursor-pointer hover:shadow-2xl hover:shadow-emerald-500/10 hover:border-emerald-500/20 hover:-translate-y-2 transition-all duration-500 group overflow-hidden relative flex flex-col"
                             >
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         setDeletingCrop(crop);
                                     }}
-                                    className="absolute top-3 right-3 z-10 p-2 bg-white/20 backdrop-blur-md rounded-xl text-white hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100"
-                                    title={t('my_plants.delete_plant')}
+                                    className="absolute top-3 right-3 z-10 p-2 bg-black/40 border border-white/10 backdrop-blur-md rounded-xl text-white hover:bg-red-500/80 transition-all opacity-0 group-hover:opacity-100 shadow-lg"
+                                    title={t('my_plants.delete_plant', { defaultValue: 'Delete' })}
                                 >
                                     <Trash2 size={18} />
                                 </button>
@@ -108,25 +108,27 @@ export default function MyPlants() {
                                     </div>
                                 </div>
 
-                                <div className="p-5">
-                                    <div className="flex justify-between items-center mb-3">
-                                        <span className="text-xs font-bold bg-green-50 text-green-600 px-2.5 py-1 rounded-full uppercase tracking-wide">
-                                            {t('common.day')} {currentDay}
+                                <div className="p-5 flex-1 flex flex-col justify-between">
+                                    <div className="flex justify-between items-center mb-5">
+                                        <span className="text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full uppercase tracking-wide">
+                                            {t('common.day', { defaultValue: 'Day' })} {currentDay}
                                         </span>
-                                        <span className="text-xs text-gray-500 font-medium bg-gray-100 px-2 py-1 rounded-lg">
+                                        <span className="text-[10px] text-gray-500 dark:text-gray-400 font-bold bg-gray-100 dark:bg-[#0E1015] border border-gray-100 dark:border-white/5 px-2 py-1 rounded-lg uppercase tracking-wider">
                                             {crop.tray_size || 'Default Tray'}
                                         </span>
                                     </div>
 
-                                    <div className="w-full bg-gray-100 rounded-full h-2.5 mb-2">
-                                        <div
-                                            className="bg-gradient-to-r from-green-400 to-emerald-500 h-2.5 rounded-full transition-all duration-500 shadow-sm"
-                                            style={{ width: `${progress}%` }}
-                                        ></div>
-                                    </div>
-                                    <div className="flex justify-between text-xs text-gray-400 font-medium">
-                                        <span>{t('my_plants.sprout')}</span>
-                                        <span>{t('my_plants.harvest_label')}</span>
+                                    <div>
+                                        <div className="w-full bg-gray-100 dark:bg-[#0E1015] border border-gray-200 dark:border-white/5 rounded-full h-1.5 mb-2 overflow-hidden shadow-inner">
+                                            <div
+                                                className="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full transition-all duration-1000 relative shadow-[0_0_10px_rgba(52,211,153,0.5)]"
+                                                style={{ width: `${progress}%` }}
+                                            ></div>
+                                        </div>
+                                        <div className="flex justify-between text-[10px] text-gray-500 font-bold uppercase tracking-widest">
+                                            <span>{t('my_plants.sprout', { defaultValue: 'Sprout' })}</span>
+                                            <span>{t('my_plants.harvest_label', { defaultValue: 'Harvest' })}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -134,13 +136,17 @@ export default function MyPlants() {
                     })}
 
                     {activeCrops.length === 0 && (
-                        <div className="text-center py-12 text-gray-500 col-span-full bg-white rounded-3xl border border-dashed border-gray-300">
-                            <p className="mb-4">{t('my_plants.no_plants')}</p>
+                        <div className="text-center py-20 px-4 text-gray-500 col-span-full bg-white dark:bg-[#1A1D27] rounded-[3rem] border-2 border-dashed border-gray-200 dark:border-white/10 shadow-sm">
+                            <div className="w-20 h-20 bg-emerald-500/10 rounded-3xl flex items-center justify-center mx-auto mb-8 transform -rotate-6">
+                                <Leaf className="w-10 h-10 text-emerald-500 dark:text-emerald-400" />
+                            </div>
+                            <h4 className="text-2xl font-black text-gray-900 dark:text-white mb-3">No Active Crops</h4>
+                            <p className="mb-10 text-gray-500 dark:text-gray-400 font-medium max-w-xs mx-auto leading-relaxed">{t('my_plants.no_plants', { defaultValue: 'You have no active crops currently growing.' })}</p>
                             <button
                                 onClick={() => navigate('/atlas')}
-                                className="text-green-500 font-bold hover:underline"
+                                className="inline-flex items-center text-emerald-500 dark:text-emerald-400 font-black text-xs tracking-widest uppercase hover:opacity-80 transition-opacity"
                             >
-                                {t('my_plants.go_to_atlas')}
+                                {t('my_plants.go_to_atlas', { defaultValue: 'Explore Seed Atlas' })}
                             </button>
                         </div>
                     )}
@@ -149,27 +155,27 @@ export default function MyPlants() {
 
             {/* Delete Confirmation Modal */}
             {deletingCrop && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl transform transition-all animate-in fade-in zoom-in duration-200">
-                        <div className="w-16 h-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mb-6 mx-auto">
-                            <Trash2 size={32} />
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 dark:bg-[#0E1015]/80 backdrop-blur-md">
+                    <div className="bg-white dark:bg-[#1A1D27] border border-gray-200 dark:border-white/10 rounded-[2.5rem] p-10 max-w-sm w-full shadow-2xl transform transition-all animate-in fade-in zoom-in duration-300">
+                        <div className="w-20 h-20 bg-red-500/10 text-red-500 rounded-3xl flex items-center justify-center mb-8 mx-auto border border-red-500/10 shadow-inner">
+                            <Trash2 size={36} />
                         </div>
-                        <h3 className="text-2xl font-bold text-gray-900 text-center mb-2">{t('my_plants.delete_plant_q')}</h3>
-                        <p className="text-gray-500 text-center mb-8">
+                        <h3 className="text-2xl font-black text-gray-900 dark:text-white text-center mb-2 tracking-tight">Delete Crop?</h3>
+                        <p className="text-gray-500 dark:text-gray-400 text-center mb-10 text-sm leading-relaxed font-medium">
                             {t('my_plants.delete_warning', { name: t(`seeds.${deletingCrop.seed.seed_type}.name`, { defaultValue: deletingCrop.seed.name }) })}
                         </p>
-                        <div className="flex space-x-3">
+                        <div className="grid grid-cols-2 gap-4">
                             <button
                                 onClick={() => setDeletingCrop(null)}
-                                className="flex-1 px-6 py-3 rounded-xl font-bold text-gray-500 bg-gray-100 hover:bg-gray-200 transition-colors"
+                                className="px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-[#222634] hover:bg-gray-200 dark:hover:bg-white/10 transition-all border border-gray-100 dark:border-white/5"
                             >
-                                {t('common.cancel')}
+                                {t('common.cancel', { defaultValue: 'Cancel' })}
                             </button>
                             <button
                                 onClick={handleDelete}
-                                className="flex-1 px-6 py-3 rounded-xl font-bold text-white bg-red-500 hover:bg-red-600 shadow-lg shadow-red-200 transition-all active:scale-95"
+                                className="px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-white bg-red-500 hover:bg-red-600 shadow-xl shadow-red-500/20 transition-all active:scale-95 border-b-4 border-red-700 active:border-b-0"
                             >
-                                {t('common.delete')}
+                                {t('common.delete', { defaultValue: 'Delete' })}
                             </button>
                         </div>
                     </div>
