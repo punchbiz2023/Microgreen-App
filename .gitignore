@@ -28,7 +28,6 @@ env/
 *.pkl
 *.h5
 *.hdf5
-*.pl
 *.onnx
 data/models/*.pkl
 data/models/*.h5
