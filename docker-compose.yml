@@ -29,6 +29,7 @@ services:
       DATABASE_URL: postgresql://microgreens_user:microgreens_password@postgres:5432/microgreens
       API_HOST: 0.0.0.0
       API_PORT: 8000
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
     volumes:
       - backend_static:/app/static
     ports:
