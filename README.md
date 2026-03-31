@@ -40,22 +40,31 @@ An AI-powered Progressive Web App for tracking microgreens cultivation with real
 - pandas + numpy
 - Ensemble prediction (RF 40% + NN 60%)
 
-## Quick Start
+## 🚀 Quick Start
 
-### Using Docker (Recommended)
+### Option 1: GitHub Codespaces (easiest)
+
+1.  **Open in Codespaces**: Click the **Code** button on GitHub and select **Create codespace on main**.
+2.  **Wait for Setup**: The environment will automatically install dependencies and check for model files.
+3.  **Run the App**:
+    ```bash
+    # Start Backend & Frontend in one go
+    docker-compose up -d
+    ```
+4.  **Access**: VS Code will notify you when ports 3000 (Frontend) and 8000 (Backend) are ready.
+
+### Option 2: Local Docker Setup
 
 ```bash
-# Clone the repository
-git clone <repo-url>
-cd "Urban sims"
+# 1. Clone & Enter
+git clone https://github.com/punchbiz2023/Microgreen-App.git
+cd Microgreen-App
 
-# Start all services
-docker-compose up -d
+# 2. Setup Models (Important for ML features)
+python ml_engine/setup_models.py
 
-# Access the application
-# Frontend: http://localhost:3000
-# Backend API: http://localhost:8000
-# API Docs: http://localhost:8000/docs
+# 3. Clean Run
+docker-compose up --build -d
 ```
 
 ### Manual Setup
