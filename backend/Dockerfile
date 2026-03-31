@@ -16,12 +16,12 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy and install Python requirements first (for layer caching)
-COPY requirements.txt .
+COPY backend/requirements.txt requirements.txt
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # Copy the backend application code
-COPY ./app ./app
+COPY backend/app ./app
 
 # Copy the entire ml_engine directory (prediction + counting models)
 # Using ./ml_engine because the build context is the repository root
