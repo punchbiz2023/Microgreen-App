@@ -1,22 +1,47 @@
 services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: microgreens_db
+    environment:
+      POSTGRES_USER: microgreens_user
+      POSTGRES_PASSWORD: microgreens_password
+      POSTGRES_DB: microgreens
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U microgreens_user -d microgreens"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - microgreens_network
+
   # FastAPI Backend (includes ML engine + models)
   backend:
     build:
-      context: .                  # Build context is the repo root
+      context: .                  # Build context is repo root
       dockerfile: backend/Dockerfile
     container_name: microgreens_backend
     environment:
-      DATABASE_URL: sqlite:////app/data/microgreens.db
+      DATABASE_URL: postgresql://microgreens_user:microgreens_password@postgres:5432/microgreens
       API_HOST: 0.0.0.0
       API_PORT: 8000
-      ALLOWED_ORIGINS: "*"
     volumes:
       - backend_static:/app/static
     ports:
       - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
     command: >
-      sh -c "uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+      sh -c "python -m app.init_seeds && 
+             uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    networks:
+      - microgreens_network
 
   # React Frontend (served via Nginx)
   frontend:
@@ -31,7 +56,15 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+    networks:
+      - microgreens_network
 
 volumes:
+  postgres_data:
+    driver: local
   backend_static:
     driver: local
+
+networks:
+  microgreens_network:
+    driver: bridge
