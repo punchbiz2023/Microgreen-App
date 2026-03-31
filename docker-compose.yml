@@ -1,52 +1,24 @@
 services:
-  # PostgreSQL Database
-  postgres:
-    image: postgres:15-alpine
-    container_name: microgreens_db
-    environment:
-      POSTGRES_USER: microgreens_user
-      POSTGRES_PASSWORD: microgreens_password
-      POSTGRES_DB: microgreens
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U microgreens_user -d microgreens"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - microgreens_network
-
-  # FastAPI Backend
+  # FastAPI Backend (includes ML engine + models)
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .                  # Build context is the repo root
+      dockerfile: backend/Dockerfile
     container_name: microgreens_backend
     environment:
-      DATABASE_URL: postgresql://microgreens_user:microgreens_password@postgres:5432/microgreens
+      DATABASE_URL: sqlite:////app/data/microgreens.db
       API_HOST: 0.0.0.0
       API_PORT: 8000
+      ALLOWED_ORIGINS: "*"
     volumes:
-      - ./backend:/app
-      - ./ml_engine:/app/ml_engine
-      - ./data:/app/data
-      - ./data/33_microgreens_full-1.csv:/app/data/33_microgreens_full-1.csv
       - backend_static:/app/static
     ports:
       - "8000:8000"
-    depends_on:
-      postgres:
-        condition: service_healthy
+    restart: unless-stopped
     command: >
-      sh -c "python -m app.init_seeds && 
-             uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
-    networks:
-      - microgreens_network
+      sh -c "uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
 
-  # React Frontend
+  # React Frontend (served via Nginx)
   frontend:
     build:
       context: ./frontend
@@ -58,16 +30,8 @@ services:
       - "3000:3000"
     depends_on:
       - backend
-    networks:
-      - microgreens_network
+    restart: unless-stopped
 
 volumes:
-  postgres_data:
-    driver: local
   backend_static:
     driver: local
-
-networks:
-  microgreens_network:
-    driver: bridge
-

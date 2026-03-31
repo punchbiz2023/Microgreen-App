@@ -24,13 +24,10 @@ venv/
 ENV/
 env/
 
-# ML Models and Data
-*.pkl
-*.h5
+# ML Models and Data - only exclude large binary model files NOT tracked via LFS
+# Note: data/models/*.pkl and *.h5 ARE tracked (yield prediction models, ~50MB total)
 *.hdf5
 *.onnx
-data/models/*.pkl
-data/models/*.h5
 data/real_crops.csv
 
 # Node

@@ -28,17 +28,18 @@ class CountService:
         self.upload_dir = Path(upload_dir)
         self.upload_dir.mkdir(parents=True, exist_ok=True)
         
-        # Initialize Sprout counter
+        # Initialize Sprout counter (graceful degradation - app still works without it)
         print("🔍 Attempting to load Sprout model...")
         self.sprout_counter = None
+        self.model_available = False
         try:
             self.sprout_counter = MicrogreenSproutCounter()
+            self.model_available = True
             print("✅ Successfully loaded Sprout model for counting")
         except Exception as e:
-            print(f"❌ Failed to load Sprout model: {e}")
-            
-        if not self.sprout_counter:
-            raise RuntimeError("Failed to load Sprout counting model.")
+            print(f"⚠️  Sprout model unavailable: {e}")
+            print("   Plant counting feature will return an error when used.")
+            print("   All other app features remain fully functional.")
     
     def count_from_bytes(self, image_bytes: bytes, 
                         model_type: str = 'deepforest',
@@ -62,8 +63,8 @@ class CountService:
             Dictionary with count, detections, and annotated image path
         """
         try:
-            if not self.sprout_counter:
-                raise RuntimeError("Sprout model is not available")
+            if not self.sprout_counter or not self.model_available:
+                raise RuntimeError("Sprout detection model is not loaded. Check that ml_engine/models/sprout_model.pl exists.")
             
             print(f"🌱 Processing image with Sprout model (conf={conf_threshold})")
             self.method = "Sprout"
@@ -117,8 +118,17 @@ class CountService:
 _count_service = None
 
 def get_count_service() -> CountService:
-    """Get or create count service instance"""
+    """Get or create count service instance (graceful degradation if model unavailable)"""
     global _count_service
     if _count_service is None:
-        _count_service = CountService()
+        try:
+            _count_service = CountService()
+        except Exception as e:
+            print(f"⚠️  CountService could not be initialized: {e}")
+            # Return a dummy object that will fail gracefully on use
+            _count_service = CountService.__new__(CountService)
+            _count_service.sprout_counter = None
+            _count_service.model_available = False
+            _count_service.upload_dir = Path("./static/count_results")
+            _count_service.upload_dir.mkdir(parents=True, exist_ok=True)
     return _count_service
