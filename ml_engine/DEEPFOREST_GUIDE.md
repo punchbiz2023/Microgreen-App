@@ -14,7 +14,7 @@ Complete guide for training, tuning, and deploying the DeepForest-based plant co
 
 ```bash
 # Navigate to project root
-cd "c:\Users\hrith\OneDrive\Desktop\Urban sims"
+cd "/path/to/Microgreen-App"
 
 # Install DeepForest and dependencies
 pip install deepforest pytorch-lightning torch torchvision

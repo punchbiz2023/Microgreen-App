@@ -1,8 +1,9 @@
 import sqlite3
 import os
+from pathlib import Path
 
 def migrate():
-    db_path = r"c:\Users\hrith\OneDrive\Desktop\Urban sims\backend\microgreens_v2.db"
+    db_path = os.path.join(os.path.dirname(__file__), "microgreens_v2.db")
     if not os.path.exists(db_path):
         print(f"Database not found at {db_path}")
         return

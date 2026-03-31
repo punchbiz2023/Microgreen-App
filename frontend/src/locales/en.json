@@ -5,21 +5,21 @@
         "my_plants": "My Plants",
         "analytics": "Analytics",
         "admin": "Admin",
-        "slogan": "Urban Cultivation",
+        "slogan": "Premium Microgreens Tracking",
         "welcome": "Welcome, {{name}}",
         "logout": "Logout",
         "login": "Log in",
         "get_started": "Get Started",
-        "brand_urban": "Urban",
-        "brand_sims": "Sims"
+        "brand_urban": "Microgreens",
+        "brand_sims": "Tracker"
     },
     "chat": {
         "title": "Grow Guide AI",
         "placeholder": "Ask about growth...",
         "online": "Online",
-        "welcome_msg": "Hello! I'm your Urban Sims Expert Guide. How can I help you with your microgreens today?",
+        "welcome_msg": "Hello! I'm your Microgreens Tracker Expert Guide. How can I help you with your microgreens today?",
         "error_msg": "I'm having trouble connecting to my brain right now. Let's try again!",
-        "ai_instruction": "You are the 'Urban Sims Expert Guide'. Goal: Help users grow high-quality microgreens. Constraint: Be technical, extremely concise, and actionable. Avoid long paragraphs. Use Markdown (bold, lists) for formatting. Varieties: Amaranth, Radish, Broccoli, Pea shoots, Sunflower, etc."
+        "ai_instruction": "You are the 'Microgreens Tracker Expert Guide'. Goal: Help users grow high-quality microgreens. Constraint: Be technical, extremely concise, and actionable. Avoid long paragraphs. Use Markdown (bold, lists) for formatting. Varieties: Amaranth, Radish, Broccoli, Pea shoots, Sunflower, etc."
     },
     "common": {
         "loading": "Loading...",
@@ -271,7 +271,8 @@
             "soak_desc": "Soak seeds for {{hours}} hours in clean water before sowing.",
             "blackout_desc": "Keep in complete darkness. Mist twice daily with water.",
             "light_desc": "Expose to bright light. Continue misting 2x daily.",
-            "harvest_desc": "Your microgreens are ready! Cut at the base and enjoy."
+            "harvest_desc": "Your microgreens are ready! Cut at the base and enjoy.",
+            "disclaimer": "If asked about something unrelated to microgreens or Microgreens Tracker, politely steer the conversation back to plant science."
         },
         "taste_label": "Taste",
         "nutrition_label": "Nutrition Benefits",

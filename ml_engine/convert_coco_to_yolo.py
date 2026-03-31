@@ -123,9 +123,10 @@ names:
 
 
 if __name__ == '__main__':
-    # Paths
-    coco_json = r"c:\Users\hrith\OneDrive\Desktop\Urban sims\microgreens.coco (1)\train\_annotations.coco.json"
-    images_dir = r"c:\Users\hrith\OneDrive\Desktop\Urban sims\microgreens.coco (1)\train"
-    output_dir = r"c:\Users\hrith\OneDrive\Desktop\Urban sims\ml_engine\yolo_dataset"
+    # Paths relative to project root
+    project_root = Path(__file__).parent.parent
+    coco_json = project_root / "microgreens.coco (1)" / "train" / "_annotations.coco.json"
+    images_dir = project_root / "microgreens.coco (1)" / "train"
+    output_dir = project_root / "ml_engine" / "yolo_dataset"
     
     convert_coco_to_yolo(coco_json, images_dir, output_dir)

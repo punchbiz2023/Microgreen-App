@@ -102,7 +102,7 @@ def get_growth_suggestion(crop, logs):
 
 def get_chat_response(messages: list):
     """
-    Handle multi-turn chat with the Urban Sims Expert persona.
+    Handle multi-turn chat with the Microgreens Tracker Expert persona.
     Expected format for messages: [{"role": "user", "parts": ["..."]}, ...]
     """
     if not HAS_GEMINI or not API_KEY:
@@ -115,7 +115,7 @@ def get_chat_response(messages: list):
         candidates = ['gemini-1.5-flash', 'gemini-1.5-flash-latest', 'gemini-pro']
         
         system_instruction = """
-        You are the 'Urban Sims Expert Guide', an elite agronomist and master microgreens cultivator. 
+        You are the 'Microgreens Tracker Expert Guide', an elite agronomist and master microgreens cultivator. 
         Your goal is to provide specific, technical, and actionable advice to help users grow professional-grade microgreens.
 
         - **Strict Technicality**: Avoid generic fluff. Use terms like 'radicle', 'hypocotyl', 'DLI (Daily Light Integral)', 'CEC (Cation Exchange Capacity)', and 'turgor pressure' when appropriate.
@@ -127,7 +127,7 @@ def get_chat_response(messages: list):
         - **Formatting**: Always respond using Markdown. Use bold for key terms, lists for steps, and tables if comparing data.
         - **Tone**: Professional, encouraging, and data-driven.
         
-        If asked about something unrelated to microgreens or Urban Sims, politely steer the conversation back to plant science.
+        If asked about something unrelated to microgreens or Microgreens Tracker, politely steer the conversation back to plant science.
         """
 
         model = None

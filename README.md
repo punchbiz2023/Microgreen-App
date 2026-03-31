@@ -1,4 +1,4 @@
-# 🌱 Microgreens AI Tracker
+# 🌱 Microgreens Tracker
 
 An AI-powered Progressive Web App for tracking microgreens cultivation with real-time yield predictions and smart growing suggestions.
 
@@ -6,10 +6,10 @@ An AI-powered Progressive Web App for tracking microgreens cultivation with real
 
 ## ✨ Features
 
-- **🧬 Seed Atlas**: Browse and select from 7 microgreens varieties with difficulty ratings and yield estimates
+- **🧬 Seed Atlas**: Browse and select from over 30 microgreens varieties with difficulty ratings and yield estimates
 - **📊 AI Yield Predictions**: Random Forest + Neural Network ensemble predicting final yield (96%+ accuracy)
 - **📈 Live Timeline**: Visual day-by-day progress tracking with status indicators
-- **🤖 Smart Suggestions**: Real-time growing recommendations powered by Gemini AI
+- **🤖 Smart Expert Guide**: Real-time growing recommendations powered by Gemini AI
 - **📸 Smart Plant Counting**: Automatic detection and counting of microgreen sprouts using a fine-tuned DeepForest model
 - **📸 Photo Logging**: Daily photo uploads to track visual progress
 - **🎯 Harvest Analysis**: Detailed comparison of predicted vs actual yields

@@ -85,8 +85,9 @@ def test_model(model_path: str, test_image: str):
 
 
 if __name__ == '__main__':
-    # Paths
-    data_yaml = r"c:\Users\hrith\OneDrive\Desktop\Urban sims\ml_engine\yolo_dataset\dataset.yaml"
+    # Paths relative to project root
+    project_root = Path(__file__).parent.parent
+    data_yaml = project_root / "ml_engine" / "yolo_dataset" / "dataset.yaml"
     
     # Train model
     print("="*60)

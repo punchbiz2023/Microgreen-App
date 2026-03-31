@@ -35,7 +35,7 @@ export default function Sidebar({ isCollapsed = false, toggleCollapse }: Sidebar
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/20 shrink-0">
                     <Leaf className="w-6 h-6 text-white" />
                 </div>
-                {!isCollapsed && <h1 className={`text-2xl font-black ${isDarkMode ? 'text-white' : 'text-gray-900'} tracking-tight`}>Urban<span className="text-emerald-400">Sims</span></h1>}
+                {!isCollapsed && <h1 className={`text-2xl font-black ${isDarkMode ? 'text-white' : 'text-gray-900'} tracking-tight`}>Microgreens<span className="text-emerald-400">Tracker</span></h1>}
             </div>
 
             {/* Main Navigation */}
@@ -96,7 +96,7 @@ export default function Sidebar({ isCollapsed = false, toggleCollapse }: Sidebar
             {/* Powered By Branding */}
             {!isCollapsed && (
                 <div className={`px-8 py-2 text-[9px] font-bold uppercase tracking-[0.2em] ${isDarkMode ? 'text-gray-600' : 'text-gray-400'} text-center`}>
-                    Urban Sims <span className="mx-1 text-emerald-500/50">•</span> Powered by <span className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>Punchbiz</span>
+                    Microgreens Tracker <span className="mx-1 text-emerald-500/50">•</span> Powered by <span className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>Punchbiz</span>
                 </div>
             )}
 

@@ -33,7 +33,7 @@ from app.auth import (
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="Urban Sims API",
+    title="Microgreens Tracker API",
     description="Pro Microgreens Tracking with Custom Schedules",
     version="2.0.0"
 )
@@ -310,7 +310,7 @@ async def startup_event():
 
 @app.get("/")
 async def root():
-    return {"message": "Urban Sims API", "status": "operational", "version": "2.0.0"}
+    return {"message": "Microgreens Tracker API", "status": "operational", "version": "2.0.0"}
 
 
 # --- AUTH ROUTES ---
