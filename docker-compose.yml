@@ -32,6 +32,7 @@ services:
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
     volumes:
       - backend_static:/app/static
+      - ./data:/data
     ports:
       - "8000:8000"
     depends_on:
@@ -39,7 +40,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     command: >
-      sh -c "python -m app.init_seeds && 
+      sh -c "python -m app && 
              uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
     networks:
       - microgreens_network

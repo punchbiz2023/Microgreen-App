@@ -14,6 +14,7 @@ export default function Atlas() {
   const [seeds, setSeeds] = useState<Seed[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSeed, setSelectedSeed] = useState<Seed | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadSeeds();
@@ -22,9 +23,15 @@ export default function Atlas() {
   const loadSeeds = async () => {
     try {
       const response = await seedsApi.getAll();
-      setSeeds(response.data);
+      console.log('API Response:', response);
+      console.log('Seeds Data:', response.data);
+      setSeeds(response.data || []);
+      setError(null);
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
       console.error('Failed to load seeds:', error);
+      setError(errorMessage);
+      setSeeds([]);
     } finally {
       setLoading(false);
     }
@@ -32,6 +39,28 @@ export default function Atlas() {
 
   if (loading) {
     return <GrowingLoader />;
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-red-50 dark:bg-red-900/20">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-2">Error Loading Seeds</h2>
+          <p className="text-red-500 dark:text-red-300">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (seeds.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-600 dark:text-gray-300 mb-2">No Seeds Found</h2>
+          <p className="text-gray-500 dark:text-gray-400">Seeds database is empty</p>
+        </div>
+      </div>
+    );
   }
 
   return (

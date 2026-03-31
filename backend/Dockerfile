@@ -2,18 +2,19 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies (including PostgreSQL client and ML libs)
+# Install only essential system dependencies (PostgreSQL client and build tools)
 RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
     git \
     libpq-dev \
-    libgl1-mesa-glx \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
     && rm -rf /var/lib/apt/lists/*
+
+# Set environment variables for headless OpenCV and ML libraries
+ENV PYTHONUNBUFFERED=1
+ENV OPENBLAS_NUM_THREADS=1
+ENV OMP_NUM_THREADS=1
+ENV MKL_NUM_THREADS=1
 
 # Copy and install Python requirements first (for layer caching)
 COPY backend/requirements.txt requirements.txt

@@ -9,24 +9,10 @@ let API_BASE_URL: string;
 if (import.meta.env.VITE_API_URL) {
   // Use explicit environment variable if provided
   API_BASE_URL = import.meta.env.VITE_API_URL;
-} else if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-  // Local development: use localhost:8001
-  API_BASE_URL = 'http://localhost:8000';
 } else {
-  // Public deployment: construct backend URL from frontend URL
-  // Replace port 5174 with 8000 in the hostname
-  const currentHost = window.location.hostname;
-  const protocol = window.location.protocol;
-
-  // For VS Code devtunnels
-  if (currentHost.includes('devtunnels')) {
-    const backendHost = currentHost.replace('-5174.', '-8000.');
-    API_BASE_URL = `${protocol}//${backendHost}`;
-  } else if (currentHost.includes('ngrok')) {
-    API_BASE_URL = `${protocol}//${currentHost}`;
-  } else {
-    API_BASE_URL = `${protocol}//${currentHost}`;
-  }
+  // Use relative path to work with nginx proxy in Docker
+  // This will proxy /api requests through nginx to the backend
+  API_BASE_URL = '';
 }
 
 const api = axios.create({
