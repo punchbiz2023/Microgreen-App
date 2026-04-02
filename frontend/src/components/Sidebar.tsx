@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Home, Compass, BarChart2, Leaf, LogOut, Globe, PanelLeftClose } from 'lucide-react';
+import { Home, Compass, Leaf, LogOut, Globe, PanelLeftClose } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import ThemeToggle from './ThemeToggle';
@@ -9,7 +9,6 @@ const NAV_ITEMS = [
     { name: 'header.home', path: '/', icon: Home },
     { name: 'header.atlas', path: '/atlas', icon: Compass },
     { name: 'header.my_plants', path: '/my-plants', icon: Leaf },
-    { name: 'header.analytics', path: '/analytics', icon: BarChart2 },
 ];
 
 interface SidebarProps {
@@ -31,11 +30,20 @@ export default function Sidebar({ isCollapsed = false, toggleCollapse }: Sidebar
     return (
         <aside className={`fixed left-0 top-0 h-screen ${isCollapsed ? 'w-20' : 'w-64'} ${isDarkMode ? 'bg-[#12141D] text-gray-400 border-white/5' : 'bg-white text-gray-600 border-gray-100'} flex flex-col border-r shadow-2xl z-50 transition-all duration-300`}>
             {/* Logo Area */}
-            <div className={`p-8 flex items-center ${isCollapsed ? 'justify-center space-x-0' : 'space-x-3'} transition-all`}>
+            <div className={`px-6 py-8 flex items-center ${isCollapsed ? 'justify-center' : ''} transition-all`}>
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/20 shrink-0">
                     <Leaf className="w-6 h-6 text-white" />
                 </div>
-                {!isCollapsed && <h1 className={`text-2xl font-black ${isDarkMode ? 'text-white' : 'text-gray-900'} tracking-tight`}>Microgreens<span className="text-emerald-400">Tracker</span></h1>}
+                {!isCollapsed && (
+                    <div className="ml-3 flex flex-col leading-none">
+                        <span className={`text-sm font-black uppercase tracking-wider ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                            Microgreens
+                        </span>
+                        <span className="text-emerald-400 font-black text-[10px] uppercase tracking-[0.3em] mt-0.5">
+                            Tracker
+                        </span>
+                    </div>
+                )}
             </div>
 
             {/* Main Navigation */}
@@ -106,7 +114,7 @@ export default function Sidebar({ isCollapsed = false, toggleCollapse }: Sidebar
                     <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     <div className="relative z-10 flex items-center">
                         <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center font-bold text-white shadow-inner flex-shrink-0 cursor-pointer ${isDarkMode ? 'bg-gradient-to-br from-gray-700 to-gray-800 border-gray-600' : 'bg-gradient-to-br from-gray-200 to-gray-300 border-white'}`} onClick={isCollapsed ? logout : undefined} title={isCollapsed ? t('nav.logout') : ''}>
-                            <span className={isDarkMode ? 'text-white' : 'text-gray-700'}>{user.email.charAt(0).toUpperCase()}</span>
+                            <span className={isDarkMode ? 'text-white' : 'text-gray-700'}>{(user?.email?.charAt(0) || user?.username?.charAt(0) || 'U').toUpperCase()}</span>
                         </div>
                         {!isCollapsed && (
                             <>

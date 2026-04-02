@@ -80,7 +80,7 @@ export default function Register() {
                         <Leaf className="w-7 h-7 text-white" />
                     </div>
                     <div className="flex flex-col">
-                        <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-none">Urban<span className="text-emerald-400">Sims</span></h1>
+                        <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-none">Microgreens<span className="text-emerald-400">Tracker</span></h1>
                     </div>
                 </div>
 
@@ -109,7 +109,7 @@ export default function Register() {
                         <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
                             <Leaf className="w-7 h-7 text-white" />
                         </div>
-                        <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Urban<span className="text-emerald-400">Sims</span></h1>
+                        <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Microgreens<span className="text-emerald-400">Tracker</span></h1>
                     </div>
 
                     <div className="mb-10 text-center lg:text-left">

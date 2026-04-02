@@ -7,7 +7,6 @@ import Dashboard from './pages/Dashboard';
 import DailyLog from './pages/DailyLog';
 import DailyGuide from './pages/DailyGuide';
 import Harvest from './pages/Harvest';
-import Analytics from './pages/Analytics';
 import PlantCounter from './pages/PlantCounter';
 
 import DashboardLayout from './components/DashboardLayout';
@@ -55,7 +54,6 @@ function AppContent() {
                     <Route path="/guide/:cropId" element={<DailyGuide />} />
                     <Route path="/daily-log/:cropId/:day" element={<DailyLog />} />
                     <Route path="/harvest/:cropId" element={<Harvest />} />
-                    <Route path="/analytics" element={<Analytics />} />
                     <Route path="/count-plants" element={<PlantCounter />} />
                     <Route path="/admin" element={<AdminDashboard />} />
                   </Routes>

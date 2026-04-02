@@ -102,6 +102,12 @@ export default function DailyLog() {
     try {
       setSubmitting(true);
 
+      // Prepare actions: if back-logging and watered, mark both mists as done
+      let actions = actionType ? [actionType] : [];
+      if (isBackLogging && watered && actions.length === 0) {
+        actions = ['water_morning', 'water_evening'];
+      }
+
       // Submit log data
       await logsApi.create(parseInt(cropId), {
         day_number: parseInt(day),
@@ -109,7 +115,7 @@ export default function DailyLog() {
         temperature,
         humidity,
         notes: notes || undefined,
-        actions_recorded: actionType ? [actionType] : []
+        actions_recorded: actions
       });
 
       // Upload photo if provided
@@ -175,7 +181,12 @@ export default function DailyLog() {
 
           <div className="text-center mb-12 relative z-10">
             <h1 className="text-4xl font-black text-gray-900 dark:text-white mb-3 tracking-tighter uppercase">
-              {isBackLogging ? `Back-log: Day ${day}` : `Log Day ${day}`}
+              {(() => {
+                if (actionType === 'water_morning') return `Mist 1: Day ${day}`;
+                if (actionType === 'water_evening') return `Mist 2: Day ${day}`;
+                if (actionType === 'sow_seed') return `Sow Seed: Day ${day}`;
+                return isBackLogging ? `Back-log: Day ${day}` : `Log Day ${day}`;
+              })()}
             </h1>
             <p className="text-emerald-600 dark:text-emerald-500 font-black uppercase tracking-[0.3em] text-[10px]">
               {crop.seed.name} • {parseInt(day!) <= blackoutDays ? 'Blackout Phase' : 'Light Phase'}
@@ -205,7 +216,7 @@ export default function DailyLog() {
             <div>
               <label className="flex items-center text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4">
                 <Droplet className="w-5 h-5 mr-2 text-blue-500 dark:text-blue-400" />
-                Did you water the plants today?
+                {actionType?.includes('water') ? `Record ${actionType === 'water_morning' ? 'Mist 1' : 'Mist 2'} status` : 'Did you water the plants today?'}
               </label>
               <div className="flex flex-col sm:flex-row gap-4 mb-6">
                 <button

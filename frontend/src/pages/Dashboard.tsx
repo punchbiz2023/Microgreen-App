@@ -52,7 +52,7 @@ export default function Dashboard() {
 
           // Attempt to use Puter.js for AI suggestion
           if (window.puter && window.puter.ai) {
-            const seedName = cropResponse.data.seed.name;
+            const seedName = cropResponse.data.seed?.name || 'Unknown Seed';
             const cropData = cropResponse.data;
             const logsData = logsResponse.data;
             const currentDay = Math.floor(logsData.length / 1); // Approx: 1 log per day
@@ -62,11 +62,11 @@ export default function Dashboard() {
 
             const prompt = `
              I am growing ${seedName} microgreens. 
-             Current progress: Day ${currentDay} of ${cropData.seed.harvest_days || 'standard cycle'}.
+             Current progress: Day ${currentDay} of ${cropData.seed?.harvest_days || 'standard cycle'}.
              Recent conditions:
              ${recentLogs}
              
-             The ideal temperature is ${cropData.seed.ideal_temp}C and humidity ${cropData.seed.ideal_humidity}%.
+             The ideal temperature is ${cropData.seed?.ideal_temp || 22}C and humidity ${cropData.seed?.ideal_humidity || 50}%.
              
              Analyze the conditions. If they are off, warn me. 
              Give me 2-3 short, actionable tips for the next 24 hours to maximize yield.
@@ -87,7 +87,7 @@ export default function Dashboard() {
             }
           }
 
-          setPrediction({
+          const newPrediction = {
             ...predResponse.data,
             // Append AI suggestion if available
             suggestions: [
@@ -98,9 +98,35 @@ export default function Dashboard() {
                 message: aiSuggestion
               }] : [])
             ]
-          });
+          };
+
+          // Add Sowing Reminder on Day 1
+          if (currentDay === 1) {
+            newPrediction.suggestions.unshift({
+              type: 'warning' as const,
+              issue: t('dashboard.sowing_day', { defaultValue: 'Sowing Day' }),
+              message: t('dashboard.sowing_reminder', { defaultValue: '🌱 Time to sow your seeds! Ensure even density and correct moisture for best results.' })
+            });
+          }
+
+          setPrediction(newPrediction);
         } catch (error) {
           console.error('Failed to load prediction:', error);
+          // Fallback prediction if API fails
+          if (cropResponse.data) {
+            setPrediction({
+              predicted_yield: cropResponse.data.seed?.avg_yield_grams || 500,
+              base_yield: cropResponse.data.seed?.avg_yield_grams || 500,
+              yield_efficiency: 100,
+              status: 'neutral',
+              potential_loss: 0,
+              suggestions: [{
+                type: 'warning',
+                issue: t('dashboard.prediction_offline', { defaultValue: 'Prediction Offline' }),
+                message: t('dashboard.prediction_offline_msg', { defaultValue: 'We are using standard yield estimates for now.' })
+              }]
+            });
+          }
         }
       }
     } catch (error) {
@@ -120,8 +146,8 @@ export default function Dashboard() {
   }
 
   // Parse numeric fields from potentially string DB columns
-  const growthDays = typeof crop.seed.growth_days === 'string' ? parseInt(crop.seed.growth_days) : crop.seed.growth_days;
-  const blackoutDays = typeof crop.seed.blackout_time_days === 'string' ? parseInt(crop.seed.blackout_time_days || '0') : (crop.seed.blackout_time_days || 0);
+  const growthDays = typeof crop.seed?.growth_days === 'string' ? parseInt(crop.seed?.growth_days) : (crop.seed?.growth_days || 10);
+  const blackoutDays = typeof crop.seed?.blackout_time_days === 'string' ? parseInt(crop.seed?.blackout_time_days || '0') : (crop.seed?.blackout_time_days || 0);
 
   // Calculate current day
   const start = new Date(crop.start_datetime);
@@ -134,11 +160,17 @@ export default function Dashboard() {
   const isHarvestDay = currentDay >= growthDays && currentDay > 0;
 
   // Get completed and missed days
-  const loggedDays = logs.map(log => log.day_number);
   const allDaysSoFar = Array.from({ length: Math.min(currentDay, growthDays) }, (_, i) => i + 1);
-  const completedDays = allDaysSoFar.filter(day => loggedDays.includes(day));
-  const missedDays = allDaysSoFar.filter(day => !loggedDays.includes(day) && day < currentDay);
-
+  const completedDays = allDaysSoFar.filter(day => {
+    const log = logs.find(l => l.day_number === day);
+    if (!log) return false;
+    // A day is complete if both misting actions are recorded
+    const hasBothMists = log.actions_recorded?.includes('water_morning') && log.actions_recorded?.includes('water_evening');
+    // For older days or back-logs, we ALSO consider it complete if "watered" is true (fallback)
+    const isBackLogged = day < currentDay || (log.actions_recorded || []).length === 0;
+    return hasBothMists || (isBackLogged && log.watered);
+  });
+  const missedDays = allDaysSoFar.filter(day => !completedDays.includes(day) && day < currentDay);
 
 
   // Determine phase
@@ -162,11 +194,17 @@ export default function Dashboard() {
   };
 
   const handleLogToday = () => {
-    if (loggedDays.includes(currentDay)) {
+    const todayLog = logs.find(l => l.day_number === currentDay);
+    const mist1Done = todayLog?.actions_recorded?.includes('water_morning');
+    const mist2Done = todayLog?.actions_recorded?.includes('water_evening');
+
+    if (mist1Done && mist2Done) {
       alert(t('dashboard.day_logged', { day: currentDay }));
       return;
     }
-    navigate(`/daily-log/${cropId}/${currentDay}`);
+
+    const nextAction = !mist1Done ? 'water_morning' : 'water_evening';
+    navigate(`/daily-log/${cropId}/${currentDay}?actionType=${nextAction}`);
   };
 
   const handleHarvest = () => {
@@ -200,7 +238,7 @@ export default function Dashboard() {
 
           <div className="text-center">
             <h1 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tighter uppercase">
-              {t('dashboard.crop_title', { name: t(`seeds.${crop.seed.seed_type}.name`, { defaultValue: crop.seed.name }) })}
+              {t('dashboard.crop_title', { name: t(`seeds.${crop.seed?.seed_type || 'unknown'}.name`, { defaultValue: crop.seed?.name || 'Unknown Seed' }) })}
             </h1>
             <p className="text-xs font-bold text-emerald-600 dark:text-emerald-500/60 uppercase tracking-[0.3em] mt-2">
               {t('dashboard.started_on')} {format(new Date(crop.start_datetime), 'PPP', { locale: currentLocale })}
@@ -259,18 +297,29 @@ export default function Dashboard() {
                 <div className="flex flex-col items-center gap-4">
                   <button
                     onClick={handleLogToday}
-                    disabled={loggedDays.includes(currentDay)}
-                    className={`flex items-center space-x-3 px-8 py-4 font-bold text-lg rounded-xl shadow-lg transition-all ${loggedDays.includes(currentDay)
+                    disabled={(() => {
+                      const todayLog = logs.find(l => l.day_number === currentDay);
+                      return todayLog?.actions_recorded?.includes('water_morning') && todayLog?.actions_recorded?.includes('water_evening');
+                    })()}
+                    className={`flex items-center space-x-3 px-8 py-4 font-bold text-lg rounded-xl shadow-lg transition-all ${(() => {
+                      const todayLog = logs.find(l => l.day_number === currentDay);
+                      return todayLog?.actions_recorded?.includes('water_morning') && todayLog?.actions_recorded?.includes('water_evening');
+                    })()
                       ? 'bg-gray-400 cursor-not-allowed'
                       : 'bg-green-500 hover:bg-green-600 text-white hover:shadow-xl transform hover:scale-105 shadow-green-100'
                       }`}
                   >
                     <Plus className="w-6 h-6" />
                     <span>
-                      {loggedDays.includes(currentDay)
-                        ? t('dashboard.day_logged', { day: currentDay })
-                        : t('dashboard.log_day', { day: currentDay })
-                      }
+                      {(() => {
+                        const todayLog = logs.find(l => l.day_number === currentDay);
+                        const mist1Done = todayLog?.actions_recorded?.includes('water_morning');
+                        const mist2Done = todayLog?.actions_recorded?.includes('water_evening');
+
+                        if (mist1Done && mist2Done) return t('dashboard.day_complete', { defaultValue: 'Day Complete' });
+                        if (mist1Done) return t('dashboard.log_mist_2', { defaultValue: 'Log Mist 2' });
+                        return t('dashboard.log_mist_1', { defaultValue: 'Log Mist 1' });
+                      })()}
                     </span>
                   </button>
                   <button

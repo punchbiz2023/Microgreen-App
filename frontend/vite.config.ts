@@ -52,6 +52,12 @@ export default defineConfig({
     }
   },
   server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+      }
+    },
     allowedHosts: [
       'uniflorous-darien-bankruptly.ngrok-free.dev',
       'huge-toes-fetch.loca.lt',

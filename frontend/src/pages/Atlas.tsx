@@ -23,10 +23,22 @@ export default function Atlas() {
   const loadSeeds = async () => {
     try {
       const response = await seedsApi.getAll();
-      console.log('API Response:', response);
-      console.log('Seeds Data:', response.data);
-      setSeeds(response.data || []);
-      setError(null);
+      
+      // Robustness check: Ensure we got an array
+      if (response.data && Array.isArray(response.data)) {
+        setSeeds(response.data);
+        setError(null);
+      } else {
+        console.error('API returned non-array data:', response.data);
+        // If it looks like HTML, it's likely a proxy/routing issue
+        const dataStr = String(response.data);
+        if (dataStr.includes('<!doctype html>')) {
+          setError('API Error: Received HTML instead of JSON. Check backend connectivity and proxy settings.');
+        } else {
+          setError('API Error: Received invalid data format from server.');
+        }
+        setSeeds([]);
+      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       console.error('Failed to load seeds:', error);

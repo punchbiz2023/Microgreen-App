@@ -1,106 +1,93 @@
 # 🌱 Microgreens Tracker
 
-An AI-powered Progressive Web App for tracking microgreens cultivation with real-time yield predictions and smart growing suggestions.
+**Microgreens Tracker** is an AI-powered Progressive Web App (PWA) designed to revolutionize small-scale cultivation. Using high-precision yield prediction models and automated sprout detection, it helps growers optimize their harvest cycles with data-driven insights.
 
 ---
 
 ## ✨ Features
 
-- **🧬 Seed Atlas**: Browse and select from over 30 microgreens varieties with difficulty ratings and yield estimates
-- **📊 AI Yield Predictions**: Random Forest + Neural Network ensemble predicting final yield (96%+ accuracy)
-- **📈 Live Timeline**: Visual day-by-day progress tracking with status indicators
-- **🤖 Smart Expert Guide**: Real-time growing recommendations powered by Gemini AI
-- **📸 Smart Plant Counting**: Automatic detection and counting of microgreen sprouts using a fine-tuned DeepForest model
-- **📸 Photo Logging**: Daily photo uploads to track visual progress
-- **🎯 Harvest Analysis**: Detailed comparison of predicted vs actual yields
-- **🔄 Continuous Learning**: Model automatically retrains with each harvest
+- **🧬 Seed Atlas**: Detailed growing specs for 30+ varieties including difficulty, yield, and blackout times.
+- **📊 AI Yield Forecasts**: Dual-model ensemble (Random Forest + Neural Network) predicting weight with 96%+ accuracy.
+- **📸 Sprout Detection**: Automated counting using a fine-tuned DeepForest (RetinaNet) model (requires Git LFS).
+- **🤖 AI Growing Coach**: Context-aware cultivation tips powered by Google Gemini.
+- **🎯 Harvest Analysis**: Compare predicted vs. actual yields to improve future performance.
+- **🔄 Smart Tasks**: Sequential daily maintenance (Mist 1 & Mist 2) with locked workflows.
 
 ---
 
-## 🚀 Quick Start (Docker — Recommended)
+## 🚀 Quick Start
 
-This is the cleanest and most reliable way to run the project in any environment (Local or Codespaces).
+### 1. Prerequisites
+- **Node.js**: v18 or later
+- **Python**: v3.11 or later
+- **Git LFS**: Required for downloading the large sprout detection model (~250MB)
+- **Gemini API Key**: (Optional) For AI cultivation tips (`GEMINI_API_KEY` in `.env`)
 
+### 2. Get the Code & Models
 ```bash
-# 1. Clone the repo
+# Clone the repository
 git clone https://github.com/punchbiz2023/Microgreen-App.git
 cd Microgreen-App
 
-# 2. Build and run all containers
-docker-compose up --build -d
+# CRITICAL: Initialize and download the AI models via Git LFS
+git lfs install
+git lfs pull
 ```
 
-Ports:
-- 🌐 **Frontend** → http://localhost:3000
-- 📡 **Backend API** → http://localhost:8000
-- 📚 **API Docs** → http://localhost:8000/docs/
-
-To stop the app:
+### 3. Backend Setup (AI & API)
 ```bash
-docker-compose down
+cd backend
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python -m uvicorn app.main:app --reload
 ```
+*API will be available at: http://127.0.0.1:8000*
+
+### 4. Frontend Setup (PWA)
+```bash
+cd ../frontend
+npm install
+npm run dev
+```
+*Web app will be available at: http://localhost:5173*
 
 ---
 
-## 🧠 ML Models
+## 🧠 AI & ML Architecture
 
-This project uses two AI models:
+### Sprout Counting (DeepForest)
+The sprout detector uses a specialized computer vision model stored in `ml_engine/models/sprout_model.pl`. 
+- **Requirement**: You MUST have **Git LFS** installed to pull this file.
+- **Usage**: When you upload a photo in the "Smart Count" section, the backend runs this model to detect individual sprouts.
 
-| Model | Purpose | Location |
-|---|---|---|
-| `rf_model.pkl` + `nn_model.h5` | **Yield Prediction** (Random Forest + Neural Network ensemble) | `data/models/` |
-| `sprout_model.pl` | **Sprout Detection** (fine-tuned DeepForest / RetinaNet) | `ml_engine/models/` (Git LFS) |
-
-> **Note**: The yield prediction models (~50MB) are included in the repository. 
-> The sprout detection model (~245MB) is stored via **Git LFS** and is downloaded automatically when you clone the project.
-
----
-
-## 🏗️ Tech Stack
-
-### Frontend
-- React 18 + TypeScript + Tailwind CSS
-- Recharts + Vite + PWA Plugin
-
-### Backend
-- FastAPI (Python 3.11)
-- SQLAlchemy ORM + PostgreSQL
-- Pydantic validation
-
-### ML Engine
-- **Yield Prediction**: scikit-learn (Random Forest) + TensorFlow/Keras (Neural Network)
-- **Sprout Detection**: DeepForest (RetinaNet) + PyTorch Lightning
-- **AI Suggestions**: Google Gemini API
+### Yield Prediction (Ensemble)
+The system uses a combination of `rf_model.pkl` and `nn_model.h5` located in `data/models/`.
+- Predictions are updated in real-time as you log daily tasks.
+- A "Watering Score" is calculated based on your Mist 1 & 2 logs to refine accuracy.
 
 ---
 
-## 📁 Project Structure
+## 🏁 Operational Commands Summary
 
-```
-Microgreen-App/
-├── frontend/               # React PWA
-│   ├── src/
-│   └── Dockerfile
-├── backend/                # FastAPI server
-│   ├── app/
-│   │   ├── main.py         # API endpoints
-│   │   ├── models.py       # Database models
-│   │   └── services/       # ML, AI, counting services
-│   └── Dockerfile
-├── ml_engine/              # ML training + inference
-│   ├── models/             # Sprout detection model (Git LFS)
-│   ├── prediction_service.py
-│   ├── count_sprout.py
-│   └── setup_models.py     # Model setup utility
-├── data/
-│   └── models/             # Yield prediction models (pkl, h5)
-└── docker-compose.yml      # Docker stack (PostgreSQL + Backend + Frontend)
-```
+| Command | Purpose |
+|---|---|
+| `git lfs pull` | Downloads large model files |
+| `npm run build` | Prepare production frontend bundle |
+| `docker-compose up` | Run the entire stack in isolated containers |
+
+---
+
+## 📁 Project Structure highlights
+
+- `/frontend`: React + TypeScript PWA
+- `/backend`: FastAPI server & Model Inference
+- `/ml_engine`: Model training and DeepForest configuration
+- `/data/models`: Serialized yield prediction models
 
 ---
 
 ## 📄 License
+MIT License — See LICENSE for details.
 
-MIT License — See LICENSE file for details
-
-Built with ❤️ for microgreens enthusiasts
+Built for the next generation of urban farmers. 🌿

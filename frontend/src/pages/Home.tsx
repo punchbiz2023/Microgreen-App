@@ -6,7 +6,7 @@ import {
     CheckCircle, Plus, Droplet, Clock,
     ChevronRight, Zap
 } from 'lucide-react';
-import { differenceInDays, format, addHours, isAfter, formatDistanceToNow } from 'date-fns';
+import { differenceInDays, format, isAfter, formatDistanceToNow } from 'date-fns';
 import { ta as taLocale, enUS as enLocale } from 'date-fns/locale';
 import { useAuth } from '../contexts/AuthContext';
 import GrowingLoader from '../components/GrowingLoader';
@@ -45,7 +45,7 @@ export default function Home() {
             currentDay = differenceInDays(now, start) + 1;
         }
 
-        const growthDays = crop.seed.growth_days || 10;
+        const growthDays = crop.seed?.growth_days || 10;
         currentDay = Math.min(currentDay, growthDays);
         const progress = Math.round((Math.max(0, currentDay) / growthDays) * 100);
         return { currentDay, progress };
@@ -64,8 +64,6 @@ export default function Home() {
         const now = new Date();
 
         for (const crop of activeCrops) {
-            const start = new Date(crop.start_datetime);
-            const hoursSinceStart = (now.getTime() - start.getTime()) / (1000 * 60 * 60);
             const { currentDay } = getCropStatus(crop);
             const dailyLogs = crop.daily_logs || [];
 
@@ -84,52 +82,37 @@ export default function Home() {
 
             if (currentDay <= 0) continue; // Skip future crops for actions
 
-            if (hoursSinceStart < 48 && !isActionLogged('sow', currentDay)) {
-                const soakDuration = crop.seed.soaking_duration_hours || 0;
-                
-                if (soakDuration > 0) {
-                    if (!isActionLogged('start_soak', currentDay)) {
-                        actions.push({ id: `${crop.id}-start-soak`, crop, title: t('home.initial_soak'), time: start, type: 'start_soak', completed: false, priority: 'high', day_number: currentDay });
-                    }
-                    if (!isActionLogged('sow', currentDay)) {
-                        const soakEndTime = addHours(start, soakDuration);
-                        actions.push({ id: `${crop.id}-sow`, crop, title: t('home.sow_to_tray'), time: soakEndTime, type: 'sow', completed: false, priority: 'high', day_number: currentDay });
-                    }
-                } else {
-                    // No soak needed (e.g. Chia)
-                    if (!isActionLogged('sow', currentDay)) {
-                        actions.push({ id: `${crop.id}-sow`, crop, title: t('home.sow_to_tray'), time: start, type: 'sow', completed: false, priority: 'high', day_number: currentDay });
-                    }
-                }
-            } else {
-                // Only show today's actions on the Home page feed
-                const morningTime = new Date(); morningTime.setHours(8, 0, 0, 0);
-                const eveningTime = new Date(); eveningTime.setHours(18, 0, 0, 0);
+            // Always show today's misting actions
+            const morningTime = new Date(); morningTime.setHours(8, 0, 0, 0);
+            const eveningTime = new Date(); eveningTime.setHours(18, 0, 0, 0);
 
-                if (!isActionLogged('water_morning', currentDay)) {
-                    actions.push({
-                        id: `${crop.id}-today-water-am`,
-                        crop,
-                        title: t('home.morning_mist'),
-                        time: morningTime,
-                        type: 'water_morning',
-                        completed: false,
-                        priority: 'medium',
-                        day_number: currentDay
-                    });
-                }
-                if (!isActionLogged('water_evening', currentDay) && now.getHours() >= 14) {
-                    actions.push({
-                        id: `${crop.id}-today-water-pm`,
-                        crop,
-                        title: t('home.evening_mist'),
-                        time: eveningTime,
-                        type: 'water_evening',
-                        completed: false,
-                        priority: 'medium',
-                        day_number: currentDay
-                    });
-                }
+            const mist1Done = isActionLogged('water_morning', currentDay);
+
+            if (!mist1Done) {
+                actions.push({
+                    id: `${crop.id}-today-water-am`,
+                    crop,
+                    title: t('home.mist_1', { defaultValue: 'Mist 1 (Morning)' }),
+                    time: morningTime,
+                    type: 'water_morning',
+                    completed: false,
+                    priority: 'medium',
+                    day_number: currentDay
+                });
+            }
+
+            // Mist 2 is locked until Mist 1 is done
+            if (mist1Done && !isActionLogged('water_evening', currentDay)) {
+                actions.push({
+                    id: `${crop.id}-today-water-pm`,
+                    crop,
+                    title: t('home.mist_2', { defaultValue: 'Mist 2 (Evening)' }),
+                    time: eveningTime,
+                    type: 'water_evening',
+                    completed: false,
+                    priority: 'medium',
+                    day_number: currentDay
+                });
             }
         }
 
@@ -203,9 +186,9 @@ export default function Home() {
                                                             )}
                                                         </div>
                                                         <div className="flex flex-wrap items-center text-[12px] font-bold text-gray-500 dark:text-gray-400 space-x-3">
-                                                            <span className="text-emerald-500 dark:text-emerald-400 font-extrabold uppercase tracking-wide">{action.crop.seed.name}</span>
+                                                            <span className="text-emerald-500 dark:text-emerald-400 font-extrabold uppercase tracking-wide">{action.crop.seed?.name || 'Unknown Seed'}</span>
                                                             <span className="bg-gray-100 dark:bg-white/5 px-2.5 py-1 rounded-lg">
-                                                                Day {action.day_number} of {action.crop.seed.growth_days || 10}
+                                                                Day {action.day_number} of {action.crop.seed?.growth_days || 10}
                                                             </span>
                                                             <span className="flex items-center opacity-70">
                                                                 <Clock size={14} className="mr-1" />

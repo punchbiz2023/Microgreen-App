@@ -561,11 +561,20 @@ async def log_action(
         for d in range(1, day_number + 1):
             if d in logs_by_day:
                 l = logs_by_day[d]
+                mist_1 = 'water_morning' in l.actions_recorded
+                mist_2 = 'water_evening' in l.actions_recorded
+                # Full water = 1.0, Partial = 0.5, None = 0.0
+                watered_score = 1.0 if (mist_1 and mist_2) else (0.5 if (mist_1 or mist_2) else 0.0)
+                
+                # If it's a non-misting action day (like sowing), we should ensure it's not unfairly penalized if watered was manually toggled
+                if l.watered and watered_score < 0.5:
+                    watered_score = 1.0
+
                 daily_logs_data.append({
                     'day': d,
                     'temperature': l.temperature if l.temperature is not None else seed.ideal_temp,
                     'humidity': l.humidity if l.humidity is not None else seed.ideal_humidity,
-                    'watered': l.watered
+                    'watered': watered_score
                 })
             else:
                 # MISSED DAY: Fill with default temp/hum but watered=False
@@ -698,11 +707,18 @@ async def create_daily_log(
     for d in range(1, daily_log.day_number + 1):
         if d in logs_by_day:
             l = logs_by_day[d]
+            mist_1 = 'water_morning' in (l.actions_recorded or [])
+            mist_2 = 'water_evening' in (l.actions_recorded or [])
+            watered_score = 1.0 if (mist_1 and mist_2) else (0.5 if (mist_1 or mist_2) else 0.0)
+            
+            if l.watered and watered_score < 0.5:
+                watered_score = 1.0
+
             logs_data.append({
                 'day': d,
                 'temperature': l.temperature if l.temperature else seed.ideal_temp,
                 'humidity': l.humidity if l.humidity else seed.ideal_humidity,
-                'watered': l.watered
+                'watered': watered_score
             })
         else:
             logs_data.append({
@@ -781,11 +797,18 @@ async def get_prediction(crop_id: int, db: Session = Depends(get_db)):
     for d in range(1, current_day + 1):
         if d in logs_by_day:
             l = logs_by_day[d]
+            mist_1 = 'water_morning' in (l.actions_recorded or [])
+            mist_2 = 'water_evening' in (l.actions_recorded or [])
+            watered_score = 1.0 if (mist_1 and mist_2) else (0.5 if (mist_1 or mist_2) else 0.0)
+            
+            if l.watered and watered_score < 0.5:
+                watered_score = 1.0
+
             daily_logs.append({
                 'day': d,
                 'temperature': l.temperature if l.temperature is not None else crop.seed.ideal_temp,
                 'humidity': l.humidity if l.humidity is not None else crop.seed.ideal_humidity,
-                'watered': l.watered
+                'watered': watered_score
             })
         else:
             # IMPROVEMENT: If it's the current day and hasn't been logged yet,
@@ -798,7 +821,18 @@ async def get_prediction(crop_id: int, db: Session = Depends(get_db)):
                 'watered': True if is_today else False
             })
         
-    prediction = ml_service.predict_yield(seed_config, daily_logs)
+    try:
+        prediction = ml_service.predict_yield(seed_config, daily_logs)
+    except Exception as e:
+        print(f"Prediction failed: {e}")
+        prediction = {
+            'predicted_yield': crop.seed.avg_yield_grams if crop.seed.avg_yield_grams else 500,
+            'base_yield': crop.seed.avg_yield_grams if crop.seed.avg_yield_grams else 500,
+            'yield_efficiency': 100,
+            'status': 'neutral',
+            'potential_loss': 0,
+            'suggestions': []
+        }
     if crop.number_of_trays > 1:
         prediction['predicted_yield'] *= crop.number_of_trays
         if 'base_yield' in prediction:

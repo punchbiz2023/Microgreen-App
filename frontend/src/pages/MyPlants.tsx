@@ -40,7 +40,7 @@ export default function MyPlants() {
             currentDay = differenceInDays(now, start) + 1;
         }
 
-        const growthDays = crop.seed.growth_days || 10;
+        const growthDays = crop.seed?.growth_days || 10;
         currentDay = Math.min(currentDay, growthDays);
         const progress = Math.round((Math.max(0, currentDay) / growthDays) * 100);
         return { currentDay, progress };
@@ -99,10 +99,10 @@ export default function MyPlants() {
                                 </button>
 
                                 <div className="h-40 relative">
-                                    <PlantImage seedName={crop.seed.name} className="w-full h-full object-cover" />
+                                    <PlantImage seedName={crop.seed?.name || 'Unknown'} className="w-full h-full object-cover" />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-4">
                                         <div>
-                                            <h3 className="font-bold text-white text-xl shadow-sm">{t(`seeds.${crop.seed.seed_type}.name`, { defaultValue: crop.seed.name })}</h3>
+                                            <h3 className="font-bold text-white text-xl shadow-sm">{t(`seeds.${crop.seed?.seed_type || 'unknown'}.name`, { defaultValue: crop.seed?.name || 'Unknown Seed' })}</h3>
                                             <p className="text-white/90 text-xs font-medium">{t('my_plants.started')} {format(new Date(crop.start_datetime), 'MMM d', { locale: currentLocale })}</p>
                                         </div>
                                     </div>
@@ -162,7 +162,7 @@ export default function MyPlants() {
                         </div>
                         <h3 className="text-2xl font-black text-gray-900 dark:text-white text-center mb-2 tracking-tight">Delete Crop?</h3>
                         <p className="text-gray-500 dark:text-gray-400 text-center mb-10 text-sm leading-relaxed font-medium">
-                            {t('my_plants.delete_warning', { name: t(`seeds.${deletingCrop.seed.seed_type}.name`, { defaultValue: deletingCrop.seed.name }) })}
+                            {t('my_plants.delete_warning', { name: t(`seeds.${deletingCrop.seed?.seed_type || 'unknown'}.name`, { defaultValue: deletingCrop.seed?.name || 'Unknown Seed' }) })}
                         </p>
                         <div className="grid grid-cols-2 gap-4">
                             <button

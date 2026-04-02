@@ -345,10 +345,12 @@ def create_default_user(db: Session):
 
     existing_user = db.query(User).filter(User.username == 'default').first()
     if existing_user:
+        if not existing_user.email:
+             existing_user.email = "user@microgreens.app"
         if not existing_user.hashed_password:
              existing_user.hashed_password = get_password_hash("secret")
              existing_user.role = "admin" 
-             db.commit()
+        db.commit()
         return existing_user
     
     # Try finding ANY admin
