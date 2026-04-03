@@ -22,6 +22,21 @@
 - **Python**: v3.11 or later
 - **Git LFS**: Required for downloading the large sprout detection model (~250MB)
 - **Gemini API Key**: (Optional) For AI cultivation tips (`GEMINI_API_KEY` in `.env`)
+- **OpenGL Library** (Linux/WSL only): Required for sprout detection model
+
+#### Linux/WSL: Install OpenGL Library
+The sprout detection model (DeepForest) requires OpenGL. Install it with:
+```bash
+# Ubuntu/Debian
+sudo apt-get install -y libgl1
+
+# RHEL/CentOS/Fedora
+sudo dnf install -y libGL
+
+# Alpine
+apk add --no-cache libglu
+```
+**Error if missing**: `libGL.so.1: cannot open shared object file: No such file or directory`
 
 ### 2. Get the Code & Models
 ```bash
@@ -51,6 +66,32 @@ npm install
 npm run dev
 ```
 *Web app will be available at: http://localhost:5173*
+
+### 5. Run the whole app locally (no Docker)
+Use this if you want a single command flow for local development:
+```bash
+# From repo root
+cd /workspaces/Microgreen-App
+
+# 1) Prepare backend
+cd backend
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000 &
+
+# 2) Prepare frontend
+cd ../frontend
+npm install
+npm run dev -- --host 0.0.0.0 --port 5173 &
+
+# 3) Confirm
+curl -I http://127.0.0.1:8000
+curl -I http://127.0.0.1:5173
+```
+
+*Backend API:* http://127.0.0.1:8000
+*Frontend UI:* http://localhost:5173
 
 ---
 
